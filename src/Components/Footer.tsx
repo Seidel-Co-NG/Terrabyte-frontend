@@ -2,7 +2,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-900 text-white pt-16 pb-10 px-6 sm:px-10 lg:px-20">
+       <footer className="bg-black text-white pt-16 pb-10 px-6 sm:px-10 lg:px-20">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 sm:grid-cols-2 gap-12">
         {/* Call to Action */}
         <div className="md:col-span-2">
