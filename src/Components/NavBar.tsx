@@ -1,10 +1,16 @@
-
+import Logo from '../assets/logo2.png'
 
 const Navbar = () => {
   return (
     <nav className="w-full flex items-center justify-between px-6 py-4 bg-white shadow-sm sticky top-0 z-50">
       {/* Logo */}
-      <div className="text-3xl font-bold text-blue-900">Terrabyte</div>
+           <div>
+        <img
+          src={Logo}
+          alt="Terrabyte Logo"
+          className="w-20 "
+        />
+      </div>
 
       {/* Nav Links */}
       <ul className="hidden md:flex gap-8 text-gray-600 font-medium">

@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Twitter } from 'lucide-react';
-import slider from '../assets/slider-img.png'
+import TerrabyteImage from '../assets/terrabyte2.png'
 
 
 
@@ -71,9 +71,9 @@ export default function HeroSection() {
           {/* RIGHT IMAGE MOCKUP */}
           <div className="relative hidden sm:flex justify-center items-center w-full h-full">
             <img
-              src={slider}
+              src={TerrabyteImage}
               alt="Terrabyte Preview"
-              className="w-full max-w-sm h-[520px] object-cover rounded-xl"
+              className=" max-w-sm h-[520px] object-cover rounded-xl"
             />
 
             {/* Floating Icons */}

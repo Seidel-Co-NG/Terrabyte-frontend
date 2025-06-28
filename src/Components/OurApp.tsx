@@ -1,7 +1,6 @@
 import { ShieldCheck, Clock3, Contact, } from "lucide-react";
 import { motion } from "framer-motion";
-import Card from '../assets/card.png'
-import Data from '../assets/data.png'
+import Terrabyte from '../assets/terrabyte.jpg'
 
 export default function AboutUsSection() {
   return (
@@ -65,7 +64,7 @@ export default function AboutUsSection() {
     className="z-10 translate-y-[-20px]"
   >
     <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
-      <img src={Card} alt="Phone Mockup" className="w-full h-full object-cover" />
+      <img src={Terrabyte} alt="Phone Mockup" className="w-full h-full object-cover" />
     </div>
   </motion.div>
 
@@ -77,7 +76,7 @@ export default function AboutUsSection() {
     className="absolute right-[-60px] bottom-[-10px] z-0"
   >
     <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
-      <img src={Data} alt="Phone Mockup" className="w-full h-full object-cover" />
+      <img src={Terrabyte} alt="Phone Mockup" className="w-full h-full object-cover" />
     </div>
   </motion.div>
 
