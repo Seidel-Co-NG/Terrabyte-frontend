@@ -10,7 +10,8 @@ export default function ContactSection() {
             Contact Us
           </h2>
           <p className="text-gray-600 text-base mb-10">
-            We'd love to hear from you. Whether it’s a question, suggestion, or support — reach out and our team will respond quickly.
+            We'd love to hear from you. Whether it’s a question, suggestion, or
+            support — reach out and our team will respond quickly.
           </p>
 
           <div className="space-y-6">
@@ -34,7 +35,7 @@ export default function ContactSection() {
               <Phone className="text-blue-900 w-6 h-6 mt-1" />
               <div>
                 <h4 className="font-semibold text-gray-800">Call Us</h4>
-                <p className="text-sm text-gray-600">+234 705 322 2624</p>
+                <p className="text-sm text-gray-600">+234 7049780419</p>
               </div>
             </div>
           </div>
@@ -43,7 +44,9 @@ export default function ContactSection() {
         {/* Right: Contact Form */}
         <div className="w-full flex justify-center">
           <div className="w-full max-w-md rounded-2xl bg-blue-50 p-6 sm:p-8">
-            <h3 className="text-xl font-semibold text-blue-900 mb-4">Send us a Message</h3>
+            <h3 className="text-xl font-semibold text-blue-900 mb-4">
+              Send us a Message
+            </h3>
             <form className="space-y-4">
               <input
                 type="text"
@@ -73,4 +76,3 @@ export default function ContactSection() {
     </section>
   );
 }
-
