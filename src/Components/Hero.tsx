@@ -43,16 +43,9 @@ export default function HeroSection() {
             </p>
 
             {/* CTA Input */}
-            <div className="flex items-center max-w-md w-full rounded-full border border-black bg-white/5 backdrop-blur-lg shadow-md overflow-hidden">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-[60%] px-4 py-3 text-sm text-black placeholder-gray-400 bg-transparent outline-none"
-              />
-              <button className="w-[40%] bg-blue-900 text-white text-sm font-semibold py-3 rounded-full hover:bg-blue-800 transition-all duration-300">
+           <button className="w-[100%] bg-blue-900 text-white text-sm font-semibold py-3 rounded-full hover:bg-blue-800 transition-all duration-300">
                 Get Started
               </button>
-            </div>
 
             {/* Social Icons */}
             <div className="flex items-center space-x-4 pt-4">

@@ -48,55 +48,55 @@ export default function AboutUsSection() {
         </motion.div>
 
         {/* RIGHT PHONE MOCKUPS */}
-<motion.div
-  initial={{ opacity: 0, x: 60 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.9 }}
-  className="relative flex flex-col items-center h-[550px]"
->
-  {/* Glow */}
-  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-blue-400 opacity-30 blur-3xl z-0" />
+        <motion.div
+          initial={{ opacity: 0, x: 60 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9 }}
+          className="relative flex flex-col items-center h-[550px]"
+        >
+          {/* Glow */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-blue-400 opacity-30 blur-3xl z-0" />
 
-  {/* Phone 1 */}
-  <motion.div
-    initial={{ scale: 0.95, y: 20 }}
-    animate={{ scale: 1, y: 0 }}
-    transition={{ duration: 0.8 }}
-    className="z-10 translate-y-[-20px]"
-  >
-    <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
-      <img src={Terrabyte} alt="Phone Mockup" className="w-full h-full object-cover" />
-    </div>
-  </motion.div>
+          {/* Phone 1 */}
+          <motion.div
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="z-10 translate-y-[-20px]"
+          >
+            <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
+              <img src={Terrabyte} alt="Phone Mockup" className="w-full h-full object-cover" />
+            </div>
+          </motion.div>
 
-  {/* Phone 2 */}
-  <motion.div
-    initial={{ scale: 0.8, y: 40 }}
-    animate={{ scale: 1, y: 0 }}
-    transition={{ duration: 0.9, delay: 0.2 }}
-    className="absolute right-[-60px] bottom-[-10px] z-0"
-  >
-    <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
-      <img src={Airtime} alt="Phone Mockup" className="w-full h-full object-cover" />
-    </div>
-  </motion.div>
+          {/* Phone 2 */}
+          <motion.div
+            initial={{ scale: 0.8, y: 40 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="absolute right-[-60px] bottom-[-10px] z-0 hidden lg:flex"
+          >
+            <div className="w-48 h-[380px] rounded-[1.8rem] overflow-hidden">
+              <img src={Airtime} alt="Phone Mockup" className="w-full h-full object-cover" />
+            </div>
+          </motion.div>
 
-  {/* 📊 STATS BLOCK under phones */}
-  <div className="mt-16 flex items-center space-x-8 z-10">
-    <div className="text-center">
-      <div className="text-2xl font-bold text-gray-900">2.4k+</div>
-      <div className="text-sm text-gray-600">Active Users</div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-bold text-gray-900">500+</div>
-      <div className="text-sm text-gray-600">Clients Satisfaction</div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-bold text-gray-900">2.5k+</div>
-      <div className="text-sm text-gray-600">Happy User</div>
-    </div>
-  </div>
-</motion.div>
+          {/* 📊 STATS BLOCK under phones */}
+          <div className="mt-16 flex items-center space-x-8 z-10">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">2.4k+</div>
+              <div className="text-sm text-gray-600">Active Users</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">500+</div>
+              <div className="text-sm text-gray-600">Clients Satisfaction</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">2.5k+</div>
+              <div className="text-sm text-gray-600">Happy User</div>
+            </div>
+          </div>
+        </motion.div>
 
 
       </div>

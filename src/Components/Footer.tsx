@@ -49,7 +49,7 @@ const Footer = () => {
           © {new Date().getFullYear()} <strong>TERRABYTE</strong>. All Rights Reserved.
         </p>
         <p className="text-xs text-blue-100 text-center">
-          Designed by <a href="https://" className="underline hover:text-white">Snow Dev</a>
+          {/* Developed by <a href="https://" className="underline hover:text-white">Pheebz-Dev Technology</a> */}
         </p>
 
         {/* Socials */}
