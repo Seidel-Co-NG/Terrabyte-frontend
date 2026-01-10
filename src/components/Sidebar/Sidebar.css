@@ -1,0 +1,282 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-logo {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.sidebar-close-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.logo-placeholder {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.sidebar-search {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-hover);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.nav-section {
+  margin-bottom: 2rem;
+}
+
+.nav-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 0 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin: 0.25rem 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active .nav-link {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.nav-link-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.nav-item-icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  opacity: 0.8;
+}
+
+.nav-item.active .nav-item-icon {
+  opacity: 1;
+  color: #ffffff !important;
+}
+
+.nav-item-text {
+  flex: 1;
+}
+
+.nav-item.active .nav-item-text {
+  color: #ffffff !important;
+}
+
+.nav-chevron {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  transition: transform 0.3s ease, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-item.active .nav-chevron {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.nav-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.nav-item.expanded .nav-link {
+  color: var(--text-primary);
+}
+
+.nav-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: 2.5rem;
+  margin-top: 0.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+}
+
+.nav-submenu.open {
+  max-height: 500px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.nav-submenu li {
+  margin: 0.25rem 0;
+}
+
+.nav-submenu li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.nav-submenu li a:hover {
+  color: var(--accent-primary);
+  background-color: var(--accent-hover);
+  padding-left: 1.25rem;
+}
+
+.nav-submenu .nav-item-icon {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 260px;
+  }
+
+  .sidebar-logo {
+    padding: 1.25rem;
+  }
+
+  .sidebar-search {
+    padding: 0.75rem 1.25rem;
+  }
+
+  .nav-link {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .nav-item-icon {
+    font-size: 1rem;
+  }
+
+  .nav-submenu {
+    padding-left: 2rem;
+  }
+
+  .nav-submenu li a {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .nav-section-title {
+    padding: 0 1.25rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
