@@ -1,10 +1,10 @@
-import RecentTransactions from './RecentTransactions/RecentTransactions';
-import WalletBalance from './WalletBalance/WalletBalance';
-import ReferralList from './ReferralList/ReferralList';
-import RecentActivity from './RecentActivity/RecentActivity';
-import ServicesCard from './ServicesCard/ServicesCard';
-import Marquee from './Marquee/Marquee';
-import WelcomeHeader from './WelcomeHeader/WelcomeHeader';
+import WelcomeHeader from "./WelcomeHeader/WelcomeHeader";
+import Marquee from "./Marquee/Marquee";
+import WalletBalance from "./WalletBalance/WalletBalance";
+import ServicesCard from "./ServicesCard/ServicesCard";
+import RecentTransactions from "./RecentTransactions/RecentTransactions";
+import ReferralList from "./ReferralList/ReferralList";
+import RecentActivity from "./RecentActivity/RecentActivity";
 import './Dashboard.css';
 
 const Dashboard = () => {
