@@ -1,12 +1,12 @@
-import Features from "../Components/Features";
-import Hero from "../Components/Hero";
-import HowItWorks from "../Components/HowItWork";
-import Navbar from "../Components/NavBar";
-import OurApp from "../Components/OurApp";
-import OurGoalsSection from "../Components/OurGoals";
-import Action from "../Components/Action";
-import ContactSection from "../Components/ContactUs";
-import Footer from "../Components/Footer";
+import Navbar from "../components/Landingpage/NavBar";
+import Hero from "../components/Landingpage/Hero";
+import Features from "../components/Landingpage/Features";
+import HowItWorks from "../components/Landingpage/HowItWork";
+import OurApp from "../components/Landingpage/OurApp";
+import OurGoalsSection from "../components/Landingpage/OurGoals";
+import Action from "../components/Landingpage/Action";
+import ContactSection from "../components/Landingpage/ContactUs";
+import Footer from "../components/Landingpage/Footer";
 
 
 const LandingPage = () => {

@@ -1,0 +1,169 @@
+.browser-statistics {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.widget-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.browsers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  overflow-y: auto;
+}
+
+.browser-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.browser-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.browser-icon {
+  flex-shrink: 0;
+}
+
+.browser-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.browser-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.browser-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.browser-company {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.25rem;
+}
+
+.browser-sales {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.browser-progress {
+  flex-shrink: 0;
+}
+
+.progress-circle-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.progress-circle {
+  transform: rotate(-90deg);
+}
+
+.progress-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .browser-statistics {
+    padding: 1.25rem;
+  }
+
+  .browser-item {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .browser-placeholder {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .browser-name {
+    font-size: 0.9rem;
+  }
+
+  .browser-company {
+    font-size: 0.75rem;
+  }
+
+  .browser-sales {
+    font-size: 0.8rem;
+  }
+
+  .progress-circle-container {
+    width: 50px;
+    height: 50px;
+  }
+
+  .progress-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .progress-percentage {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .browser-statistics {
+    padding: 1rem;
+  }
+
+  .browser-item {
+    flex-wrap: wrap;
+  }
+
+  .browser-progress {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+

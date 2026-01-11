@@ -1,20 +1,18 @@
-.app {
-  width: 100%;
+.dashboard-layout {
+  position: relative;
   min-height: 100vh;
   background-color: var(--bg-primary);
-  color: var(--text-primary);
-  position: relative;
 }
 
 .sidebar-overlay {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 998;
+  display: none;
 }
 
 @media (max-width: 1024px) {
@@ -23,6 +21,3 @@
   }
 }
 
-* {
-  box-sizing: border-box;
-}
