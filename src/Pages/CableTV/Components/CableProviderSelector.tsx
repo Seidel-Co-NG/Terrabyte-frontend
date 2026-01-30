@@ -1,4 +1,9 @@
-import { FiTv } from 'react-icons/fi';
+const CABLE_PROVIDER_LOGOS: Record<string, string> = {
+  GOTV: '/img/gotv.png',
+  DSTV: '/img/dstv.png',
+  STARTIMES: '/img/startimes.png',
+  SHOWMAX: '/img/showmax.png',
+};
 
 const CABLE_PROVIDERS = [
   { name: 'GOTV', code: 'GOTV' },
@@ -32,8 +37,12 @@ const CableProviderSelector = ({ selectedProvider, onSelect }: CableProviderSele
                   : 'bg-[var(--bg-tertiary)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
                 }`}
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-card)] flex items-center justify-center mb-1.5 sm:mb-2 shrink-0 text-[var(--accent-primary)]">
-                <FiTv className="w-4 h-4 sm:w-5 sm:h-5" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-card)] flex items-center justify-center overflow-hidden mb-1.5 sm:mb-2 shrink-0 p-0.5">
+                <img
+                  src={CABLE_PROVIDER_LOGOS[provider.name]}
+                  alt={provider.name}
+                  className="w-full h-full object-contain rounded-full"
+                />
               </div>
               <span
                 className={`text-[10px] sm:text-xs font-semibold truncate max-w-full px-0.5 ${
