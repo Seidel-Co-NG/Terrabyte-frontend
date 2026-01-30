@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiX,
   FiLayout,
@@ -9,7 +9,6 @@ import {
   FiUser,
   FiCreditCard,
   FiRefreshCw,
-  FiArrowRight,
   FiDatabase,
   FiPhone,
   FiZap,
@@ -21,8 +20,11 @@ import {
   FiKey,
   FiChevronDown,
   FiLogOut,
+  FiTag,
+  FiBell,
 } from 'react-icons/fi';
 import logo from './../assets/logo2.png';
+import LogoutModal from './LogoutModal';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -41,12 +43,20 @@ interface MenuItem {
   active?: boolean;
   link?: string;
   subItems?: SubItem[];
+  isLogout?: boolean;
 }
 
 const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogoutConfirm = () => {
+    setLogoutModalOpen(false);
+    onClose?.();
+    navigate('/login');
+  };
 
   const mainMenuItems: MenuItem[] = [
     { name: 'Dashboards', icon: <FiLayout />, link: '/dashboard' },
@@ -54,10 +64,10 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
       name: 'Fund Wallet',
       icon: <FiDollarSign />,
       subItems: [
-        { name: 'Atm Payment(Paystack)', icon: <FiCreditCard /> },
-        { name: 'Atm Payment(Monnify)', icon: <FiCreditCard /> },
-        { name: 'Auto Bank', icon: <FiRefreshCw /> },
-        { name: 'Bank Transfer', icon: <FiArrowRight /> },
+        { name: 'Monnify ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/monnify' },
+        { name: 'Paystack ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/paystack' },
+        { name: 'Automated Bank Transfer', icon: <FiRefreshCw />, link: '/dashboard/fund-wallet/automated-transfer' },
+        { name: 'Coupon', icon: <FiTag />, link: '/dashboard/fund-wallet/coupon' },
       ],
     },
     {
@@ -77,8 +87,9 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
       ],
     },
     { name: 'Transactions', icon: <FiList />, link: '/dashboard/transactions' },
+    { name: 'Notifications', icon: <FiBell />, link: '/dashboard/notifications' },
     { name: 'Profile', icon: <FiUser />, link: '/dashboard/profile' },
-    { name: 'Logout', icon: <FiLogOut /> },
+    { name: 'Logout', icon: <FiLogOut />, isLogout: true },
   ];
 
   const toggleSubmenu = (itemName: string) => {
@@ -98,11 +109,12 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     const hasSubItems = item.subItems && item.subItems.length > 0;
     const isDashboardActive = item.link === '/dashboard' && location.pathname === '/dashboard';
     const isProfileActive = item.link === '/dashboard/profile' && location.pathname.startsWith('/dashboard/profile');
-    const isActive = item.link && (location.pathname === item.link || isProfileActive);
+    const isNotificationsActive = item.link === '/dashboard/notifications' && location.pathname.startsWith('/dashboard/notifications');
+    const isActive = item.link && (location.pathname === item.link || isProfileActive || isNotificationsActive);
 
-    const linkClass = `flex items-center justify-between px-6 py-3 text-[var(--text-secondary)] no-underline transition-all text-sm cursor-pointer rounded-none
+    const linkClass = `flex items-center justify-between px-6 py-3 text-[var(--text-secondary)] no-underline transition-all text-sm font-semibold cursor-pointer rounded-none
       hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]
-      ${isDashboardActive || isActive ? 'bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white font-medium' : ''}
+      ${isDashboardActive || isActive ? 'bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white font-semibold' : ''}
       ${isExpanded ? 'text-[var(--text-primary)]' : ''}`;
 
     return (
@@ -128,6 +140,17 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
               <span className="flex-1">{item.name}</span>
             </span>
           </Link>
+        ) : item.isLogout ? (
+          <button
+            type="button"
+            className={`w-full text-left ${linkClass}`}
+            onClick={() => setLogoutModalOpen(true)}
+          >
+            <span className="flex items-center gap-3 flex-1">
+              <span className="text-lg flex items-center justify-center min-w-[20px] opacity-80">{item.icon}</span>
+              <span className="flex-1">{item.name}</span>
+            </span>
+          </button>
         ) : (
           <span className={linkClass}>
             <span className="flex items-center gap-3 flex-1">
@@ -144,8 +167,8 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
           >
             {item.subItems.map((subItem, subIndex) => {
               const isSubActive = subItem.link && location.pathname === subItem.link;
-              const subClass = `flex items-center gap-3 py-2 px-4 text-sm no-underline transition-all rounded-md w-full text-left
-                ${isSubActive ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-medium' : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'}`;
+              const subClass = `flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left
+                ${isSubActive ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold' : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'}`;
               return (
                 <li key={subIndex} className="my-1">
                   {subItem.link ? (
@@ -196,6 +219,12 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
           </ul>
         </div>
       </nav>
+
+      <LogoutModal
+        isOpen={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </aside>
   );
 };

@@ -28,6 +28,15 @@ import BiometricSettings from './Pages/Profile/BiometricSettings';
 import ReferralBonus from './Pages/Profile/ReferralBonus';
 import Support from './Pages/Profile/Support';
 import UserLimit from './Pages/Profile/UserLimit';
+import Transactions from './Pages/Transactions/Transactions';
+import TransactionDetails from './Pages/Transactions/TransactionDetails';
+import Notifications from './Pages/Notifications/Notifications';
+import NotificationDetails from './Pages/Notifications/NotificationDetails';
+import FundWallet from './Pages/FundWallet/FundWallet';
+import MonnifyFunding from './Pages/FundWallet/MonnifyFunding';
+import PaystackFunding from './Pages/FundWallet/PaystackFunding';
+import AutomatedBankTransfer from './Pages/FundWallet/AutomatedBankTransfer';
+import CouponFunding from './Pages/FundWallet/CouponFunding';
 
 function App() {
   return (
@@ -63,6 +72,15 @@ function App() {
               <Route path="profile/referral-bonus" element={<ReferralBonus />} />
               <Route path="profile/support" element={<Support />} />
               <Route path="profile/user-limit" element={<UserLimit />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="transactions/:id" element={<TransactionDetails />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="notifications/:id" element={<NotificationDetails />} />
+              <Route path="fund-wallet" element={<FundWallet />} />
+              <Route path="fund-wallet/monnify" element={<MonnifyFunding />} />
+              <Route path="fund-wallet/paystack" element={<PaystackFunding />} />
+              <Route path="fund-wallet/automated-transfer" element={<AutomatedBankTransfer />} />
+              <Route path="fund-wallet/coupon" element={<CouponFunding />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
