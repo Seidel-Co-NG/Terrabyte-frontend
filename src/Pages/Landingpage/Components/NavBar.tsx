@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import Logo from '../../assets/logo2.png'
+import { useTheme } from '../../../contexts/ThemeContext';
+import Logo from '../../../assets/logo2.png'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,12 +47,12 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button className="px-3 md:px-4 lg:px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-lightest transition-colors whitespace-nowrap">
+          <Link to="/welcome" className="px-3 md:px-4 lg:px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-lightest transition-colors whitespace-nowrap">
             Sign in
-          </button>
-          <button className="px-3 md:px-4 lg:px-6 py-2 bg-brand-primary text-white rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-dark transition-colors whitespace-nowrap">
+          </Link>
+          <Link to="/signup" className="px-3 md:px-4 lg:px-6 py-2 bg-brand-primary text-white rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-dark transition-colors whitespace-nowrap">
             Sign up
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -71,12 +72,12 @@ const Navbar = () => {
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
               </button>
-              <button className="px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-sm font-medium hover:bg-brand-primary-lightest transition-colors">
+              <Link to="/welcome" className="px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-sm font-medium hover:bg-brand-primary-lightest transition-colors text-center" onClick={() => setIsMenuOpen(false)}>
                 Sign in
-              </button>
-              <button className="px-6 py-2 bg-brand-primary text-white rounded-full text-sm font-medium hover:bg-brand-primary-dark transition-colors">
+              </Link>
+              <Link to="/signup" className="px-6 py-2 bg-brand-primary text-white rounded-full text-sm font-medium hover:bg-brand-primary-dark transition-colors text-center" onClick={() => setIsMenuOpen(false)}>
                 Sign up
-              </button>
+              </Link>
             </div>
           </ul>
         </div>

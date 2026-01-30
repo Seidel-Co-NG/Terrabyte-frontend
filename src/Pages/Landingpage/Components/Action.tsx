@@ -1,5 +1,5 @@
 import React from 'react';
-import Mac from '../../assets/Mac.png'
+import Mac from '../../../assets/mac.png'
 
 const Action: React.FC = () => {
   return (

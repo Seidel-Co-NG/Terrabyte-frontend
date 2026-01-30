@@ -18,7 +18,7 @@ export default function TermsPrivacy() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 filter blur-[0.5px]">
               Terrabyte — Legal Center
             </h1>
-            <p className="text-sm text-gray-600 mt-1">Terms of Use & Privacy Policy — separated & styled in glass panels</p>
+            <p className="text-sm text-gray-600 mt-1">Terms of Use & Privacy Policy</p>
           </div>
 
           <nav className="space-x-2">
