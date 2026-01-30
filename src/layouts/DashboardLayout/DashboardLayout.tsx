@@ -1,36 +1,34 @@
 import { useState, useEffect } from 'react';
-import Sidebar from '../../components/Sidebar/Sidebar';
-import Header from '../../components/Header/Header';
-import Dashboard from '../../components/Dashboard/Dashboard';
-import './DashboardLayout.css';
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../../Components/Sidebar';
+import Header from '../../Components/Header';
 
 const DashboardLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    // Default to open on desktop, closed on mobile
-    return window.innerWidth > 1024;
-  });
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 1024);
 
   useEffect(() => {
     const handleResize = () => {
-      // Auto-open sidebar on desktop, keep state on mobile
       if (window.innerWidth > 1024) {
         setSidebarOpen(true);
       }
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <div className="dashboard-layout">
+    <div className="relative min-h-screen bg-[var(--bg-primary)]">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-      <Dashboard />
+      <Outlet />
       {sidebarOpen && (
-        <div 
-          className="sidebar-overlay" 
+        <div
+          className="fixed inset-0 bg-black/50 z-[998] lg:hidden"
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
         />
       )}
     </div>
@@ -38,4 +36,3 @@ const DashboardLayout = () => {
 };
 
 export default DashboardLayout;
-
