@@ -1,7 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import DashboardLayout from './layouts/DashboardLayout/DashboardLayout';
-import LandingPage from './Pages/LandingPage';
+import LandingPage from './Pages/Landingpage/LandingPage';
+import Welcome from './Pages/Auth/Welcome';
+import Login from './Pages/Auth/Login';
+import SignUp from './Pages/Auth/SignUp';
+import ForgotPassword from './Pages/Auth/ForgotPassword';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import BuyData from './Pages/BuyData/BuyData';
 import BuyAirtime from './Pages/BuyAirtime/BuyAirtime';
@@ -13,6 +17,17 @@ import BulkSMS from './Pages/BulkSMS/BulkSMS';
 import BuyPins from './Pages/BuyPins/BuyPins';
 import BonusToWallet from './Pages/BonusToWallet/BonusToWallet';
 import AirtimeToCash from './Pages/AirtimeToCash/AirtimeToCash';
+import TermsPrivacy from './Pages/Terms/Terms';
+import Profile from './Pages/Profile/Profile';
+import EditProfile from './Pages/Profile/EditProfile';
+import ChangePassword from './Pages/Profile/ChangePassword';
+import ChangePin from './Pages/Profile/ChangePin';
+import ResetPin from './Pages/Profile/ResetPin';
+import NotificationSettings from './Pages/Profile/NotificationSettings';
+import BiometricSettings from './Pages/Profile/BiometricSettings';
+import ReferralBonus from './Pages/Profile/ReferralBonus';
+import Support from './Pages/Profile/Support';
+import UserLimit from './Pages/Profile/UserLimit';
 
 function App() {
   return (
@@ -21,6 +36,11 @@ function App() {
         <div className="w-full min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/terms-of-service" element={<TermsPrivacy />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="services/buy-data" element={<BuyData />} />
@@ -33,6 +53,16 @@ function App() {
               <Route path="services/buy-pins" element={<BuyPins />} />
               <Route path="services/bonus-to-wallet" element={<BonusToWallet />} />
               <Route path="services/airtime-to-cash" element={<AirtimeToCash />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="profile/edit" element={<EditProfile />} />
+              <Route path="profile/change-password" element={<ChangePassword />} />
+              <Route path="profile/change-pin" element={<ChangePin />} />
+              <Route path="profile/reset-pin" element={<ResetPin />} />
+              <Route path="profile/notification-settings" element={<NotificationSettings />} />
+              <Route path="profile/biometric-settings" element={<BiometricSettings />} />
+              <Route path="profile/referral-bonus" element={<ReferralBonus />} />
+              <Route path="profile/support" element={<Support />} />
+              <Route path="profile/user-limit" element={<UserLimit />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -22,7 +22,7 @@ export default function Features() {
           className="text-center"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-900 leading-snug">
-            Trusted Data Platform for{" "}
+            Trusted VTU Platform for{" "}
             <span className="text-brand-primary">Users & Resellers</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
