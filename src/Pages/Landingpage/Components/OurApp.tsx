@@ -1,7 +1,7 @@
 import { ShieldCheck, Clock3, Contact, } from "lucide-react";
 import { motion } from "framer-motion";
-import Terrabyte from '../../assets/terrabyte.jpg'
-import Airtime from '../../assets/airtime.jpg'
+import Terrabyte from '../../../assets/terrabyte.jpg'
+import Airtime from '../../../assets/airtime.jpg'
 
 export default function AboutUsSection() {
   return (

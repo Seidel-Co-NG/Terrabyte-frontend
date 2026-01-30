@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
-import TerrabyteImage from '../../assets/terrabyte2.png'
-
+import TerrabyteImage from '../../../assets/terrabyte2.png'
+import Bolt from '../../../assets/bolt.png'
+import Earth from '../../../assets/earth.png'
 
 
 export default function HeroSection() {
@@ -12,11 +14,11 @@ export default function HeroSection() {
           {/* LEFT CONTENT */}
           <div className="space-y-8 animate-fade-in">
             <div className="inline-flex items-center px-4 py-2 bg-brand-primary-lightest rounded-full text-sm text-brand-primary font-medium shadow-sm">
-              #1 TRUSTED DATA PLATFORM
+              #1 TRUSTED VTU PLATFORM
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-text-primary leading-tight tracking-tight">
-              All Your Data Needs,<br />
+              All Your VTU Needs,<br />
               <span className="relative inline-block">
                 one platform
                 <svg
@@ -42,10 +44,15 @@ export default function HeroSection() {
               Buy data, pay bills, top-up airtime, or handle payments securely — all from one fast and trusted platform.
             </p>
 
-            {/* CTA Input */}
-           <button className="w-[100%] bg-brand-primary text-white text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-dark transition-all duration-300">
-                Download Our App
-              </button>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to="/signup" className="flex-1 bg-brand-primary text-white text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-dark transition-all duration-300 text-center">
+                Get Started
+              </Link>
+              <Link to="/welcome" className="flex-1 border border-brand-primary text-brand-primary text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-lightest transition-all duration-300 text-center">
+                Sign In
+              </Link>
+            </div>
 
             {/* Social Icons */}
             <div className="flex items-center space-x-4 pt-4">
@@ -70,16 +77,14 @@ export default function HeroSection() {
             />
 
             {/* Floating Icons */}
-            <div className="absolute -top-6 -right-6 bg-white rounded-2xl shadow-md p-3 animate-float">
-              <div className="text-2xl">💳</div>
-              <div className="text-xs font-medium text-gray-700 text-center">Fast Payment</div>
+            <div className="absolute -top-6 -right-5  rounded-2xl p-3 animate-float">
+             <img src={Bolt} alt="fast" className="w-40 h-40" />
             </div>
             <div
-              className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-md p-3 animate-float"
+              className="absolute -bottom-1 -left-0  rounded-2xl p-3 animate-float"
               style={{ animationDelay: '1s' }}
             >
-              <div className="text-2xl">📱</div>
-              <div className="text-xs font-medium text-gray-700 text-center">Mobile Access</div>
+              <img src={Earth} alt="fast" className="w-12 h-12" />
             </div>
           </div>
 

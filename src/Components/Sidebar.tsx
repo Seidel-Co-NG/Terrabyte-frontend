@@ -97,7 +97,8 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     const isExpanded = expandedItems.has(item.name);
     const hasSubItems = item.subItems && item.subItems.length > 0;
     const isDashboardActive = item.link === '/dashboard' && location.pathname === '/dashboard';
-    const isActive = item.link && location.pathname === item.link;
+    const isProfileActive = item.link === '/dashboard/profile' && location.pathname.startsWith('/dashboard/profile');
+    const isActive = item.link && (location.pathname === item.link || isProfileActive);
 
     const linkClass = `flex items-center justify-between px-6 py-3 text-[var(--text-secondary)] no-underline transition-all text-sm cursor-pointer rounded-none
       hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]
