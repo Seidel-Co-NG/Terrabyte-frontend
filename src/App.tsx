@@ -9,6 +9,10 @@ import Electricity from './Pages/Electricity/Electricity';
 import CableTV from './Pages/CableTV/CableTV';
 import Internet from './Pages/Internet/Internet';
 import BetFunding from './Pages/BetFunding/BetFunding';
+import BulkSMS from './Pages/BulkSMS/BulkSMS';
+import BuyPins from './Pages/BuyPins/BuyPins';
+import BonusToWallet from './Pages/BonusToWallet/BonusToWallet';
+import AirtimeToCash from './Pages/AirtimeToCash/AirtimeToCash';
 
 function App() {
   return (
@@ -25,6 +29,10 @@ function App() {
               <Route path="services/buy-cable-tv" element={<CableTV />} />
               <Route path="services/internet" element={<Internet />} />
               <Route path="services/bet-funding" element={<BetFunding />} />
+              <Route path="services/bulk-sms" element={<BulkSMS />} />
+              <Route path="services/buy-pins" element={<BuyPins />} />
+              <Route path="services/bonus-to-wallet" element={<BonusToWallet />} />
+              <Route path="services/airtime-to-cash" element={<AirtimeToCash />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
