@@ -1,10 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { useAuthStore } from './stores/auth.store';
 import DashboardLayout from './layouts/DashboardLayout/DashboardLayout';
 import LandingPage from './Pages/Landingpage/LandingPage';
 import Welcome from './Pages/Auth/Welcome';
 import Login from './Pages/Auth/Login';
 import SignUp from './Pages/Auth/SignUp';
+import VerifyOtp from './Pages/Auth/VerifyOtp';
+import SetTransactionPin from './Pages/Auth/SetTransactionPin';
 import ForgotPassword from './Pages/Auth/ForgotPassword';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import BuyData from './Pages/BuyData/BuyData';
@@ -38,16 +43,48 @@ import PaystackFunding from './Pages/FundWallet/PaystackFunding';
 import AutomatedBankTransfer from './Pages/FundWallet/AutomatedBankTransfer';
 import CouponFunding from './Pages/FundWallet/CouponFunding';
 
+function AuthInit() {
+  const navigate = useNavigate();
+  const hydrate = useAuthStore((s) => s.hydrate);
+  const resetState = useAuthStore((s) => s.resetState);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    const handleLogout = () => {
+      resetState();
+      navigate('/login', { replace: true });
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, [navigate, resetState]);
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider>
       <Router>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
+            error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+          }}
+        />
+        <AuthInit />
         <div className="w-full min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/set-transaction-pin" element={<SetTransactionPin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/terms-of-service" element={<TermsPrivacy />} />
             <Route path="/dashboard" element={<DashboardLayout />}>

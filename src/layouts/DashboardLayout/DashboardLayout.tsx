@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from '../../Components/Sidebar';
 import Header from '../../Components/Header';
+import { useAuthStore } from '../../stores/auth.store';
 
 const DashboardLayout = () => {
+  const { isAuthenticated, user } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 1024);
 
   useEffect(() => {
@@ -15,6 +17,13 @@ const DashboardLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (user && !user.has_transaction_pin) {
+    return <Navigate to="/set-transaction-pin" replace />;
+  }
 
   return (
     <div className="relative min-h-screen bg-[var(--bg-primary)]">

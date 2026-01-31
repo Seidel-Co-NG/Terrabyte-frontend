@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Logo from '../../assets/logo2.png';
+import { useAuthStore } from '../../stores/auth.store';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -9,7 +11,11 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, isLoading, clearError } = useAuthStore();
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -27,15 +33,19 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || isSubmitting) return;
-    setIsSubmitting(true);
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate('/welcome'); // Transaction PIN screen (then → dashboard)
-    }, 800);
+    if (!validate() || isLoading) return;
+    const success = await login({ email: email.trim(), password });
+    if (success) {
+      toast.success('Login successful', { icon: '✓', iconTheme: { primary: '#22c55e', secondary: '#fff' } });
+      // Defer navigation so auth state is committed before dashboard layout reads it
+      setTimeout(() => navigate('/dashboard', { replace: true }), 0);
+    } else {
+      const message = useAuthStore.getState().error;
+      toast.error(message || 'Login failed');
+      clearError();
+    }
   };
 
   return (
@@ -119,10 +129,10 @@ const Login = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="w-full py-3 rounded-full bg-brand-primary text-white font-semibold hover:bg-brand-primary-dark disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
           >
-            {isSubmitting ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
