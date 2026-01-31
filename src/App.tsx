@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SEOWrapper from './Components/SEOWrapper';
 import { ThemeProvider } from './contexts/ThemeContext';
 import DashboardLayout from './layouts/DashboardLayout/DashboardLayout';
 import LandingPage from './Pages/Landingpage/LandingPage';
@@ -29,6 +30,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <SEOWrapper />
         <div className="w-full min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
           <Routes>
             <Route path="/" element={<LandingPage />} />
