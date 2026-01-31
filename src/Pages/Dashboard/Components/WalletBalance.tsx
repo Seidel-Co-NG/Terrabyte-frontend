@@ -30,39 +30,39 @@ const WalletBalance = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1">
-        <div className="flex flex-col gap-5 p-6 md:p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl">
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
-            <div className="p-5 md:p-4 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-2">
-              <div className="text-[0.85rem] text-[var(--text-secondary)] font-medium">Wallet Balance</div>
-              <div className="text-[1.75rem] md:text-2xl sm:text-xl font-bold text-[var(--success)]">{walletData.walletBalance}</div>
+        <div className="flex flex-col gap-4 sm:gap-5 p-4 sm:p-5 md:p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="p-4 sm:p-5 min-w-0 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-1.5 sm:gap-2">
+              <div className="text-xs sm:text-[0.85rem] text-[var(--text-secondary)] font-medium">Wallet Balance</div>
+              <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--success)] truncate" title={walletData.walletBalance}>{walletData.walletBalance}</div>
             </div>
-            <div className="p-5 md:p-4 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-2">
-              <div className="text-[0.85rem] text-[var(--text-secondary)] font-medium">Bonus Balance</div>
-              <div className="text-[1.75rem] md:text-2xl sm:text-xl font-bold text-[var(--warning)]">{walletData.bonusBalance}</div>
+            <div className="p-4 sm:p-5 min-w-0 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-1.5 sm:gap-2">
+              <div className="text-xs sm:text-[0.85rem] text-[var(--text-secondary)] font-medium">Bonus Balance</div>
+              <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--warning)] truncate" title={walletData.bonusBalance}>{walletData.bonusBalance}</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Link
               to="/dashboard/fund-wallet"
-              className="flex items-center justify-center gap-3 py-4 px-6 border-none rounded-lg text-base md:text-sm font-semibold cursor-pointer transition-all duration-300 text-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-[0_4px_12px_var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(168,85,247,0.4)] [&_span]:text-white [&_.btn-icon]:text-white no-underline"
+              className="flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 px-4 sm:px-6 border-none rounded-lg text-sm sm:text-base font-semibold cursor-pointer transition-all duration-300 text-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-[0_4px_12px_var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(168,85,247,0.4)] [&_span]:text-white [&_.btn-icon]:text-white no-underline min-w-0"
             >
-              <FiDollarSign className="btn-icon text-xl md:text-lg shrink-0" />
+              <FiDollarSign className="btn-icon text-lg sm:text-xl shrink-0" />
               <span>Fund Wallet</span>
             </Link>
             <button
               type="button"
               onClick={handleGenerateVirtualAccount}
-              className="flex items-center justify-center gap-3 py-4 px-6 rounded-lg text-base md:text-sm font-semibold cursor-pointer transition-all duration-300 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.15)] text-[var(--text-primary)] border border-[var(--accent-hover)] hover:-translate-y-0.5 hover:border-[var(--accent-primary)] hover:shadow-[0_4px_12px_var(--accent-hover)]"
+              className="flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold cursor-pointer transition-all duration-300 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.15)] text-[var(--text-primary)] border border-[var(--accent-hover)] hover:-translate-y-0.5 hover:border-[var(--accent-primary)] hover:shadow-[0_4px_12px_var(--accent-hover)] min-w-0"
             >
-              <FiCreditCard className="text-xl md:text-lg shrink-0" />
-              <span>Generate Virtual Account</span>
+              <FiCreditCard className="text-lg sm:text-xl shrink-0" />
+              <span className="text-center">Generate Virtual Account</span>
             </button>
           </div>
         </div>
 
-        <div className="p-6 md:p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl flex flex-col">
-          <div className="mb-4 pb-3 border-b border-[var(--border-color)] flex items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 md:p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl flex flex-col min-w-0">
+          <div className="mb-3 sm:mb-4 pb-3 border-b border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             <h4 className="text-base font-semibold text-[var(--text-primary)] m-0">Bank Account Details</h4>
             <button
               type="button"
