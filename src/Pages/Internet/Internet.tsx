@@ -26,6 +26,18 @@ const MOCK_PLANS_BY_NETWORK: Record<string, InternetPlan[]> = {
     { id: 'spectra-5gb', size: '5GB', amount: 4500, type: 'Monthly' },
     { id: 'spectra-unlimited', size: 'Unlimited', amount: 15000, type: 'Monthly' },
   ],
+  RATEL: [
+    { id: 'ratel-1gb', size: '1GB', amount: 1300, type: 'Monthly' },
+    { id: 'ratel-2gb', size: '2GB', amount: 2300, type: 'Monthly' },
+    { id: 'ratel-5gb', size: '5GB', amount: 4800, type: 'Monthly' },
+    { id: 'ratel-10gb', size: '10GB', amount: 8800, type: 'Monthly' },
+  ],
+  KIRANI: [
+    { id: 'kirani-1gb', size: '1GB', amount: 1400, type: 'Monthly' },
+    { id: 'kirani-2gb', size: '2GB', amount: 2400, type: 'Monthly' },
+    { id: 'kirani-5gb', size: '5GB', amount: 4900, type: 'Monthly' },
+    { id: 'kirani-unlimited', size: 'Unlimited', amount: 14000, type: 'Monthly' },
+  ],
 };
 
 const Internet = () => {

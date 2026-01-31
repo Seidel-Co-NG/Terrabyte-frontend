@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { FiCopy, FiCheck, FiDollarSign, FiCreditCard } from 'react-icons/fi';
 import { useState } from 'react';
 
@@ -16,10 +17,6 @@ const WalletBalance = () => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleFundWallet = () => {
-    console.log('Fund Wallet clicked');
   };
 
   const handleGenerateVirtualAccount = () => {
@@ -46,14 +43,13 @@ const WalletBalance = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
-            <button
-              type="button"
-              onClick={handleFundWallet}
-              className="flex items-center justify-center gap-3 py-4 px-6 border-none rounded-lg text-base md:text-sm font-semibold cursor-pointer transition-all duration-300 text-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-[0_4px_12px_var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(168,85,247,0.4)] [&_span]:text-white [&_.btn-icon]:text-white"
+            <Link
+              to="/dashboard/fund-wallet"
+              className="flex items-center justify-center gap-3 py-4 px-6 border-none rounded-lg text-base md:text-sm font-semibold cursor-pointer transition-all duration-300 text-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-[0_4px_12px_var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(168,85,247,0.4)] [&_span]:text-white [&_.btn-icon]:text-white no-underline"
             >
               <FiDollarSign className="btn-icon text-xl md:text-lg shrink-0" />
               <span>Fund Wallet</span>
-            </button>
+            </Link>
             <button
               type="button"
               onClick={handleGenerateVirtualAccount}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { FiSun, FiMoon, FiBell, FiMenu } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -30,13 +31,14 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           {theme === 'dark' ? <FiSun /> : <FiMoon />}
         </button>
 
-        <button
-          type="button"
+        <Link
+          to="/dashboard/notifications"
           className="p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-xl relative flex items-center justify-center"
+          aria-label="Notifications"
         >
           <FiBell />
           <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[var(--error)] translate-x-1/2 -translate-y-1/2" />
-        </button>
+        </Link>
 
         <div className="flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer hover:bg-[var(--bg-hover)] transition-colors">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center font-semibold text-[var(--text-primary)] text-sm">
