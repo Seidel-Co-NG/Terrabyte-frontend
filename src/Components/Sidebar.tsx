@@ -25,6 +25,7 @@ import {
 } from 'react-icons/fi';
 import logo from './../assets/logo2.png';
 import LogoutModal from './LogoutModal';
+import { useAuthStore } from '../stores/auth.store';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -51,11 +52,13 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const logout = useAuthStore((s) => s.logout);
 
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm = async () => {
     setLogoutModalOpen(false);
     onClose?.();
-    navigate('/login');
+    await logout();
+    navigate('/login', { replace: true });
   };
 
   const mainMenuItems: MenuItem[] = [

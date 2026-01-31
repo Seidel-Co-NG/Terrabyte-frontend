@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Logo from '../../assets/logo2.png';
+import { useAuthStore } from '../../stores/auth.store';
 
 type FormErrors = {
   fullName?: string;
@@ -21,7 +23,11 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, isLoading, error, clearError } = useAuthStore();
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -37,19 +43,26 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const clearError = (field: keyof FormErrors) => {
+  const clearFieldError = (field: keyof FormErrors) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || isSubmitting) return;
-    setIsSubmitting(true);
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate('/dashboard');
-    }, 800);
+    if (!validate() || isLoading) return;
+    const result = await register({
+      fullname: fullName.trim(),
+      username: username.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      password,
+      ...(referralCode.trim() && { referral: referralCode.trim() }),
+    });
+    if (result.success) {
+      if (result.message) toast.success(result.message);
+      const isAuthenticated = useAuthStore.getState().isAuthenticated;
+      navigate(isAuthenticated ? '/welcome' : '/verify-otp');
+    }
   };
 
   const inputClass =
@@ -80,7 +93,7 @@ const SignUp = () => {
               id="fullName"
               type="text"
               value={fullName}
-              onChange={(e) => { setFullName(e.target.value); clearError('fullName'); }}
+              onChange={(e) => { setFullName(e.target.value); clearFieldError('fullName'); }}
               placeholder="Enter your full name"
               className={inputClass}
               autoComplete="name"
@@ -94,7 +107,7 @@ const SignUp = () => {
               id="username"
               type="text"
               value={username}
-              onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
+              onChange={(e) => { setUsername(e.target.value); clearFieldError('username'); }}
               placeholder="Choose a username"
               className={inputClass}
               autoComplete="username"
@@ -108,7 +121,7 @@ const SignUp = () => {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+              onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               placeholder="Enter your email"
               className={inputClass}
               autoComplete="email"
@@ -122,7 +135,7 @@ const SignUp = () => {
               id="phone"
               type="tel"
               value={phone}
-              onChange={(e) => { setPhone(e.target.value); clearError('phone'); }}
+              onChange={(e) => { setPhone(e.target.value); clearFieldError('phone'); }}
               placeholder="Enter your phone number"
               className={inputClass}
               autoComplete="tel"
@@ -149,7 +162,7 @@ const SignUp = () => {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+                onChange={(e) => { setPassword(e.target.value); clearFieldError('password'); }}
                 placeholder="At least 6 characters"
                 className={`${inputClass} pr-12`}
                 autoComplete="new-password"
@@ -166,6 +179,10 @@ const SignUp = () => {
             {errors.password && <p className="mt-1 text-sm text-[var(--error)]">{errors.password}</p>}
           </div>
 
+          {error && (
+            <p className="text-sm text-[var(--error)]">{error}</p>
+          )}
+
           <p className="text-xs text-[var(--text-muted)]">
             By signing up, you agree to our{' '}
             <Link to="/terms-of-service" className="text-brand-primary font-medium hover:underline">Terms of Service</Link>
@@ -175,10 +192,10 @@ const SignUp = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="w-full py-3 rounded-full bg-brand-primary text-white font-semibold hover:bg-brand-primary-dark disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 mt-2"
           >
-            {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
