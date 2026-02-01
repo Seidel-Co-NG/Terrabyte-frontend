@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiCopy, FiCheck, FiDollarSign, FiCreditCard } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiCreditCard } from 'react-icons/fi';
 import { useState } from 'react';
 import { useAuthStore } from '../../../../core/stores/auth.store';
 
@@ -60,7 +60,7 @@ const WalletBalance = () => {
               to="/dashboard/fund-wallet"
               className="flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 px-4 sm:px-6 border-none rounded-lg text-sm sm:text-base font-semibold cursor-pointer transition-all duration-300 text-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-[0_4px_12px_var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(168,85,247,0.4)] [&_span]:text-white [&_.btn-icon]:text-white no-underline min-w-0"
             >
-              <FiDollarSign className="btn-icon text-lg sm:text-xl shrink-0" />
+              <span className="btn-icon text-lg sm:text-xl shrink-0 font-bold" aria-hidden>₦</span>
               <span>Fund Wallet</span>
             </Link>
             <button

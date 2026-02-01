@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import DiscoSelector, { type DiscoCompany } from './Components/DiscoSelector';
 import MeterTypeSelector, { type MeterType } from './Components/MeterTypeSelector';
 import AmountSelector from '../BuyAirtime/Components/AmountSelector';
+import { servicesApi } from '../../../core/api';
 
-const MOCK_DISCO_COMPANIES: DiscoCompany[] = [
+const FALLBACK_DISCO_COMPANIES: DiscoCompany[] = [
   { name: 'EKEDC', code: 'ekedc' },
   { name: 'IKEDC', code: 'ikedc' },
   { name: 'KAEDCO', code: 'kaedco' },
@@ -18,13 +21,26 @@ const MOCK_DISCO_COMPANIES: DiscoCompany[] = [
 ];
 
 const Electricity = () => {
+  const [discoCompanies, setDiscoCompanies] = useState<DiscoCompany[]>(FALLBACK_DISCO_COMPANIES);
   const [selectedDisco, setSelectedDisco] = useState<string | null>(null);
   const [selectedMeterType, setSelectedMeterType] = useState<MeterType | null>(null);
   const [meterNumber, setMeterNumber] = useState('');
   const [amount, setAmount] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [isMeterValidated, setIsMeterValidated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amountError, setAmountError] = useState('');
+  const [pinModalOpen, setPinModalOpen] = useState(false);
+
+  useEffect(() => {
+    servicesApi.getElectricityCompanies().then((res) => {
+      const data = res?.data as { companies?: DiscoCompany[] } | DiscoCompany[] | undefined;
+      const list = Array.isArray(data) ? data : data?.companies;
+      if (Array.isArray(list) && list.length > 0 && list.every((c) => c && typeof c.name === 'string' && typeof c.code === 'string')) {
+        setDiscoCompanies(list as DiscoCompany[]);
+      }
+    }).catch(() => {});
+  }, []);
 
   const amountNum = amount ? parseFloat(amount) : 0;
   const amountToPay = amountNum; // Dashboard: no charge discount for now
@@ -63,26 +79,48 @@ const Electricity = () => {
     !amountError &&
     !isSubmitting;
 
-  const handleValidate = () => {
-    if (!canValidate) return;
+  const handleValidate = async () => {
+    if (!canValidate || !selectedDisco || !selectedMeterType) return;
     setIsSubmitting(true);
-    setTimeout(() => {
+    setCustomerName('');
+    try {
+      const res = await servicesApi.validateMeter({
+        meter_number: meterNumber.trim(),
+        meter_type: selectedMeterType,
+        company_code: selectedDisco,
+      });
+      const name = (res?.data as { customer_name?: string })?.customer_name;
+      if (name) setCustomerName(name);
       setIsMeterValidated(true);
+      toast.success('Meter validated successfully.');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Validation failed';
+      toast.error(msg);
+    } finally {
       setIsSubmitting(false);
-    }, 800);
+    }
   };
 
   const handlePay = () => {
     if (!canPay) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      const discoName =
-        MOCK_DISCO_COMPANIES.find((c) => c.code === selectedDisco)?.name ?? selectedDisco;
-      alert(
-        `Electricity purchase successful.\nDisco: ${discoName}\nMeter: ${meterNumber}\nAmount: ₦${amountNum.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedDisco || !selectedMeterType || !amount) return;
+    await servicesApi.buyElectricity({
+      meter_number: meterNumber.trim(),
+      meter_type: selectedMeterType,
+      company_code: selectedDisco,
+      amount,
+      customer_name: customerName || 'Customer',
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Electricity purchase of ₦${amountNum.toLocaleString()} successful.`);
+    setMeterNumber('');
+    setAmount('');
+    setCustomerName('');
+    setIsMeterValidated(false);
   };
 
   const handleAction = () => {
@@ -113,7 +151,7 @@ const Electricity = () => {
         <div className="flex flex-col gap-5">
           <DiscoSelector
             selectedDisco={selectedDisco}
-            discoCompanies={MOCK_DISCO_COMPANIES}
+            discoCompanies={discoCompanies}
             onDiscoSelected={setSelectedDisco}
           />
 
@@ -159,6 +197,13 @@ const Electricity = () => {
           />
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Electricity Purchase"
+        subtitle={`Meter: ${meterNumber} • Amount: ₦${amountNum.toLocaleString()}`}
+        onConfirm={handleConfirmPay}
+      />
     </div>
   );
 };

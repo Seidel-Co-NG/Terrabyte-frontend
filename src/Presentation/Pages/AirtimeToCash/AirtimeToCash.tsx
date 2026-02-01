@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { FiCheckCircle, FiInfo, FiPhone } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from '../BuyAirtime/Components/NetworkSelector';
+import { servicesApi } from '../../../core/api';
 
 // Mock rates: network -> { rate (0-1), min, max }
 const NETWORK_RATES: Record<string, { rate: number; min: number; max: number }> = {
@@ -42,6 +45,7 @@ const AirtimeToCash = () => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
   const [successData, setSuccessData] = useState<{ sendToNumber: string; ussdCode: string; ref: string } | null>(null);
 
   const rateConfig = selectedNetwork ? NETWORK_RATES[selectedNetwork] : null;
@@ -60,16 +64,26 @@ const AirtimeToCash = () => {
 
   const handleContinue = () => {
     if (!canSubmit) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      const sendTo = '08091234567';
-      setSuccessData({
-        sendToNumber: sendTo,
-        ussdCode: getUssdCode(selectedNetwork!, sendTo, amount),
-        ref: 'ATF-' + Date.now(),
-      });
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmConvert = async (transactionPin: string) => {
+    if (!selectedNetwork || !phone || !amount) return;
+    const rawPhone = phone.replace(/\D/g, '');
+    const res = await servicesApi.convertAirtime2Cash({
+      network: selectedNetwork,
+      phone: rawPhone,
+      amount,
+      transaction_pin: transactionPin,
+    });
+    const data = res?.data as { send_to_number?: string; ussd_code?: string; reference?: string } | undefined;
+    const sendTo = data?.send_to_number ?? '08091234567';
+    setSuccessData({
+      sendToNumber: sendTo,
+      ussdCode: data?.ussd_code ?? getUssdCode(selectedNetwork, sendTo, amount),
+      ref: data?.reference ?? 'ATF-' + Date.now(),
+    });
+    toast.success('Airtime to cash request submitted. Send airtime to complete.');
   };
 
   const handleDone = () => {
@@ -294,6 +308,13 @@ const AirtimeToCash = () => {
           />
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Airtime to Cash"
+        subtitle={`${selectedNetwork} • ${phone} • ₦${amount}`}
+        onConfirm={handleConfirmConvert}
+      />
     </div>
   );
 };

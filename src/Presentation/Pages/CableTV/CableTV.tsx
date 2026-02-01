@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import CableProviderSelector from './Components/CableProviderSelector';
 import CablePlanSelector, { type CablePlan } from './Components/CablePlanSelector';
+import { servicesApi } from '../../../core/api';
 
 // Mock plans per provider (plan name + amount)
 const MOCK_PLANS_BY_PROVIDER: Record<string, CablePlan[]> = {
@@ -39,6 +42,7 @@ const CableTV = () => {
   const [isIucValidated, setIsIucValidated] = useState(false);
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const plans = selectedProvider ? MOCK_PLANS_BY_PROVIDER[selectedProvider] ?? [] : [];
 
@@ -55,24 +59,41 @@ const CableTV = () => {
 
   const canPay = isIucValidated && !!selectedProvider && !!selectedPlan && iucNumber.trim().length > 0 && !isSubmitting;
 
-  const handleValidate = () => {
-    if (!canValidate) return;
+  const handleValidate = async () => {
+    if (!canValidate || !selectedProvider) return;
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      await servicesApi.validateCable({
+        iuc: iucNumber.trim(),
+        cablename: selectedProvider,
+      });
       setIsIucValidated(true);
+      toast.success('IUC validated successfully.');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Validation failed';
+      toast.error(msg);
+    } finally {
       setIsSubmitting(false);
-    }, 800);
+    }
   };
 
   const handlePay = () => {
     if (!canPay) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        `Cable TV subscription successful.\nProvider: ${selectedProvider}\nPlan: ${selectedPlan?.plan}\nIUC: ${iucNumber}\nAmount: ₦${selectedPlan?.amount.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedProvider || !selectedPlan || !iucNumber.trim()) return;
+    await servicesApi.buyCable({
+      iuc: iucNumber.trim(),
+      cablename: selectedProvider,
+      cable_plan_id: selectedPlan.id,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Cable TV subscription: ${selectedPlan.plan} - ₦${selectedPlan.amount.toLocaleString()} successful.`);
+    setIucNumber('');
+    setSelectedPlan(null);
+    setIsIucValidated(false);
   };
 
   const handleAction = () => {
@@ -168,6 +189,13 @@ const CableTV = () => {
         plans={plans}
         selectedPlan={selectedPlan}
         onSelect={setSelectedPlan}
+      />
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Cable TV Subscription"
+        subtitle={selectedPlan ? `${selectedPlan.plan} • ₦${selectedPlan.amount.toLocaleString()} • IUC: ${iucNumber}` : undefined}
+        onConfirm={handleConfirmPay}
       />
     </div>
   );

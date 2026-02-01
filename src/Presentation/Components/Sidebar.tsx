@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiX,
   FiLayout,
-  FiDollarSign,
   FiGrid,
   FiList,
   FiUser,
@@ -22,6 +21,7 @@ import {
   FiLogOut,
   FiTag,
   FiBell,
+  FiSend,
 } from 'react-icons/fi';
 import { useAuthStore, type AuthState } from '../../core/stores/auth.store';
 import LogoutModal from '../../Presentation/Components/LogoutModal';
@@ -60,11 +60,26 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     navigate('/login', { replace: true });
   };
 
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('transfer-to-bank') || path.includes('transfer-to-user')) {
+      setExpandedItems((prev) => new Set([...prev, 'Transfer']));
+    }
+  }, [location.pathname]);
+
   const mainMenuItems: MenuItem[] = [
     { name: 'Dashboards', icon: <FiLayout />, link: '/dashboard' },
     {
+      name: 'Transfer',
+      icon: <FiSend />,
+      subItems: [
+        { name: 'Bank Transfer', icon: <FiCreditCard />, link: '/dashboard/transfer-to-bank' },
+        { name: 'Transfer to User', icon: <FiUser />, link: '/dashboard/transfer-to-user' },
+      ],
+    },
+    {
       name: 'Fund Wallet',
-      icon: <FiDollarSign />,
+      icon: <span className="text-lg font-bold opacity-80 inline-flex items-center justify-center min-w-[20px]" aria-hidden>₦</span>,
       subItems: [
         { name: 'Monnify ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/monnify' },
         { name: 'Paystack ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/paystack' },

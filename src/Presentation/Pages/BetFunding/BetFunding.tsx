@@ -1,14 +1,18 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import BetCompanySelector from './Components/BetCompanySelector';
 import AmountSelector from '../BuyAirtime/Components/AmountSelector';
+import { servicesApi } from '../../../core/api';
 
 const BetFunding = () => {
   const [userId, setUserId] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const amountNum = amount ? parseFloat(amount) : 0;
   const amountToPay = amountNum;
@@ -22,13 +26,20 @@ const BetFunding = () => {
 
   const handlePay = () => {
     if (!canPay) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        `Bet funding successful.\nPlatform: ${selectedCompany}\nUser: ${userId}\nAmount: ₦${amountNum.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedCompany || !userId.trim() || !amount) return;
+    await servicesApi.fundBetting({
+      platform_code: selectedCompany,
+      betting_account: userId.trim(),
+      amount,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Bet funding of ₦${amountNum.toLocaleString()} successful.`);
+    setUserId('');
+    setAmount('');
   };
 
   return (
@@ -84,6 +95,13 @@ const BetFunding = () => {
           />
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Bet Funding"
+        subtitle={`Platform: ${selectedCompany} • Amount: ₦${amountNum.toLocaleString()}`}
+        onConfirm={handleConfirmPay}
+      />
     </div>
   );
 };

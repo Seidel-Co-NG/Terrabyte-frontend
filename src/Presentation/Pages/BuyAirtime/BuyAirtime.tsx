@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from './Components/NetworkSelector';
 import AmountSelector from './Components/AmountSelector';
+import { servicesApi } from '../../../core/api';
 import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
 import { pickContact, isContactPickerSupported } from '../BuyData/utils/contactPicker';
 
@@ -18,6 +21,7 @@ const BuyAirtime = () => {
   const [amount, setAmount] = useState('');
   const [contactMessage, setContactMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -57,11 +61,20 @@ const BuyAirtime = () => {
 
   const handlePay = () => {
     if (!canSubmit) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(`Airtime purchase: ₦${amountNum.toLocaleString()} to ${displayPhone} on ${selectedNetwork} successful.`);
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedNetwork || !phone || !amount) return;
+    await servicesApi.buyAirtime({
+      network_name: selectedNetwork,
+      phone_number: phone,
+      amount,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Airtime purchase: ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`);
+    setPhone('');
+    setAmount('');
   };
 
   return (
@@ -133,6 +146,13 @@ const BuyAirtime = () => {
           </PayButton>
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Airtime Purchase"
+        subtitle={`Amount: ₦${amountNum.toLocaleString()} • ${displayPhone}`}
+        onConfirm={handleConfirmPay}
+      />
     </div>
   );
 };

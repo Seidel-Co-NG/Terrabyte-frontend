@@ -1,12 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import DataNetworkSelector from './Components/DataNetworkSelector';
 import DataTypeSelect from './Components/DataTypeSelect';
 import PlanSelector, { type DataPlan } from './Components/PlanSelector';
 import { getNetworkFromPhone } from './utils/phoneNetwork';
 import { pickContact, isContactPickerSupported } from './utils/contactPicker';
+import { servicesApi } from '../../../core/api';
 
 // Mock plans – replace with API later (include SME, GIFTING, DIRECT so Pay can enable for any type)
 const MOCK_PLANS: DataPlan[] = [
@@ -40,6 +43,7 @@ const BuyData = () => {
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [contactMessage, setContactMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const filteredPlans = useMemo(() => {
     if (!selectedNetwork) return [];
@@ -96,11 +100,20 @@ const BuyData = () => {
 
   const handlePay = () => {
     if (!canSubmit) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(`Data purchase: ${selectedPlan?.size} to ${displayPhone} on ${selectedNetwork}. Amount: ₦${selectedPlan?.amount}`);
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedNetwork || !selectedPlan || !phone) return;
+    await servicesApi.buyData({
+      network: selectedNetwork,
+      phone_number: phone,
+      plan_id: selectedPlan.id,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Data purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} to ${displayPhone} successful.`);
+    setPhone('');
+    setSelectedPlan(null);
   };
 
   return (
@@ -176,13 +189,12 @@ const BuyData = () => {
           {/* Pay Button */}
           <PayButton
             fullWidth
+            text="Pay"
             loading={isSubmitting}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handlePay}
-          >
-            
-          </PayButton>
+          />
         </div>
       </div>
 
@@ -192,6 +204,13 @@ const BuyData = () => {
         plans={filteredPlans}
         selectedPlan={selectedPlan}
         onSelect={setSelectedPlan}
+      />
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Data Purchase"
+        subtitle={selectedPlan ? `${selectedPlan.size} • ₦${selectedPlan.amount.toLocaleString()} • ${displayPhone}` : undefined}
+        onConfirm={handleConfirmPay}
       />
     </div>
   );
