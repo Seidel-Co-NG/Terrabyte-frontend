@@ -1,51 +1,56 @@
-
-import SEOWrapper from './Presentation/Components/SEOWrapper';
-import AppDownloadBanner from './Presentation/Components/AppDownloadBanner';
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { useAuthStore } from './core/stores/auth.store';
-import { useTransactionsStore } from './core/stores/transactions.store';
-import DashboardLayout from './Presentation/layouts/DashboardLayout';
-import LandingPage from './Presentation/Pages/Landingpage/LandingPage';
+import SEOWrapper from "./Presentation/Components/SEOWrapper";
+import AppDownloadBanner from "./Presentation/Components/AppDownloadBanner";
+import { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { useAuthStore } from "./core/stores/auth.store";
+import { useTransactionsStore } from "./core/stores/transactions.store";
+import DashboardLayout from "./Presentation/layouts/DashboardLayout";
+import LandingPage from "./Presentation/Pages/Landingpage/LandingPage";
 // import Welcome from './Presentation/Pages/Auth/Welcome';
-import Login from './Presentation/Pages/Auth/Login';
-import SignUp from './Presentation/Pages/Auth/SignUp';
-import VerifyOtp from './Presentation/Pages/Auth/VerifyOtp';
-import SetTransactionPin from './Presentation/Pages/Auth/SetTransactionPin';
-import ForgotPassword from './Presentation/Pages/Auth/ForgotPassword';
-import Dashboard from './Presentation/Pages/Dashboard/Dashboard';
-import BuyData from './Presentation/Pages/BuyData/BuyData';
-import BuyAirtime from './Presentation/Pages/BuyAirtime/BuyAirtime';
-import Electricity from './Presentation/Pages/Electricity/Electricity';
-import CableTV from './Presentation/Pages/CableTV/CableTV';
-import Internet from './Presentation/Pages/Internet/Internet';
-import BetFunding from './Presentation/Pages/BetFunding/BetFunding';
-import BulkSMS from './Presentation/Pages/BulkSMS/BulkSMS';
-import BuyPins from './Presentation/Pages/BuyPins/BuyPins';
-import BonusToWallet from './Presentation/Pages/BonusToWallet/BonusToWallet';
-import AirtimeToCash from './Presentation/Pages/AirtimeToCash/AirtimeToCash';
-import TermsPrivacy from './Presentation/Pages/Terms/Terms';
-import Profile from './Presentation/Pages/Profile/Profile';
-import EditProfile from './Presentation/Pages/Profile/EditProfile';
-import ChangePassword from './Presentation/Pages/Profile/ChangePassword';
-import ChangePin from './Presentation/Pages/Profile/ChangePin';
-import ResetPin from './Presentation/Pages/Profile/ResetPin';
-import NotificationSettings from './Presentation/Pages/Profile/NotificationSettings';
-import ReferralBonus from './Presentation/Pages/Profile/ReferralBonus';
-import Support from './Presentation/Pages/Profile/Support';
-import UserLimit from './Presentation/Pages/Profile/UserLimit';
-import DownloadApp from './Presentation/Pages/DownloadApp/DownloadApp';
-import Transactions from './Presentation/Pages/Transactions/Transactions';
-import TransactionDetails from './Presentation/Pages/Transactions/TransactionDetails';
-import Notifications from './Presentation/Pages/Notifications/Notifications';
-import NotificationDetails from './Presentation/Pages/Notifications/NotificationDetails';
-import FundWallet from './Presentation/Pages/FundWallet/FundWallet';
-import MonnifyFunding from './Presentation/Pages/FundWallet/MonnifyFunding';
-import PaystackFunding from './Presentation/Pages/FundWallet/PaystackFunding';
-import AutomatedBankTransfer from './Presentation/Pages/FundWallet/AutomatedBankTransfer';
-import CouponFunding from './Presentation/Pages/FundWallet/CouponFunding';
+import Login from "./Presentation/Pages/Auth/Login";
+import SignUp from "./Presentation/Pages/Auth/SignUp";
+import VerifyOtp from "./Presentation/Pages/Auth/VerifyOtp";
+import SetTransactionPin from "./Presentation/Pages/Auth/SetTransactionPin";
+import ForgotPassword from "./Presentation/Pages/Auth/ForgotPassword";
+import Dashboard from "./Presentation/Pages/Dashboard/Dashboard";
+import BuyData from "./Presentation/Pages/BuyData/BuyData";
+import BuyAirtime from "./Presentation/Pages/BuyAirtime/BuyAirtimePage";
+import Electricity from "./Presentation/Pages/Electricity/Electricity";
+import CableTV from "./Presentation/Pages/CableTV/CableTV";
+import Internet from "./Presentation/Pages/Internet/Internet";
+import BetFunding from "./Presentation/Pages/BetFunding/BetFunding";
+import BulkSMS from "./Presentation/Pages/BulkSMS/BulkSMS";
+import BuyPins from "./Presentation/Pages/BuyPins/BuyPins";
+import BonusToWallet from "./Presentation/Pages/BonusToWallet/BonusToWallet";
+import AirtimeToCash from "./Presentation/Pages/AirtimeToCash/AirtimeToCash";
+import TermsPrivacy from "./Presentation/Pages/Terms/Terms";
+import Profile from "./Presentation/Pages/Profile/Profile";
+import EditProfile from "./Presentation/Pages/Profile/EditProfile";
+import ChangePassword from "./Presentation/Pages/Profile/ChangePassword";
+import ChangePin from "./Presentation/Pages/Profile/ChangePin";
+import ResetPin from "./Presentation/Pages/Profile/ResetPin";
+import NotificationSettings from "./Presentation/Pages/Profile/NotificationSettings";
+import ReferralBonus from "./Presentation/Pages/Profile/ReferralBonus";
+import Support from "./Presentation/Pages/Profile/Support";
+import UserLimit from "./Presentation/Pages/Profile/UserLimit";
+import DownloadApp from "./Presentation/Pages/DownloadApp/DownloadApp";
+import Transactions from "./Presentation/Pages/Transactions/Transactions";
+import TransactionDetails from "./Presentation/Pages/Transactions/TransactionDetails";
+import Notifications from "./Presentation/Pages/Notifications/Notifications";
+import NotificationDetails from "./Presentation/Pages/Notifications/NotificationDetails";
+import FundWallet from "./Presentation/Pages/FundWallet/FundWallet";
+import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
+import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
+import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
+import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
 
 function AuthInit() {
   const navigate = useNavigate();
@@ -60,10 +65,10 @@ function AuthInit() {
     const handleLogout = () => {
       resetState();
       useTransactionsStore.getState().reset();
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     };
-    window.addEventListener('auth:logout', handleLogout);
-    return () => window.removeEventListener('auth:logout', handleLogout);
+    window.addEventListener("auth:logout", handleLogout);
+    return () => window.removeEventListener("auth:logout", handleLogout);
   }, [navigate, resetState]);
 
   return null;
@@ -78,8 +83,8 @@ function App() {
           position="top-center"
           toastOptions={{
             duration: 4000,
-            success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+            success: { iconTheme: { primary: "#22c55e", secondary: "#fff" } },
+            error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
           }}
         />
         <AuthInit />
@@ -91,7 +96,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/set-transaction-pin" element={<SetTransactionPin />} />
+            <Route
+              path="/set-transaction-pin"
+              element={<SetTransactionPin />}
+            />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/terms-of-service" element={<TermsPrivacy />} />
             <Route path="/download-app" element={<DownloadApp />} />
@@ -99,32 +107,59 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="services/buy-data" element={<BuyData />} />
               <Route path="services/buy-airtime" element={<BuyAirtime />} />
-              <Route path="services/buy-electricity" element={<Electricity />} />
+              <Route
+                path="services/buy-electricity"
+                element={<Electricity />}
+              />
               <Route path="services/buy-cable-tv" element={<CableTV />} />
               <Route path="services/internet" element={<Internet />} />
               <Route path="services/bet-funding" element={<BetFunding />} />
               <Route path="services/bulk-sms" element={<BulkSMS />} />
               <Route path="services/buy-pins" element={<BuyPins />} />
-              <Route path="services/bonus-to-wallet" element={<BonusToWallet />} />
-              <Route path="services/airtime-to-cash" element={<AirtimeToCash />} />
+              <Route
+                path="services/bonus-to-wallet"
+                element={<BonusToWallet />}
+              />
+              <Route
+                path="services/airtime-to-cash"
+                element={<AirtimeToCash />}
+              />
               <Route path="profile" element={<Profile />} />
               <Route path="profile/edit" element={<EditProfile />} />
-              <Route path="profile/change-password" element={<ChangePassword />} />
+              <Route
+                path="profile/change-password"
+                element={<ChangePassword />}
+              />
               <Route path="profile/change-pin" element={<ChangePin />} />
               <Route path="profile/reset-pin" element={<ResetPin />} />
-              <Route path="profile/notification-settings" element={<NotificationSettings />} />
-              <Route path="profile/referral-bonus" element={<ReferralBonus />} />
+              <Route
+                path="profile/notification-settings"
+                element={<NotificationSettings />}
+              />
+              <Route
+                path="profile/referral-bonus"
+                element={<ReferralBonus />}
+              />
               <Route path="profile/support" element={<Support />} />
               <Route path="profile/user-limit" element={<UserLimit />} />
               <Route path="download-app" element={<DownloadApp />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="transactions/:id" element={<TransactionDetails />} />
               <Route path="notifications" element={<Notifications />} />
-              <Route path="notifications/:id" element={<NotificationDetails />} />
+              <Route
+                path="notifications/:id"
+                element={<NotificationDetails />}
+              />
               <Route path="fund-wallet" element={<FundWallet />} />
               <Route path="fund-wallet/monnify" element={<MonnifyFunding />} />
-              <Route path="fund-wallet/paystack" element={<PaystackFunding />} />
-              <Route path="fund-wallet/automated-transfer" element={<AutomatedBankTransfer />} />
+              <Route
+                path="fund-wallet/paystack"
+                element={<PaystackFunding />}
+              />
+              <Route
+                path="fund-wallet/automated-transfer"
+                element={<AutomatedBankTransfer />}
+              />
               <Route path="fund-wallet/coupon" element={<CouponFunding />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

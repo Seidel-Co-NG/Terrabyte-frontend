@@ -41,4 +41,6 @@ export const endpoints = {
   // Coupon (verified-only)
   couponValidate: `${API}/coupon/validate`,
   couponRedeem: `${API}/coupon/redeem`,
+  // Airtime
+  buyAirtime: `${API}/airtime/buy`,
 } as const;
