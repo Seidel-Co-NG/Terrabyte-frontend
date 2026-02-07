@@ -36,6 +36,40 @@ function getWithQuery(path: string, params?: Record<string, string | number | un
   return q ? `${path}?${q}` : path;
 }
 
+export interface TransferToUserParams {
+  phone_number: string;
+  amount: string | number;
+  transaction_pin: string;
+}
+
+export interface SocialCategory {
+  id: number | string;
+  name: string;
+  icon?: string | null;
+  active?: boolean;
+}
+
+export interface SocialPlan {
+  id: number | string;
+  socialCategoryId?: number | string;
+  name: string;
+  description?: string | null;
+  averageTime?: string | null;
+  minQuantity?: number;
+  maxQuantity?: number;
+  smartUserAmount: number;
+  smartEarnerAmount: number;
+  topUserAmount: number;
+  active?: boolean;
+}
+
+export interface BuySocialParams {
+  plan_id: string | number;
+  link: string;
+  quantity: number;
+  transaction_pin: string;
+}
+
 export const servicesApi = {
   // ==================== AIRTIME TO CASH ====================
   getAirtime2CashRates(): Promise<HttpResponse> {
@@ -74,6 +108,9 @@ export const servicesApi = {
   },
 
   // ==================== CABLE TV ====================
+  getCableCompanies(): Promise<HttpResponse> {
+    return client.get<HttpResponse>(endpoints.cableCompanies);
+  },
   getCablePlans(cable?: string): Promise<HttpResponse> {
     return client.get<HttpResponse>(getWithQuery(endpoints.cablePlans, { cable }));
   },
@@ -255,5 +292,22 @@ export const servicesApi = {
       quantity: payload.quantity,
       transaction_pin: payload.transaction_pin,
     });
+  },
+
+  async transferToUser(params: TransferToUserParams) {
+    // Returns the parsed JSON response from the API.
+    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.transferToUser, params);
+  },
+
+  async getSocialCategories() {
+    return client.get<{ status?: string; message?: string; data?: { categories?: SocialCategory[] } }>(endpoints.socialCategories);
+  },
+
+  async getSocialPlans() {
+    return client.get<{ status?: string; message?: string; data?: { plans?: SocialPlan[] } }>(endpoints.socialPlans);
+  },
+
+  async buySocial(params: BuySocialParams) {
+    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.buySocial, params);
   },
 };

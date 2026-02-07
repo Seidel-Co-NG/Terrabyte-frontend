@@ -4,7 +4,7 @@
 const BASE_URL =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL
     ? String(import.meta.env.VITE_API_BASE_URL).replace(/\/$/, '')
-    : 'https://d1b50356bc27.ngrok-free.app';
+    : 'https://765ff52402ca.ngrok-free.app';
 
 const ADMIN_URL =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_URL

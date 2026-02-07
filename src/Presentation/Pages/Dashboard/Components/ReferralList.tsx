@@ -16,7 +16,7 @@ const ReferralList = () => {
   const [referrals, setReferrals] = useState<ReferredUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-
+ 
   useEffect(() => {
     userApi
       .getReferredUsers()

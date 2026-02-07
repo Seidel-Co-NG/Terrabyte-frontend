@@ -1,54 +1,101 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
-import CableProviderSelector from './Components/CableProviderSelector';
+import CableProviderSelector, { type CableProviderItem } from './Components/CableProviderSelector';
 import CablePlanSelector, { type CablePlan } from './Components/CablePlanSelector';
 import { servicesApi } from '../../../core/api';
 
-// Mock plans per provider (plan name + amount)
-const MOCK_PLANS_BY_PROVIDER: Record<string, CablePlan[]> = {
-  DSTV: [
-    { id: 'dstv-compact', plan: 'DStv Compact', amount: 10500 },
-    { id: 'dstv-compact-plus', plan: 'DStv Compact Plus', amount: 16200 },
-    { id: 'dstv-premium', plan: 'DStv Premium', amount: 21000 },
-    { id: 'dstv-asian', plan: 'DStv Asian', amount: 8500 },
-  ],
-  GOTV: [
-    { id: 'gotv-max', plan: 'GoTV Max', amount: 3300 },
-    { id: 'gotv-plus', plan: 'GoTV Plus', amount: 2200 },
-    { id: 'gotv-supa', plan: 'GoTV Supa', amount: 5400 },
-    { id: 'gotv-supa-plus', plan: 'GoTV Supa Plus', amount: 6600 },
-  ],
-  STARTIMES: [
-    { id: 'startimes-nova', plan: 'Nova', amount: 1500 },
-    { id: 'startimes-basic', plan: 'Basic', amount: 2500 },
-    { id: 'startimes-classic', plan: 'Classic', amount: 4500 },
-    { id: 'startimes-nova-plus', plan: 'Nova Plus', amount: 3200 },
-  ],
-  SHOWMAX: [
-    { id: 'showmax-mobile', plan: 'Showmax Mobile', amount: 1200 },
-    { id: 'showmax-standard', plan: 'Showmax Standard', amount: 2400 },
-    { id: 'showmax-premium', plan: 'Showmax Premium', amount: 4200 },
-  ],
-};
+const FALLBACK_CABLE_PROVIDERS: CableProviderItem[] = [
+  { name: 'GOTV', code: 'GOTV' },
+  { name: 'DSTV', code: 'DSTV' },
+  { name: 'STARTIMES', code: 'STARTIMES' },
+  { name: 'SHOWMAX', code: 'SHOWMAX' },
+];
+
+/** Normalize API cable plan (id, plan, amount; id may be number). */
+function mapApiPlanToCablePlan(raw: { id?: number | string; plan?: string; amount?: number | string }): CablePlan {
+  const id = raw.id != null ? String(raw.id) : '';
+  const amount = typeof raw.amount === 'number' ? raw.amount : parseFloat(String(raw.amount ?? 0)) || 0;
+  return {
+    id,
+    plan: String(raw.plan ?? ''),
+    amount,
+  };
+}
+
+/** Normalize API response for cable companies/providers. */
+function normalizeCableProviders(raw: unknown): CableProviderItem[] {
+  let list: unknown[] = [];
+  if (Array.isArray(raw)) list = raw;
+  else if (raw && typeof raw === 'object') {
+    const obj = raw as Record<string, unknown>;
+    list = (obj.companies ?? obj.providers ?? obj.data ?? []) as unknown[];
+  }
+  return list
+    .filter((c): c is Record<string, unknown> => c != null && typeof c === 'object')
+    .map((c) => {
+      const name = String(c.name ?? c.cable ?? c.provider ?? '').trim().toUpperCase();
+      const code = String(c.code ?? c.cable ?? c.name ?? '').trim().toUpperCase() || name;
+      return { name: name || code, code: code || name };
+    })
+    .filter((c) => c.name && c.code);
+}
 
 const CableTV = () => {
+  const [cableProviders, setCableProviders] = useState<CableProviderItem[]>(FALLBACK_CABLE_PROVIDERS);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<CablePlan | null>(null);
+  const [plans, setPlans] = useState<CablePlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
   const [iucNumber, setIucNumber] = useState('');
+  const [customerDetails, setCustomerDetails] = useState('');
   const [isIucValidated, setIsIucValidated] = useState(false);
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
-  const plans = selectedProvider ? MOCK_PLANS_BY_PROVIDER[selectedProvider] ?? [] : [];
+  // Load cable providers from API
+  useEffect(() => {
+    servicesApi.getCableCompanies().then((res) => {
+      const raw = res?.data;
+      const list = normalizeCableProviders(raw);
+      if (Array.isArray(list) && list.length > 0) setCableProviders(list);
+    }).catch(() => {});
+  }, []);
 
   // Clear plan when provider changes
   useEffect(() => {
     setSelectedPlan(null);
+    setPlans([]);
+    if (!selectedProvider) {
+      setLoadingPlans(false);
+      return;
+    }
+    setLoadingPlans(true);
+    servicesApi
+      .getCablePlans(selectedProvider)
+      .then((res) => {
+        const raw = res?.data;
+        let list: unknown[] = [];
+        if (Array.isArray(raw)) list = raw;
+        else if (raw && typeof raw === 'object') {
+          const obj = raw as Record<string, unknown>;
+          list = (obj.plans ?? obj.data ?? []) as unknown[];
+        }
+        const mapped = list
+          .filter((p): p is Record<string, unknown> => p != null && typeof p === 'object')
+          .map((p) => mapApiPlanToCablePlan(p))
+          .filter((p) => p.id && p.plan);
+        setPlans(mapped);
+      })
+      .catch(() => {
+        setPlans([]);
+        toast.error('Failed to load cable plans');
+      })
+      .finally(() => setLoadingPlans(false));
   }, [selectedProvider]);
 
   const canValidate =
@@ -62,11 +109,14 @@ const CableTV = () => {
   const handleValidate = async () => {
     if (!canValidate || !selectedProvider) return;
     setIsSubmitting(true);
+    setCustomerDetails('');
     try {
-      await servicesApi.validateCable({
+      const res = await servicesApi.validateCable({
         iuc: iucNumber.trim(),
         cablename: selectedProvider,
       });
+      const details = (res?.data as { customer_details?: string } | undefined)?.customer_details?.trim();
+      if (details) setCustomerDetails(details);
       setIsIucValidated(true);
       toast.success('IUC validated successfully.');
     } catch (e) {
@@ -123,6 +173,7 @@ const CableTV = () => {
 
         <div className="flex flex-col gap-5">
           <CableProviderSelector
+            providers={cableProviders}
             selectedProvider={selectedProvider}
             onSelect={setSelectedProvider}
           />
@@ -170,6 +221,13 @@ const CableTV = () => {
             </div>
           </div>
 
+          {isIucValidated && customerDetails && (
+            <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4">
+              <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Customer details</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{customerDetails}</p>
+            </div>
+          )}
+
           <div className="flex-1 min-h-[40px]" />
 
           <PayButton
@@ -189,6 +247,7 @@ const CableTV = () => {
         plans={plans}
         selectedPlan={selectedPlan}
         onSelect={setSelectedPlan}
+        isLoading={loadingPlans}
       />
       <ConfirmPaymentModal
         isOpen={pinModalOpen}

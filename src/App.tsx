@@ -51,8 +51,9 @@ import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
 import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
-import TransferToUser from './Presentation/Pages/TransferToUser/TransferToUser';
 import TransferToBank from './Presentation/Pages/TransferToBank/TransferToBank';
+import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
+import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
 
 function AuthInit() {
   const navigate = useNavigate();
@@ -125,6 +126,14 @@ function App() {
               <Route
                 path="services/airtime-to-cash"
                 element={<AirtimeToCash />}
+              />
+              <Route
+                path="services/transfer-to-user"
+                element={<TransferToUser />}
+              />
+              <Route
+                path="services/social-media-boost"
+                element={<SocialMediaBoost />}
               />
               <Route path="profile" element={<Profile />} />
               <Route path="profile/edit" element={<EditProfile />} />

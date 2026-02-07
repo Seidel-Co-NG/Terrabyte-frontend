@@ -112,7 +112,7 @@ const TransferToUser = () => {
                     className={`shrink-0 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all border
                       ${isSelected
                         ? 'bg-[var(--accent-hover)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                        : 'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-hover)]'
+                        : 'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--border-hover)]'
                       }`}
                   >
                     ₦{value.toLocaleString()}

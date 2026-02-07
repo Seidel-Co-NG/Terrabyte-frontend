@@ -11,23 +11,21 @@ import { getNetworkFromPhone } from './utils/phoneNetwork';
 import { pickContact, isContactPickerSupported } from './utils/contactPicker';
 import { servicesApi } from '../../../core/api';
 
-// Mock plans – replace with API later (include SME, GIFTING, DIRECT so Pay can enable for any type)
-const MOCK_PLANS: DataPlan[] = [
-  { id: '1', size: '500MB', amount: 200, type: 'SME', network: 'MTN' },
-  { id: '2', size: '1GB', amount: 300, type: 'SME', network: 'MTN' },
-  { id: '3', size: '2GB', amount: 500, type: 'SME', network: 'MTN' },
-  { id: '4', size: '5GB', amount: 1000, type: 'SME', network: 'MTN' },
-  { id: '5', size: '10GB', amount: 2000, type: 'SME', network: 'MTN' },
-  { id: '6', size: '1GB', amount: 350, type: 'SME', network: 'GLO' },
-  { id: '7', size: '2GB', amount: 550, type: 'SME', network: 'GLO' },
-  { id: '8', size: '1GB', amount: 320, type: 'SME', network: 'AIRTEL' },
-  { id: '9', size: '2GB', amount: 520, type: 'SME', network: 'AIRTEL' },
-  { id: '10', size: '1GB', amount: 300, type: 'SME', network: '9MOBILE' },
-  { id: '11', size: '1GB', amount: 350, type: 'GIFTING', network: 'MTN' },
-  { id: '12', size: '2GB', amount: 550, type: 'GIFTING', network: 'MTN' },
-  { id: '13', size: '1GB', amount: 330, type: 'DIRECT', network: 'MTN' },
-  { id: '14', size: '2GB', amount: 520, type: 'DIRECT', network: 'MTN' },
-];
+/** Map API plan (id may be number) to DataPlan */
+function mapApiPlanToDataPlan(raw: { id?: number | string; network?: string; type?: string; amount?: number | string; size?: string }): DataPlan {
+  const id = raw.id != null ? String(raw.id) : '';
+  const amount = typeof raw.amount === 'number' ? raw.amount : parseFloat(String(raw.amount ?? 0)) || 0;
+  return {
+    id,
+    network: String(raw.network ?? ''),
+    type: String(raw.type ?? ''),
+    amount,
+    size: String(raw.size ?? ''),
+  };
+}
+
+/** Display order for networks in Buy Data */
+const DATA_NETWORK_ORDER = ['MTN', 'AIRTEL', 'GLO', '9MOBILE'];
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -44,15 +42,71 @@ const BuyData = () => {
   const [contactMessage, setContactMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [allPlans, setAllPlans] = useState<DataPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    servicesApi
+      .getDataPlans()
+      .then((res) => {
+        const data = res?.data as unknown;
+        let list: unknown[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (data && typeof data === 'object') {
+          const obj = data as Record<string, unknown>;
+          list = (obj.plans ?? obj.data_plans ?? obj.data ?? []) as unknown[];
+        }
+        if (Array.isArray(list) && list.length > 0) {
+          setAllPlans(list.map((p: Record<string, unknown>) => mapApiPlanToDataPlan(p)));
+        }
+      })
+      .catch(() => {
+        toast.error('Failed to load data plans');
+      })
+      .finally(() => {
+        setLoadingPlans(false);
+      });
+  }, []);
+
+  /** Networks that have at least one plan (from API), in order: MTN, AIRTEL, GLO, 9MOBILE */
+  const networksFromApi = useMemo(() => {
+    const set = new Set(allPlans.map((p) => p.network).filter((n) => n.trim() !== ''));
+    if (set.size === 0) return DATA_NETWORK_ORDER;
+    const ordered: string[] = [];
+    for (const name of DATA_NETWORK_ORDER) {
+      const found = Array.from(set).find((n) => n.toUpperCase() === name);
+      if (found) {
+        ordered.push(found);
+        set.delete(found);
+      }
+    }
+    return ordered.concat(Array.from(set).sort((a, b) => a.localeCompare(b)));
+  }, [allPlans]);
+
+  /** Data types for the selected network (from API). Fallback when none. */
+  const dataTypesFromApi = useMemo(() => {
+    if (!selectedNetwork) return [];
+    const set = new Set(
+      allPlans
+        .filter((p) => p.network.toLowerCase() === selectedNetwork.toLowerCase())
+        .map((p) => p.type)
+        .filter((t) => t.trim() !== '')
+    );
+    return Array.from(set).sort((a, b) => a.localeCompare(b)).map((code) => ({
+      code,
+      name: code.charAt(0).toUpperCase() + code.slice(1).toLowerCase(),
+    }));
+  }, [allPlans, selectedNetwork]);
 
   const filteredPlans = useMemo(() => {
     if (!selectedNetwork) return [];
-    return MOCK_PLANS.filter(
+    return allPlans.filter(
       (p) =>
         p.network.toLowerCase() === selectedNetwork?.toLowerCase() &&
         (!selectedDataType || p.type.toLowerCase() === selectedDataType.toLowerCase())
     );
-  }, [selectedNetwork, selectedDataType]);
+  }, [allPlans, selectedNetwork, selectedDataType]);
 
   // Clear selected plan when network or data type changes so it always matches current filter
   useEffect(() => {
@@ -156,11 +210,17 @@ const BuyData = () => {
             )}
           </div>
 
-          {/* Network Selector */}
-          <DataNetworkSelector selectedNetwork={selectedNetwork} onSelect={setSelectedNetwork} />
+          {/* Network Selector (networks from API) */}
+          <DataNetworkSelector
+            networks={networksFromApi}
+            selectedNetwork={selectedNetwork}
+            onSelect={setSelectedNetwork}
+            loading={loadingPlans}
+          />
 
-          {/* Data Type */}
+          {/* Data Type (types from API for selected network) */}
           <DataTypeSelect
+            dataTypes={dataTypesFromApi}
             selectedDataType={selectedDataType}
             onSelect={setSelectedDataType}
             disabled={!selectedNetwork}
@@ -204,6 +264,7 @@ const BuyData = () => {
         plans={filteredPlans}
         selectedPlan={selectedPlan}
         onSelect={setSelectedPlan}
+        isLoading={loadingPlans}
       />
       <ConfirmPaymentModal
         isOpen={pinModalOpen}

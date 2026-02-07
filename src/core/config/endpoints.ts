@@ -52,6 +52,7 @@ export const endpoints = {
   buyElectricity: `${API}/electricity/buy`,
 
   // Cable TV
+  cableCompanies: `${API}/cable/companies`,
   cablePlans: `${API}/cable/plans`,
   validateCable: `${API}/cable/validate`,
   buyCable: `${API}/cable/buy`,
@@ -101,4 +102,12 @@ export const endpoints = {
   buySocial: `${API}/social/buy`,
   // Airtime
   buyAirtime: `${API}/airtime/buy`,
+
+  // Transfer
+  transferToUser: `${API}/transfer/user`,
+
+  // Social Media
+  socialCategories: `${API}/social/categories`,
+  socialPlans: `${API}/social/plans`,
+  buySocial: `${API}/social/buy`,
 } as const;

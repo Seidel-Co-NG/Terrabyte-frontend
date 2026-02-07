@@ -20,6 +20,25 @@ const FALLBACK_DISCO_COMPANIES: DiscoCompany[] = [
   { name: 'JED', code: 'jed' },
 ];
 
+/** Normalize API response: support data as array, data.companies, and snake_case (company_name, company_code). */
+function normalizeElectricityCompanies(raw: unknown): DiscoCompany[] {
+  let list: unknown[] = [];
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (raw && typeof raw === 'object') {
+    const obj = raw as Record<string, unknown>;
+    list = (obj.companies ?? obj.data ?? []) as unknown[];
+  }
+  return list
+    .filter((c): c is Record<string, unknown> => c != null && typeof c === 'object')
+    .map((c) => {
+      const name = String(c.name ?? c.company_name ?? '').trim();
+      const code = String(c.code ?? c.company_code ?? '').trim();
+      return { name: name || code || 'Unknown', code: code || name.toLowerCase().replace(/\s+/g, '_') };
+    })
+    .filter((c) => c.name && c.code);
+}
+
 const Electricity = () => {
   const [discoCompanies, setDiscoCompanies] = useState<DiscoCompany[]>(FALLBACK_DISCO_COMPANIES);
   const [selectedDisco, setSelectedDisco] = useState<string | null>(null);
@@ -34,10 +53,10 @@ const Electricity = () => {
 
   useEffect(() => {
     servicesApi.getElectricityCompanies().then((res) => {
-      const data = res?.data as { companies?: DiscoCompany[] } | DiscoCompany[] | undefined;
-      const list = Array.isArray(data) ? data : data?.companies;
-      if (Array.isArray(list) && list.length > 0 && list.every((c) => c && typeof c.name === 'string' && typeof c.code === 'string')) {
-        setDiscoCompanies(list as DiscoCompany[]);
+      const raw = res?.data;
+      const list = normalizeElectricityCompanies(raw);
+      if (Array.isArray(list) && list.length > 0) {
+        setDiscoCompanies(list);
       }
     }).catch(() => {});
   }, []);
@@ -89,7 +108,8 @@ const Electricity = () => {
         meter_type: selectedMeterType,
         company_code: selectedDisco,
       });
-      const name = (res?.data as { customer_name?: string })?.customer_name;
+      const data = res?.data as { customer_name?: string; customer_details?: string } | undefined;
+      const name = data?.customer_details?.trim() || data?.customer_name?.trim();
       if (name) setCustomerName(name);
       setIsMeterValidated(true);
       toast.success('Meter validated successfully.');
@@ -173,6 +193,13 @@ const Electricity = () => {
               className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
             />
           </div>
+
+          {isMeterValidated && customerName && (
+            <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4">
+              <p className="text-xs font-medium text-[var(--text-muted)] mb-1">Customer details</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{customerName}</p>
+            </div>
+          )}
 
           <AmountSelector
             selectedAmount={amount}
