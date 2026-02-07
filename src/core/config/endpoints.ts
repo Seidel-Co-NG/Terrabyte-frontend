@@ -41,6 +41,7 @@ export const endpoints = {
   // Coupon (verified-only)
   couponValidate: `${API}/coupon/validate`,
   couponRedeem: `${API}/coupon/redeem`,
+<<<<<<< HEAD
 
   // Airtime to Cash
   airtime2CashRates: `${API}/airtime2cash/rates`,
@@ -100,4 +101,8 @@ export const endpoints = {
   socialCategories: `${API}/social/categories`,
   socialPlans: `${API}/social/plans`,
   buySocial: `${API}/social/buy`,
+=======
+  // Airtime
+  buyAirtime: `${API}/airtime/buy`,
+>>>>>>> 43018d95ebb1a36502c0410d61a0f82378375fd8
 } as const;

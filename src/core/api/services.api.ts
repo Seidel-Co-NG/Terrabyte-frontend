@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Services API. Matches Flutter services_repository_impl endpoints and payloads.
  */
@@ -255,5 +256,21 @@ export const servicesApi = {
       quantity: payload.quantity,
       transaction_pin: payload.transaction_pin,
     });
+=======
+import { client } from '../config/client';
+import { endpoints } from '../config/endpoints';
+
+export interface BuyAirtimeParams {
+  network_name: string;
+  phone_number: string;
+  amount: string | number;
+  transaction_pin: string;
+}
+
+export const servicesApi = {
+  async buyAirtime(params: BuyAirtimeParams) {
+    // Returns the parsed JSON response from the API.
+    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.buyAirtime, params);
+>>>>>>> 43018d95ebb1a36502c0410d61a0f82378375fd8
   },
 };
