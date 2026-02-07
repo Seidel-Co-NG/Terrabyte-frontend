@@ -43,4 +43,12 @@ export const endpoints = {
   couponRedeem: `${API}/coupon/redeem`,
   // Airtime
   buyAirtime: `${API}/airtime/buy`,
+
+  // Transfer
+  transferToUser: `${API}/transfer/user`,
+
+  // Social Media
+  socialCategories: `${API}/social/categories`,
+  socialPlans: `${API}/social/plans`,
+  buySocial: `${API}/social/buy`,
 } as const;
