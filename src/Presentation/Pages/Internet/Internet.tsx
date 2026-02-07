@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import InternetNetworkSelector from './Components/InternetNetworkSelector';
 import InternetPlanSelector, { type InternetPlan } from './Components/InternetPlanSelector';
 import { pickContact, isContactPickerSupported } from '../BuyData/utils/contactPicker';
+import { servicesApi } from '../../../core/api';
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -47,6 +50,7 @@ const Internet = () => {
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactMessage, setContactMessage] = useState<string | null>(null);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const plans = selectedNetwork ? MOCK_PLANS_BY_NETWORK[selectedNetwork] ?? [] : [];
 
@@ -85,13 +89,20 @@ const Internet = () => {
 
   const handlePay = () => {
     if (!canPay) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        `Internet purchase successful.\nNetwork: ${selectedNetwork}\nPlan: ${selectedPlan?.size}\nPhone: ${displayPhone}\nAmount: ₦${selectedPlan?.amount.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedNetwork || !selectedPlan || !phone) return;
+    await servicesApi.buyInternet({
+      network: selectedNetwork,
+      phone_number: phone,
+      plan_id: selectedPlan.id,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Internet purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} successful.`);
+    setPhone('');
+    setSelectedPlan(null);
   };
 
   return (
@@ -178,6 +189,13 @@ const Internet = () => {
         plans={plans}
         selectedPlan={selectedPlan}
         onSelect={setSelectedPlan}
+      />
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Internet Purchase"
+        subtitle={selectedPlan ? `${selectedPlan.size} • ₦${selectedPlan.amount.toLocaleString()} • ${displayPhone}` : undefined}
+        onConfirm={handleConfirmPay}
       />
     </div>
   );

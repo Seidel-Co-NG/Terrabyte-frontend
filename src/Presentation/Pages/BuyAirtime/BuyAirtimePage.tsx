@@ -10,6 +10,7 @@ import MessageModal from '../../Components/MessageModal';
 import LoadingOverlay from '../../Components/LoadingOverlay';
 import { servicesApi } from '../../../core/api';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import DataNetworkSelector from '../BuyData/Components/DataNetworkSelector';
 
 export default function BuyAirtimePage() {
@@ -117,24 +118,36 @@ export default function BuyAirtimePage() {
       };
       const res = await servicesApi.buyAirtime(payload as any);
 
-      // API may return { status: 'success'|'error', message, data }
+      // API response: { status: 'successful', message: string, data: { transaction_reference, id, description, amount, ... } }
       const status = (res as any)?.status ?? undefined;
+      const statusStr = status != null ? String(status).toLowerCase() : '';
+      const isSuccess = statusStr === 'success' || statusStr === 'successful';
       const message = (res as any)?.message ?? 'Operation completed';
       const data = (res as any)?.data ?? (res as any);
 
-      if (status && String(status).toLowerCase() === 'success') {
+      if (isSuccess) {
         setConfirmOpen(false);
-        const transactionId = data?.transaction_id ?? data?.transactionId ?? data?.id ?? undefined;
+        const transactionId =
+          data?.transaction_reference ??
+          data?.transaction_id ??
+          data?.transactionId ??
+          (data?.id != null ? String(data.id) : undefined);
         setLastTransactionId(transactionId ?? undefined);
-        setSuccessMessage(message ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`);
+        const successMsg = message ?? data?.description ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`;
+        setSuccessMessage(successMsg);
         setSuccessOpen(true);
+        toast.success(successMsg);
 
         // save beneficiary if requested and if successful
         if (saveAsBeneficiary) {
           try {
             const raw = localStorage.getItem('beneficiaries');
             const list = raw ? JSON.parse(raw) : [];
-            list.unshift({ id: (data?.transaction_id ?? `local-${Date.now()}`), phoneNumber: phone, network: selectedNetwork });
+            list.unshift({
+              id: data?.transaction_reference ?? data?.transaction_id ?? `local-${Date.now()}`,
+              phoneNumber: phone,
+              network: selectedNetwork,
+            });
             localStorage.setItem('beneficiaries', JSON.stringify(list));
           } catch (e) {
             console.error('Failed to save beneficiary', e);
@@ -148,31 +161,16 @@ export default function BuyAirtimePage() {
         setAmountToPay(0);
         setModalError(null);
       } else {
-        // Show error in modal
+        // Show actual API message in modal and toast
         const errorMsg = message ?? 'Airtime purchase failed. Please try again.';
-        
-        // Parse specific error messages
-        if (errorMsg.toLowerCase().includes('pin') || errorMsg.toLowerCase().includes('invalid')) {
-          setModalError('Invalid PIN. Please try again.');
-        } else if (errorMsg.toLowerCase().includes('balance') || errorMsg.toLowerCase().includes('insufficient')) {
-          setModalError('Insufficient balance. Please fund your wallet.');
-        } else {
-          setModalError(errorMsg);
-        }
+        setModalError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
       console.error('Buy airtime error', err);
-      
-      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to complete airtime purchase';
-      
-      // Parse specific error messages
-      if (errorMsg.toLowerCase().includes('pin') || errorMsg.toLowerCase().includes('invalid')) {
-        setModalError('Invalid PIN. Please try again.');
-      } else if (errorMsg.toLowerCase().includes('balance') || errorMsg.toLowerCase().includes('insufficient')) {
-        setModalError('Insufficient balance. Please fund your wallet.');
-      } else {
-        setModalError(errorMsg);
-      }
+      const errorMsg = err?.message ?? err?.response?.data?.message ?? 'Failed to complete airtime purchase.';
+      setModalError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }

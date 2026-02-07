@@ -2,30 +2,34 @@ import { useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import SelectionDrawer from '../../../Components/SelectionDrawer';
 
-interface DataType {
+export interface DataTypeOption {
   code: string;
   name: string;
 }
 
-const DATA_TYPES: DataType[] = [
+/** Fallback when API returns no types for the selected network */
+const FALLBACK_DATA_TYPES: DataTypeOption[] = [
   { code: 'SME', name: 'SME' },
   { code: 'GIFTING', name: 'Gifting' },
   { code: 'DIRECT', name: 'Direct' },
 ];
 
 interface DataTypeSelectProps {
+  /** Data types from API for the selected network. When empty, fallback is used. */
+  dataTypes?: DataTypeOption[];
   selectedDataType: string | null;
   onSelect: (type: string | null) => void;
   disabled?: boolean;
 }
 
-const DataTypeSelect = ({ selectedDataType, onSelect, disabled }: DataTypeSelectProps) => {
+const DataTypeSelect = ({ dataTypes = [], selectedDataType, onSelect, disabled }: DataTypeSelectProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const types = dataTypes.length > 0 ? dataTypes : FALLBACK_DATA_TYPES;
 
-  const selected = DATA_TYPES.find((t) => t.code === selectedDataType);
+  const selected = types.find((t) => t.code === selectedDataType);
   const displayValue = selected ? selected.name : '';
 
-  const handleSelect = (type: DataType) => {
+  const handleSelect = (type: DataTypeOption) => {
     onSelect(type.code);
     setDrawerOpen(false);
   };
@@ -51,7 +55,7 @@ const DataTypeSelect = ({ selectedDataType, onSelect, disabled }: DataTypeSelect
         title="Select Data Type"
       >
         <ul className="space-y-2">
-          {DATA_TYPES.map((type) => {
+          {types.map((type) => {
             const isSelected = selectedDataType === type.code;
             return (
               <li key={type.code}>
@@ -76,4 +80,3 @@ const DataTypeSelect = ({ selectedDataType, onSelect, disabled }: DataTypeSelect
 };
 
 export default DataTypeSelect;
-export { DATA_TYPES };

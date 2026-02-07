@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
+import { servicesApi } from '../../../core/api';
 
 // Mock: cost per SMS (replace with API/config)
 const COST_PER_SMS = 5;
@@ -17,6 +20,7 @@ const BulkSMS = () => {
   const [senderId, setSenderId] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const recipientList = parseRecipients(recipients);
   const quantity = recipientList.length;
@@ -31,13 +35,20 @@ const BulkSMS = () => {
 
   const handleSend = () => {
     if (!canSubmit) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        `Bulk SMS sent successfully to ${quantity} recipient(s).\nAmount: ₦${amountToPay.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmSend = async (transactionPin: string) => {
+    await servicesApi.sendBulkSms({
+      from: senderId.trim(),
+      to: recipientList.join(','),
+      msg: message.trim(),
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Bulk SMS sent to ${quantity} recipient(s) successfully.`);
+    setRecipients('');
+    setSenderId('');
+    setMessage('');
   };
 
   return (
@@ -113,6 +124,13 @@ const BulkSMS = () => {
           />
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Bulk SMS"
+        subtitle={`${quantity} recipient(s) • ₦${amountToPay.toLocaleString()}`}
+        onConfirm={handleConfirmSend}
+      />
     </div>
   );
 };

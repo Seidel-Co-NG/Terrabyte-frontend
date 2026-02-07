@@ -51,8 +51,8 @@ import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
 import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
+import TransferToBank from './Presentation/Pages/TransferToBank/TransferToBank';
 import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
-import TransferToBank from "./Presentation/Pages/TransferToBank/TransferToBank";
 import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
 
 function AuthInit() {
@@ -162,6 +162,8 @@ function App() {
                 path="notifications/:id"
                 element={<NotificationDetails />}
               />
+              <Route path="transfer-to-bank" element={<TransferToBank />} />
+              <Route path="transfer-to-user" element={<TransferToUser />} />
               <Route path="fund-wallet" element={<FundWallet />} />
               <Route path="fund-wallet/monnify" element={<MonnifyFunding />} />
               <Route

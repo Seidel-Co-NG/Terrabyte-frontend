@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
+import { servicesApi } from '../../../core/api';
 
 const EXAM_TYPE_LOGOS: Record<string, string> = {
   JAMB: '/img/jamb.png',
@@ -21,6 +24,7 @@ const BuyPins = () => {
   const [nameOnCard, setNameOnCard] = useState('');
   const [quantity, setQuantity] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const exam = EXAM_TYPES.find((e) => e.name === selectedExam);
   const amountPerPin = exam?.amount ?? 0;
@@ -35,13 +39,20 @@ const BuyPins = () => {
 
   const handleContinue = () => {
     if (!isFormValid) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        `Exam pin purchase successful.\nType: ${selectedExam}\nName: ${nameOnCard}\nQuantity: ${qty}\nTotal: ₦${totalAmount.toLocaleString()}`
-      );
-    }, 1000);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmPay = async (transactionPin: string) => {
+    if (!selectedExam || qty < 1) return;
+    await servicesApi.buyExam({
+      exam_type: selectedExam,
+      quantity: qty,
+      transaction_pin: transactionPin,
+    });
+    toast.success(`Exam pin purchase: ${selectedExam} x ${qty} - ₦${totalAmount.toLocaleString()} successful.`);
+    setSelectedExam(null);
+    setNameOnCard('');
+    setQuantity('');
   };
 
   return (
@@ -159,6 +170,13 @@ const BuyPins = () => {
           />
         </div>
       </div>
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm Exam Pin Purchase"
+        subtitle={selectedExam ? `${selectedExam} x ${qty} • ₦${totalAmount.toLocaleString()}` : undefined}
+        onConfirm={handleConfirmPay}
+      />
     </div>
   );
 };
