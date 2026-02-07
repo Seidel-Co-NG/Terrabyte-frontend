@@ -25,7 +25,7 @@ const TransferToUser = () => {
       setAmountToPay(amountValue + charge);
     } else {
       setAmountToPay(0);
-    }
+    } 
   };
 
   const handleAmountChange = (newAmount: string) => {

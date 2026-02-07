@@ -32,9 +32,6 @@ const WalletBalance = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleGenerateVirtualAccount = () => {
-    console.log('Generate Virtual Account clicked');
-  };
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -63,14 +60,13 @@ const WalletBalance = () => {
               <FiDollarSign className="btn-icon text-lg sm:text-xl shrink-0" />
               <span>Fund Wallet</span>
             </Link>
-            <button
-              type="button"
-              onClick={handleGenerateVirtualAccount}
-              className="flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold cursor-pointer transition-all duration-300 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.15)] text-[var(--text-primary)] border border-[var(--accent-hover)] hover:-translate-y-0.5 hover:border-[var(--accent-primary)] hover:shadow-[0_4px_12px_var(--accent-hover)] min-w-0"
+            <Link
+              to="/dashboard/transfer-to-bank"
+              className="flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold cursor-pointer transition-all duration-300 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.15)] text-[var(--text-primary)] border border-[var(--accent-hover)] hover:-translate-y-0.5 hover:border-[var(--accent-primary)] hover:shadow-[0_4px_12px_var(--accent-hover)] min-w-0 no-underline"
             >
               <FiCreditCard className="text-lg sm:text-xl shrink-0" />
-              <span className="text-center">Generate Virtual Account</span>
-            </button>
+              <span className="text-center">Withdraw balance</span>
+            </Link>
           </div>
         </div>
 

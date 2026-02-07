@@ -13,11 +13,15 @@ import AppDownloadBanner from '../../Components/AppDownloadBanner';
 
 const Dashboard = () => {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const fetchTransactions = useTransactionsStore((s) => s.fetchTransactions);
   const username = user?.name ?? user?.username ?? 'User';
   const userType = (user?.user_type ?? user?.user_level ?? 'User').replace(/_/g, ' ');
   const showAdminButton = Boolean(apiConfig.adminUrl) && Boolean(user?.is_staff || user?.isAdmin);
+  const adminHref = apiConfig.adminUrl
+    ? `${apiConfig.adminUrl}${apiConfig.adminUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token ?? '')}`
+    : apiConfig.adminUrl ?? '#';
 
   useEffect(() => {
     fetchUser().catch(() => { });
@@ -33,7 +37,7 @@ const Dashboard = () => {
       {showAdminButton && (
         <div className="mb-4 flex justify-end">
           <a
-            href={apiConfig.adminUrl}
+            href={adminHref}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 py-2 px-4 rounded-lg text-sm font-medium bg-[var(--accent-hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] hover:bg-[var(--accent-primary)] hover:text-white transition-colors"
