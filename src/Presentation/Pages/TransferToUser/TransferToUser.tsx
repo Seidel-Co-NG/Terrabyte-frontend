@@ -23,9 +23,22 @@ const TransferToUser = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
+<<<<<<< HEAD
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
     setPhone(raw);
+=======
+  // Calculate charges (basic calculation - adjust based on your backend)
+  const calculateAmountToPay = (amt: string) => {
+    const amountValue = parseFloat(amt) || 0;
+    if (amountValue > 0) {
+      // Assuming a fixed charge or percentage - adjust based on your backend config
+      const charge = 50; // Example: ₦50 fixed charge
+      setAmountToPay(amountValue + charge);
+    } else {
+      setAmountToPay(0);
+    } 
+>>>>>>> d2bee8772e7e805535adfaf57fe91c45b338d082
   };
 
   const handlePresetClick = (value: number) => {

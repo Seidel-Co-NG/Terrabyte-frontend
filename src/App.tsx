@@ -131,6 +131,7 @@ function App() {
                 path="services/transfer-to-user"
                 element={<TransferToUser />}
               />
+              <Route path="transfer-to-bank" element={<TransferToBank />} />
               <Route
                 path="services/social-media-boost"
                 element={<SocialMediaBoost />}
