@@ -52,6 +52,7 @@ import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
 import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
+import TransferToBank from "./Presentation/Pages/TransferToBank/TransferToBank";
 import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
 
 function AuthInit() {
@@ -130,6 +131,7 @@ function App() {
                 path="services/transfer-to-user"
                 element={<TransferToUser />}
               />
+              <Route path="transfer-to-bank" element={<TransferToBank />} />
               <Route
                 path="services/social-media-boost"
                 element={<SocialMediaBoost />}
