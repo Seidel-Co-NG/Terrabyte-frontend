@@ -29,6 +29,7 @@ export default function BuyAirtimePage() {
   const [messageTitle, setMessageTitle] = useState<string | undefined>(undefined);
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [messageType, setMessageType] = useState<'info' | 'success' | 'error'>('info');
+  const [modalError, setModalError] = useState<string | null>(null);
   const phoneRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
 
@@ -99,8 +100,14 @@ export default function BuyAirtimePage() {
   }
 
   async function submitWithPin(pin: string, saveAsBeneficiary: boolean) {
-    setConfirmOpen(false);
+    if (pin.length < 4) {
+      setModalError('PIN must be 4 digits');
+      return;
+    }
+
+    setModalError(null);
     setIsSubmitting(true);
+
     try {
       const payload = {
         network_name: selectedNetwork ?? '',
@@ -109,7 +116,6 @@ export default function BuyAirtimePage() {
         transaction_pin: pin,
       };
       const res = await servicesApi.buyAirtime(payload as any);
-      setIsSubmitting(false);
 
       // API may return { status: 'success'|'error', message, data }
       const status = (res as any)?.status ?? undefined;
@@ -117,44 +123,58 @@ export default function BuyAirtimePage() {
       const data = (res as any)?.data ?? (res as any);
 
       if (status && String(status).toLowerCase() === 'success') {
+        setConfirmOpen(false);
         const transactionId = data?.transaction_id ?? data?.transactionId ?? data?.id ?? undefined;
         setLastTransactionId(transactionId ?? undefined);
         setSuccessMessage(message ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`);
         setSuccessOpen(true);
-      } else {
-        // treat as error - show MessageModal
-        setMessageTitle('Error');
-        setMessageText(message ?? 'Airtime purchase failed');
-        setMessageType('error');
-        setMessageOpen(true);
-      }
 
-      // save beneficiary if requested and if successful
-      if (saveAsBeneficiary && status && String(status).toLowerCase() === 'success') {
-        try {
-          const raw = localStorage.getItem('beneficiaries');
-          const list = raw ? JSON.parse(raw) : [];
-          list.unshift({ id: (data?.transaction_id ?? `local-${Date.now()}`), phoneNumber: phone, network: selectedNetwork });
-          localStorage.setItem('beneficiaries', JSON.stringify(list));
-        } catch (e) {
-          console.error('Failed to save beneficiary', e);
+        // save beneficiary if requested and if successful
+        if (saveAsBeneficiary) {
+          try {
+            const raw = localStorage.getItem('beneficiaries');
+            const list = raw ? JSON.parse(raw) : [];
+            list.unshift({ id: (data?.transaction_id ?? `local-${Date.now()}`), phoneNumber: phone, network: selectedNetwork });
+            localStorage.setItem('beneficiaries', JSON.stringify(list));
+          } catch (e) {
+            console.error('Failed to save beneficiary', e);
+          }
         }
-      }
 
-      // reset values on success
-      if (status && String(status).toLowerCase() === 'success') {
+        // reset values on success
         setPhone('');
         setAmount('');
         setSelectedNetwork(null);
         setAmountToPay(0);
+        setModalError(null);
+      } else {
+        // Show error in modal
+        const errorMsg = message ?? 'Airtime purchase failed. Please try again.';
+        
+        // Parse specific error messages
+        if (errorMsg.toLowerCase().includes('pin') || errorMsg.toLowerCase().includes('invalid')) {
+          setModalError('Invalid PIN. Please try again.');
+        } else if (errorMsg.toLowerCase().includes('balance') || errorMsg.toLowerCase().includes('insufficient')) {
+          setModalError('Insufficient balance. Please fund your wallet.');
+        } else {
+          setModalError(errorMsg);
+        }
       }
     } catch (err: any) {
-      setIsSubmitting(false);
       console.error('Buy airtime error', err);
-      setMessageTitle('Error');
-      setMessageText(err?.message ?? 'Failed to complete airtime purchase');
-      setMessageType('error');
-      setMessageOpen(true);
+      
+      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to complete airtime purchase';
+      
+      // Parse specific error messages
+      if (errorMsg.toLowerCase().includes('pin') || errorMsg.toLowerCase().includes('invalid')) {
+        setModalError('Invalid PIN. Please try again.');
+      } else if (errorMsg.toLowerCase().includes('balance') || errorMsg.toLowerCase().includes('insufficient')) {
+        setModalError('Insufficient balance. Please fund your wallet.');
+      } else {
+        setModalError(errorMsg);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -240,7 +260,10 @@ export default function BuyAirtimePage() {
 
       <ConfirmPaymentModal
         isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={() => {
+          setConfirmOpen(false);
+          setModalError(null);
+        }}
         networkName={selectedNetwork ?? ''}
         product="Airtime"
         amount={amount}
@@ -248,6 +271,8 @@ export default function BuyAirtimePage() {
         amountToPay={amountToPay}
         onConfirmPayment={(pin, save) => submitWithPin(pin, save)}
         isLoading={isSubmitting}
+        error={modalError}
+        onErrorClear={() => setModalError(null)}
       />
 
       <LoadingOverlay isOpen={isSubmitting} message="Processing payment..." />

@@ -21,6 +21,7 @@ const ReferralBonus = () => {
   const [copied, setCopied] = useState<string | null>(null);
   const [recentReferrals, setRecentReferrals] = useState<ReferredUser[]>([]);
   const [isConverting, setIsConverting] = useState(false);
+  
   const user = useAuthStore((s) => s.user);
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const username = user?.username ?? user?.name ?? 'user';
