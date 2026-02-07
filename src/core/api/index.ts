@@ -6,4 +6,3 @@ export { notificationApi } from './notification.api';
 export { servicesApi } from './services.api';
 export { client, clearAuthStorage } from '../config/client';
 export { endpoints } from '../config/endpoints';
-export { servicesApi } from './services.api';
