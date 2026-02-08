@@ -43,10 +43,12 @@ const BuyPins = () => {
   };
 
   const handleConfirmPay = async (transactionPin: string) => {
-    if (!selectedExam || qty < 1) return;
-    await servicesApi.buyExam({
-      exam_type: selectedExam,
+    if (!selectedExam || qty < 1 || !exam) return;
+    await servicesApi.buyRechargePins({
+      pin_name: selectedExam,
+      name_on_card: nameOnCard.trim(),
       quantity: qty,
+      amount: amountPerPin,
       transaction_pin: transactionPin,
     });
     toast.success(`Exam pin purchase: ${selectedExam} x ${qty} - ₦${totalAmount.toLocaleString()} successful.`);
