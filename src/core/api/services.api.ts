@@ -296,7 +296,7 @@ export const servicesApi = {
 
   async transferToUser(params: TransferToUserParams) {
     // Returns the parsed JSON response from the API.
-    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.transferToUser, params);
+    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.userTransfer, params);
   },
 
   async getSocialCategories() {
