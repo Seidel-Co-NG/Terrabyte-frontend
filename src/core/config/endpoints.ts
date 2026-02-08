@@ -90,7 +90,8 @@ export const endpoints = {
   // User Transfer
   userTransfer: `${API}/user-transfer/transfer`,
 
-  // Recharge Pins
+  // Recharge Pins - POST /recharge/pins for buy pins & recharge card printing
+  rechargePins: `${API}/recharge/pins`,
   buyPin: `${API}/buy-pin`,
   buyDatacard: `${API}/buy-datacard`,
   fetchDatacardPlans: `${API}/recharge/fetch-datacard-plans`,

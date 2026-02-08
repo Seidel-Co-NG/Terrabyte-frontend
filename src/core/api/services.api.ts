@@ -253,6 +253,16 @@ export const servicesApi = {
   },
 
   // ==================== RECHARGE PINS ====================
+  /** Recharge card printing & Buy Pins: POST /recharge/pins */
+  buyRechargePins(payload: BuyPinPayload): Promise<HttpResponse> {
+    return client.post<HttpResponse>(endpoints.rechargePins, {
+      pin_name: payload.pin_name,
+      name_on_card: payload.name_on_card,
+      quantity: payload.quantity,
+      amount: payload.amount,
+      transaction_pin: payload.transaction_pin,
+    });
+  },
   buyPin(payload: BuyPinPayload): Promise<HttpResponse> {
     return client.post<HttpResponse>(endpoints.buyPin, {
       pin_name: payload.pin_name,
