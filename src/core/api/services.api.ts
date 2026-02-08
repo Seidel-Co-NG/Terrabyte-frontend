@@ -25,6 +25,7 @@ import type {
   BuyDatacardPayload,
   BuySocialPayload,
 } from '../../Parameters/types/services.types';
+import type { TransferToUser } from '../../Presentation/Pages/TransferToUser';
 
 function getWithQuery(path: string, params?: Record<string, string | number | undefined | null>): string {
   if (!params) return path;
@@ -253,6 +254,16 @@ export const servicesApi = {
   },
 
   // ==================== RECHARGE PINS ====================
+  /** Recharge card printing & Buy Pins: POST /recharge/pins */
+  buyRechargePins(payload: BuyPinPayload): Promise<HttpResponse> {
+    return client.post<HttpResponse>(endpoints.rechargePins, {
+      pin_name: payload.pin_name,
+      name_on_card: payload.name_on_card,
+      quantity: payload.quantity,
+      amount: payload.amount,
+      transaction_pin: payload.transaction_pin,
+    });
+  },
   buyPin(payload: BuyPinPayload): Promise<HttpResponse> {
     return client.post<HttpResponse>(endpoints.buyPin, {
       pin_name: payload.pin_name,
@@ -294,20 +305,9 @@ export const servicesApi = {
     });
   },
 
-  async transferToUser(params: TransferToUserParams) {
+  // ==================== USER TRANSFER ====================
+  async TransferToUser(params: TransferToUserParams) {
     // Returns the parsed JSON response from the API.
     return client.post<{ status?: string; message?: string; data?: any }>(endpoints.userTransfer, params);
-  },
-
-  async getSocialCategories() {
-    return client.get<{ status?: string; message?: string; data?: { categories?: SocialCategory[] } }>(endpoints.socialCategories);
-  },
-
-  async getSocialPlans() {
-    return client.get<{ status?: string; message?: string; data?: { plans?: SocialPlan[] } }>(endpoints.socialPlans);
-  },
-
-  async buySocial(params: BuySocialParams) {
-    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.buySocial, params);
   },
 };

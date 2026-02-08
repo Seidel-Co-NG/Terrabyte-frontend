@@ -29,6 +29,7 @@ import Internet from "./Presentation/Pages/Internet/Internet";
 import BetFunding from "./Presentation/Pages/BetFunding/BetFunding";
 import BulkSMS from "./Presentation/Pages/BulkSMS/BulkSMS";
 import BuyPins from "./Presentation/Pages/BuyPins/BuyPins";
+import RechargeCardPrinting from "./Presentation/Pages/RechargeCardPrinting/RechargeCardPrinting";
 import BonusToWallet from "./Presentation/Pages/BonusToWallet/BonusToWallet";
 import AirtimeToCash from "./Presentation/Pages/AirtimeToCash/AirtimeToCash";
 import TermsPrivacy from "./Presentation/Pages/Terms/Terms";
@@ -119,6 +120,7 @@ function App() {
               <Route path="services/bet-funding" element={<BetFunding />} />
               <Route path="services/bulk-sms" element={<BulkSMS />} />
               <Route path="services/buy-pins" element={<BuyPins />} />
+              <Route path="services/recharge-card-printing" element={<RechargeCardPrinting />} />
               <Route
                 path="services/bonus-to-wallet"
                 element={<BonusToWallet />}

@@ -102,20 +102,28 @@ const TransferToBank = () => {
   };
 
   const handleConfirmPay = async (transactionPin: string) => {
-    await servicesApi.bankTransfer({
-      account_number: accountNumber,
-      bank_code: selectedBankCode!,
-      account_name: accountName || 'Account Holder',
-      amount: String(amountNum),
-      narration: 'Transfer',
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Transfer of ₦${amountNum.toLocaleString()} successful.`);
-    setSelectedBank(null);
-    setSelectedBankCode(null);
-    setAccountNumber('');
-    setAccountName('');
-    setAmount('');
+    setIsSubmitting(true);
+    try {
+      await servicesApi.bankTransfer({
+        account_number: accountNumber,
+        bank_code: selectedBankCode!,
+        account_name: accountName || 'Account Holder',
+        amount: String(amountNum),
+        narration: 'Transfer',
+        transaction_pin: transactionPin,
+      });
+      toast.success(`Transfer of ₦${amountNum.toLocaleString()} successful.`);
+      setSelectedBank(null);
+      setSelectedBankCode(null);
+      setAccountNumber('');
+      setAccountName('');
+      setAmount('');
+      setPinModalOpen(false);
+    } catch (error) {
+      console.error('Bank transfer failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const balance = user?.wallet ?? '0.00';

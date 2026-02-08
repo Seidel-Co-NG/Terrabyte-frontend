@@ -55,16 +55,24 @@ const TransferToUser = () => {
   };
 
   const handleConfirmTransfer = async (transactionPin: string) => {
-    await servicesApi.transferToUser({
-      phone_number: phone,
-      amount: String(amountNum),
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Transfer of ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`);
-    setPhone('');
-    setAmount('');
-    setSelectedPreset(null);
-    setAmountToPay(0);
+    setIsSubmitting(true);
+    try {
+      await servicesApi.transferToUser({
+        phone_number: phone,
+        amount: String(amountNum),
+        transaction_pin: transactionPin,
+      });
+      toast.success(`Transfer of ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`);
+      setPhone('');
+      setAmount('');
+      setSelectedPreset(null);
+      setAmountToPay(0);
+      setPinModalOpen(false);
+    } catch (error) {
+      console.error('Transfer failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const balance = user?.wallet ?? '0.00';

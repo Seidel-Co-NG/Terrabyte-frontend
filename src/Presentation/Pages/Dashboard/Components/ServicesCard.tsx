@@ -9,8 +9,10 @@ import {
   FiMessageSquare,
   FiGift,
   FiKey,
+  FiPrinter,
   FiRefreshCw,
   FiSend,
+  FiTrendingUp,
 } from 'react-icons/fi';
 
 interface Service {
@@ -30,9 +32,10 @@ const ServicesCard = () => {
     { name: 'Bulk SMS', icon: <FiMessageSquare />, link: '/dashboard/services/bulk-sms' },
     { name: 'Bonus To Wallet', icon: <FiGift />, link: '/dashboard/services/bonus-to-wallet' },
     { name: 'Buy Pins', icon: <FiKey />, link: '/dashboard/services/buy-pins' },
+    { name: 'Recharge Card Printing', icon: <FiPrinter />, link: '/dashboard/services/recharge-card-printing' },
     { name: 'Airtime To Cash', icon: <FiRefreshCw />, link: '/dashboard/services/airtime-to-cash' },
     { name: 'Transfer to User', icon: <FiSend />, link: '/dashboard/services/transfer-to-user' },
-    { name: 'Social Media Boost', icon: <FiSend />, link: '/dashboard/services/social-media-boost' },
+    { name: 'Social Media Boost', icon: <FiTrendingUp />, link: '/dashboard/services/social-media-boost' },
   ];
 
   return (
