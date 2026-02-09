@@ -41,7 +41,6 @@ const TransferToBank = () => {
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
   const [amount, setAmount] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [validatingAccount, setValidatingAccount] = useState(false);
 
@@ -94,7 +93,7 @@ const TransferToBank = () => {
 
   const amountNum = amount ? parseFloat(amount) : 0;
   const isValidAmount = amountNum > 0;
-  const canSubmit = !!selectedBank && !!selectedBankCode && accountNumber.length === 10 && isValidAmount && !isSubmitting;
+  const canSubmit = !!selectedBank && !!selectedBankCode && accountNumber.length === 10 && isValidAmount;
 
   const handlePay = () => {
     if (!canSubmit) return;
@@ -199,7 +198,7 @@ const TransferToBank = () => {
 
           <PayButton
             fullWidth
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handlePay}

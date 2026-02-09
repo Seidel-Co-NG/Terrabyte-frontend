@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiCheckCircle } from 'react-icons/fi';
+import { FiSearch, FiCheckCircle, FiCopy } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import { userApi } from '../../../../core/api/user.api';
+import { useAuthStore } from '../../../../core/stores/auth.store';
 
 interface ReferredUser {
   id?: number;
@@ -13,9 +15,20 @@ interface ReferredUser {
 }
 
 const ReferralList = () => {
+  const user = useAuthStore((s) => s.user);
+  const username = user?.username ?? user?.name ?? 'user';
+  const referralLink = `https://terrabyte.com.ng/ref/${username}`;
   const [referrals, setReferrals] = useState<ReferredUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [copied, setCopied] = useState<'link' | 'code' | null>(null);
+
+  const copyToClipboard = (text: string, type: 'link' | 'code') => {
+    navigator.clipboard.writeText(text);
+    setCopied(type);
+    toast.success(`${type === 'link' ? 'Referral link' : 'Referral code'} copied!`);
+    setTimeout(() => setCopied(null), 2000);
+  };
  
   useEffect(() => {
     userApi
@@ -51,6 +64,43 @@ const ReferralList = () => {
 
   return (
     <div className="flex flex-col h-full rounded-xl p-6 md:p-5 sm:p-4 bg-[var(--bg-card)]">
+      {/* Referral Link Section */}
+      <div className="mb-6 pb-6 border-b border-[var(--border-color)]">
+        <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">Your Referral Link</h3>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex items-center gap-2 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]">
+            <span className="flex-1 text-sm text-[var(--text-primary)] truncate font-mono">
+              {referralLink}
+            </span>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(referralLink, 'link')}
+              className="p-2 rounded-lg text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+              title="Copy referral link"
+            >
+              <FiCopy size={16} />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]">
+            <span className="text-sm font-semibold text-[var(--text-primary)]">{username}</span>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(username, 'code')}
+              className="p-2 rounded-lg text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+              title="Copy referral code"
+            >
+              <FiCopy size={16} />
+            </button>
+          </div>
+        </div>
+        {copied && (
+          <p className="text-xs text-[var(--success)] mt-2">
+            {copied === 'link' ? 'Referral link copied!' : 'Referral code copied!'}
+          </p>
+        )}
+      </div>
+
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 mb-6">
         <div className="flex-1 relative flex items-center">
           <FiSearch className="absolute left-4 text-[var(--text-muted)] text-base pointer-events-none" />

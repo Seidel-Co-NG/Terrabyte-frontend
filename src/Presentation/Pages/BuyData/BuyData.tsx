@@ -40,7 +40,6 @@ const BuyData = () => {
   const [selectedPlan, setSelectedPlan] = useState<DataPlan | null>(null);
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [contactMessage, setContactMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [allPlans, setAllPlans] = useState<DataPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -58,7 +57,7 @@ const BuyData = () => {
           list = (obj.plans ?? obj.data_plans ?? obj.data ?? []) as unknown[];
         }
         if (Array.isArray(list) && list.length > 0) {
-          setAllPlans(list.map((p: Record<string, unknown>) => mapApiPlanToDataPlan(p)));
+          setAllPlans(list.map((p) => mapApiPlanToDataPlan(p as Record<string, unknown>)));
         }
       })
       .catch(() => {
@@ -150,7 +149,7 @@ const BuyData = () => {
   const isValidPhone = phone.length === 11;
   const hasDataType = selectedDataType != null && selectedDataType.trim() !== '';
   const canSubmit =
-    isValidPhone && !!selectedNetwork && hasDataType && !!selectedPlan && !isSubmitting;
+    isValidPhone && !!selectedNetwork && hasDataType && !!selectedPlan;
 
   const handlePay = () => {
     if (!canSubmit) return;
@@ -250,7 +249,7 @@ const BuyData = () => {
           <PayButton
             fullWidth
             text="Pay"
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handlePay}

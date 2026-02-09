@@ -86,6 +86,7 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
         { name: 'Monnify ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/monnify' },
         { name: 'Paystack ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/paystack' },
         { name: 'Automated Bank Transfer', icon: <FiRefreshCw />, link: '/dashboard/fund-wallet/automated-transfer' },
+        { name: 'Manual Bank Funding', icon: <span className="text-lg font-bold opacity-80 inline-flex items-center justify-center min-w-[20px]" aria-hidden>₦</span>, link: '/dashboard/fund-wallet/manual-bank' },
         { name: 'Coupon', icon: <FiTag />, link: '/dashboard/fund-wallet/coupon' },
       ],
     },

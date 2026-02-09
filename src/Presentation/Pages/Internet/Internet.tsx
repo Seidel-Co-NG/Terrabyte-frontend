@@ -48,7 +48,6 @@ const Internet = () => {
   const [selectedPlan, setSelectedPlan] = useState<InternetPlan | null>(null);
   const [phone, setPhone] = useState('');
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactMessage, setContactMessage] = useState<string | null>(null);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
@@ -84,8 +83,7 @@ const Internet = () => {
   const canPay =
     !!selectedNetwork &&
     !!selectedPlan &&
-    isValidPhone &&
-    !isSubmitting;
+    isValidPhone;
 
   const handlePay = () => {
     if (!canPay) return;
@@ -175,7 +173,7 @@ const Internet = () => {
           <PayButton
             fullWidth
             text="Pay"
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canPay}
             onClick={handlePay}
