@@ -293,21 +293,4 @@ export const servicesApi = {
       transaction_pin: payload.transaction_pin,
     });
   },
-
-  async transferToUser(params: TransferToUserParams) {
-    // Returns the parsed JSON response from the API.
-    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.transferToUser, params);
-  },
-
-  async getSocialCategories() {
-    return client.get<{ status?: string; message?: string; data?: { categories?: SocialCategory[] } }>(endpoints.socialCategories);
-  },
-
-  async getSocialPlans() {
-    return client.get<{ status?: string; message?: string; data?: { plans?: SocialPlan[] } }>(endpoints.socialPlans);
-  },
-
-  async buySocial(params: BuySocialParams) {
-    return client.post<{ status?: string; message?: string; data?: any }>(endpoints.buySocial, params);
-  },
 };
