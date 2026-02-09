@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AmountSelector from './AmountSelector';
 import { formatNigeriaNumberThree, getBeneficiariesByServiceType, getNetworkName } from './utils';
 import type { Beneficiary } from './utils';
@@ -18,7 +18,7 @@ export default function BuyAirtimePage() {
   const [amount, setAmount] = useState('');
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
-  const [phoneSuggestions, setPhoneSuggestions] = useState<Beneficiary[]>([]);
+  const [, setPhoneSuggestions] = useState<Beneficiary[]>([]);
   const [amountValidationError, setAmountValidationError] = useState('');
   const [amountToPay, setAmountToPay] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -27,11 +27,10 @@ export default function BuyAirtimePage() {
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
-  const [messageTitle, setMessageTitle] = useState<string | undefined>(undefined);
-  const [messageText, setMessageText] = useState<string | undefined>(undefined);
-  const [messageType, setMessageType] = useState<'info' | 'success' | 'error'>('info');
+  const [messageTitle] = useState<string | undefined>(undefined);
+  const [messageText] = useState<string | undefined>(undefined);
+  const [messageType] = useState<'info' | 'success' | 'error'>('info');
   const [modalError, setModalError] = useState<string | null>(null);
-  const phoneRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {

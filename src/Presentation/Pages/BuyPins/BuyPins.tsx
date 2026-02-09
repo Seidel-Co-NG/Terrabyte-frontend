@@ -23,7 +23,6 @@ const BuyPins = () => {
   const [selectedExam, setSelectedExam] = useState<string | null>(null);
   const [nameOnCard, setNameOnCard] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const exam = EXAM_TYPES.find((e) => e.name === selectedExam);
@@ -34,8 +33,7 @@ const BuyPins = () => {
   const isFormValid =
     !!selectedExam &&
     nameOnCard.trim().length > 0 &&
-    qty >= 1 &&
-    !isSubmitting;
+    qty >= 1;
 
   const handleContinue = () => {
     if (!isFormValid) return;
@@ -164,8 +162,8 @@ const BuyPins = () => {
 
           <PayButton
             fullWidth
-            text={isSubmitting ? 'Processing...' : 'Continue'}
-            loading={isSubmitting}
+            text="Continue"
+            loading={false}
             loadingText="Processing..."
             disabled={!isFormValid}
             onClick={handleContinue}

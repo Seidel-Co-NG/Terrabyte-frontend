@@ -24,7 +24,6 @@ import {
   FiSend,
   FiPrinter,
   FiTrendingUp,
-  FiDollarSign,
 } from 'react-icons/fi';
 import { useAuthStore, type AuthState } from '../../core/stores/auth.store';
 import LogoutModal from '../../Presentation/Components/LogoutModal';

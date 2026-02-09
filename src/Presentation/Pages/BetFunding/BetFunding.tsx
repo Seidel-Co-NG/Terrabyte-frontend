@@ -11,7 +11,6 @@ const BetFunding = () => {
   const [userId, setUserId] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const amountNum = amount ? parseFloat(amount) : 0;
@@ -21,8 +20,7 @@ const BetFunding = () => {
   const canPay =
     hasUserId &&
     !!selectedCompany &&
-    isValidAmount &&
-    !isSubmitting;
+    isValidAmount;
 
   const handlePay = () => {
     if (!canPay) return;
@@ -88,7 +86,7 @@ const BetFunding = () => {
           <PayButton
             fullWidth
             text="Pay"
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canPay}
             onClick={handlePay}

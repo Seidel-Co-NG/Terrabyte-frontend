@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import BackButton from '../../Components/BackButton';
-import { FiCreditCard, FiRefreshCw, FiTag, FiDollarSign } from 'react-icons/fi';
+import { FiCreditCard, FiRefreshCw, FiTag } from 'react-icons/fi';
 
 const OPTIONS = [
   {

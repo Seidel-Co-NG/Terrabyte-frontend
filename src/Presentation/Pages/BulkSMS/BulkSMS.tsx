@@ -19,7 +19,6 @@ const BulkSMS = () => {
   const [recipients, setRecipients] = useState('');
   const [senderId, setSenderId] = useState('');
   const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const recipientList = parseRecipients(recipients);
@@ -30,8 +29,7 @@ const BulkSMS = () => {
   const canSubmit =
     recipientList.length > 0 &&
     senderId.trim().length > 0 &&
-    message.trim().length > 0 &&
-    !isSubmitting;
+    message.trim().length > 0;
 
   const handleSend = () => {
     if (!canSubmit) return;
@@ -116,8 +114,8 @@ const BulkSMS = () => {
 
           <PayButton
             fullWidth
-            text={isSubmitting ? 'Sending...' : 'Send SMS'}
-            loading={isSubmitting}
+            text="Send SMS"
+            loading={false}
             loadingText="Sending..."
             disabled={!canSubmit}
             onClick={handleSend}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const PIN_LENGTH = 5;
 
@@ -63,11 +63,6 @@ export default function ConfirmPaymentModal({
     }
   }, [isOpen]);
 
-  const resetPin = useCallback(() => {
-    setPin(['', '', '', '', '']);
-    setModalError(null);
-    onErrorClear?.();
-  }, [onErrorClear]);
 
   const addDigit = useCallback(
     (digit: string) => {
@@ -102,7 +97,6 @@ export default function ConfirmPaymentModal({
   );
 
   const backspace = useCallback(() => {
-    const idx = pin.findIndex((d, i) => i < pin.length - 1 && pin[i + 1] === '') ?? pin.length - 1;
     let i = pin.length - 1;
     while (i >= 0 && pin[i] === '') i--;
     if (i >= 0) {
@@ -232,7 +226,7 @@ export default function ConfirmPaymentModal({
 
           {/* Keypad (Flutter-style: 1-9, 0, backspace) */}
           <div className="grid grid-cols-3 gap-2 mb-4">
-            {KEYPAD_ROWS.map((row, rowIdx) =>
+            {KEYPAD_ROWS.map((row) =>
               row.map((key) =>
                 key === 'back' ? (
                   <button

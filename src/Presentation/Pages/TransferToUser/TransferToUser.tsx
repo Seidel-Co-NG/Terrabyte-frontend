@@ -20,7 +20,6 @@ const TransferToUser = () => {
   const [amount, setAmount] = useState('');
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [amountToPay, setAmountToPay] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +46,7 @@ const TransferToUser = () => {
   const isValidPhone = phone.length === 11;
   const amountNum = amount ? parseFloat(amount) : 0;
   const isValidAmount = amountNum >= 100;
-  const canSubmit = isValidPhone && isValidAmount && !isSubmitting;
+  const canSubmit = isValidPhone && isValidAmount;
 
   const handleTransfer = () => {
     if (!canSubmit) return;
@@ -155,7 +154,7 @@ const TransferToUser = () => {
           {/* Transfer Button */}
           <PayButton
             fullWidth
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handleTransfer}

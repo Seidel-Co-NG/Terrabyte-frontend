@@ -20,7 +20,6 @@ const BuyAirtime = () => {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [contactMessage, setContactMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +56,7 @@ const BuyAirtime = () => {
   const isValidPhone = phone.length === 11;
   const amountNum = amount ? parseFloat(amount) : 0;
   const isValidAmount = amountNum > 0;
-  const canSubmit = isValidPhone && !!selectedNetwork && isValidAmount && !isSubmitting;
+  const canSubmit = isValidPhone && !!selectedNetwork && isValidAmount;
 
   const handlePay = () => {
     if (!canSubmit) return;
@@ -137,7 +136,7 @@ const BuyAirtime = () => {
           {/* Pay Button */}
           <PayButton
             fullWidth
-            loading={isSubmitting}
+            loading={false}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handlePay}

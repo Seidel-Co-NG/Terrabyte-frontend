@@ -5,7 +5,6 @@ import BackButton from '../../Components/BackButton';
 import PayButton from '../../Components/PayButton';
 import SelectionDrawer from '../../Components/SelectionDrawer';
 import DetailRow from './Components/DetailRow';
-import { useAuthStore } from '../../../core/stores/auth.store';
 import { servicesApi, userApi } from '../../../core/api';
 
 interface AdminBank {
@@ -15,8 +14,6 @@ interface AdminBank {
 }
 
 const ManualBankFunding = () => {
-  const user = useAuthStore((s) => s.user);
-  const username = user?.username ?? user?.name ?? 'user';
   const [adminBanks, setAdminBanks] = useState<AdminBank[]>([]);
   const [loadingBanks, setLoadingBanks] = useState(true);
   const [hasMadeTransfer, setHasMadeTransfer] = useState(false);

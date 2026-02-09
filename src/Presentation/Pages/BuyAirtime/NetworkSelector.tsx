@@ -1,4 +1,3 @@
-import React from 'react';
 import { networksList } from './utils';
 
 type Props = {
