@@ -52,6 +52,7 @@ import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
 import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
+import ManualBankFunding from "./Presentation/Pages/FundWallet/ManualBankFunding";
 import TransferToBank from './Presentation/Pages/TransferToBank/TransferToBank';
 import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
 import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
@@ -177,6 +178,7 @@ function App() {
                 element={<AutomatedBankTransfer />}
               />
               <Route path="fund-wallet/coupon" element={<CouponFunding />} />
+              <Route path="fund-wallet/manual-bank" element={<ManualBankFunding />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import BackButton from '../../Components/BackButton';
-import { FiCreditCard, FiRefreshCw, FiTag } from 'react-icons/fi';
+import { FiCreditCard, FiRefreshCw, FiTag, FiDollarSign } from 'react-icons/fi';
 
 const OPTIONS = [
   {
@@ -20,6 +20,12 @@ const OPTIONS = [
     description: 'Transfer to your reserved account',
     icon: <FiRefreshCw className="w-8 h-8" />,
     link: '/dashboard/fund-wallet/automated-transfer',
+  },
+  {
+    title: 'Manual Bank Funding',
+    description: 'Submit proof of bank transfer',
+    icon: <span className="text-2xl font-bold">₦</span>,
+    link: '/dashboard/fund-wallet/manual-bank',
   },
   {
     title: 'Coupon',
