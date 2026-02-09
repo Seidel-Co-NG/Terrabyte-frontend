@@ -13,6 +13,19 @@ interface AdminBank {
   account_name: string;
 }
 
+/** Normalize raw config response to AdminBank[]. API returns data.admin_bank_account. */
+function normalizeAdminBanks(raw: unknown): AdminBank[] {
+  if (!raw || typeof raw !== 'object') return [];
+  const data = raw as Record<string, unknown>;
+  const list = (data.admin_bank_account ?? data.adminBankAccount) as unknown;
+  if (!Array.isArray(list) || list.length === 0) return [];
+  return list.map((item: Record<string, unknown>) => ({
+    account_number: String(item.account_number ?? item.accountNumber ?? ''),
+    bank_name: String(item.bank_name ?? item.bankName ?? ''),
+    account_name: String(item.account_name ?? item.accountName ?? ''),
+  })).filter((b) => b.account_number && b.bank_name);
+}
+
 const ManualBankFunding = () => {
   const [adminBanks, setAdminBanks] = useState<AdminBank[]>([]);
   const [loadingBanks, setLoadingBanks] = useState(true);
@@ -31,9 +44,8 @@ const ManualBankFunding = () => {
 
   useEffect(() => {
     userApi.getConfigurations().then((res) => {
-      const data = res?.data as { adminBankAccount?: AdminBank[] } | AdminBank[] | undefined;
-      const list = Array.isArray(data) ? data : (data && typeof data === 'object' && 'adminBankAccount' in data ? (data.adminBankAccount as AdminBank[]) : []);
-      if (Array.isArray(list) && list.length > 0) {
+      const list = normalizeAdminBanks(res?.data);
+      if (list.length > 0) {
         setAdminBanks(list);
       }
     }).catch(() => {}).finally(() => setLoadingBanks(false));
