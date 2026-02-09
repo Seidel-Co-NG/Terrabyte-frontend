@@ -90,8 +90,9 @@ export const endpoints = {
   // User Transfer
   userTransfer: `${API}/user-transfer/transfer`,
 
-  // Recharge Pins
-  buyPin: `${API}/recharge/pins`,
+  // Recharge Pins - POST /recharge/pins for buy pins & recharge card printing
+  rechargePins: `${API}/recharge/pins`,
+  buyPin: `${API}/buy-pin`,
   buyDatacard: `${API}/buy-datacard`,
   fetchDatacardPlans: `${API}/recharge/fetch-datacard-plans`,
   getPinsByBuyId: `${API}/recharge/pins/by-buy-id`,
@@ -100,7 +101,7 @@ export const endpoints = {
   socialCategories: `${API}/social/categories`,
   socialPlans: `${API}/social/plans`,
   buySocial: `${API}/social/buy`,
-
+  
   // Airtime
   buyAirtime: `${API}/airtime/buy`,
 } as const;

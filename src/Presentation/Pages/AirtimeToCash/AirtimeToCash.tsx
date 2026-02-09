@@ -44,7 +44,6 @@ const AirtimeToCash = () => {
   const [phone, setPhone] = useState('');
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [successData, setSuccessData] = useState<{ sendToNumber: string; ussdCode: string; ref: string } | null>(null);
 
@@ -59,8 +58,7 @@ const AirtimeToCash = () => {
     hasReadInstructions &&
     phone.replace(/\D/g, '').length === 11 &&
     selectedNetwork &&
-    isValidAmount &&
-    !isSubmitting;
+    isValidAmount;
 
   const handleContinue = () => {
     if (!canSubmit) return;
@@ -300,8 +298,8 @@ const AirtimeToCash = () => {
 
           <PayButton
             fullWidth
-            text={isSubmitting ? 'Processing...' : 'Continue'}
-            loading={isSubmitting}
+            text="Continue"
+            loading={false}
             loadingText="Processing..."
             disabled={!canSubmit}
             onClick={handleContinue}

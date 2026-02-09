@@ -22,6 +22,12 @@ const OPTIONS = [
     link: '/dashboard/fund-wallet/automated-transfer',
   },
   {
+    title: 'Manual Bank Funding',
+    description: 'Submit proof of bank transfer',
+    icon: <span className="text-2xl font-bold">₦</span>,
+    link: '/dashboard/fund-wallet/manual-bank',
+  },
+  {
     title: 'Coupon',
     description: 'Redeem a coupon code',
     icon: <FiTag className="w-8 h-8" />,

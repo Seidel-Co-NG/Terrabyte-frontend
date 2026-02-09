@@ -23,7 +23,6 @@ const BuyPins = () => {
   const [selectedExam, setSelectedExam] = useState<string | null>(null);
   const [nameOnCard, setNameOnCard] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const exam = EXAM_TYPES.find((e) => e.name === selectedExam);
@@ -34,8 +33,7 @@ const BuyPins = () => {
   const isFormValid =
     !!selectedExam &&
     nameOnCard.trim().length > 0 &&
-    qty >= 1 &&
-    !isSubmitting;
+    qty >= 1;
 
   const handleContinue = () => {
     if (!isFormValid) return;
@@ -43,10 +41,12 @@ const BuyPins = () => {
   };
 
   const handleConfirmPay = async (transactionPin: string) => {
-    if (!selectedExam || qty < 1) return;
-    await servicesApi.buyExam({
-      exam_type: selectedExam,
+    if (!selectedExam || qty < 1 || !exam) return;
+    await servicesApi.buyRechargePins({
+      pin_name: selectedExam,
+      name_on_card: nameOnCard.trim(),
       quantity: qty,
+      amount: amountPerPin,
       transaction_pin: transactionPin,
     });
     toast.success(`Exam pin purchase: ${selectedExam} x ${qty} - ₦${totalAmount.toLocaleString()} successful.`);
@@ -162,8 +162,8 @@ const BuyPins = () => {
 
           <PayButton
             fullWidth
-            text={isSubmitting ? 'Processing...' : 'Continue'}
-            loading={isSubmitting}
+            text="Continue"
+            loading={false}
             loadingText="Processing..."
             disabled={!isFormValid}
             onClick={handleContinue}

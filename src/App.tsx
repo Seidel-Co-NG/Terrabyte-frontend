@@ -29,6 +29,7 @@ import Internet from "./Presentation/Pages/Internet/Internet";
 import BetFunding from "./Presentation/Pages/BetFunding/BetFunding";
 import BulkSMS from "./Presentation/Pages/BulkSMS/BulkSMS";
 import BuyPins from "./Presentation/Pages/BuyPins/BuyPins";
+import RechargeCardPrinting from "./Presentation/Pages/RechargeCardPrinting/RechargeCardPrinting";
 import BonusToWallet from "./Presentation/Pages/BonusToWallet/BonusToWallet";
 import AirtimeToCash from "./Presentation/Pages/AirtimeToCash/AirtimeToCash";
 import TermsPrivacy from "./Presentation/Pages/Terms/Terms";
@@ -51,6 +52,7 @@ import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
 import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
+import ManualBankFunding from "./Presentation/Pages/FundWallet/ManualBankFunding";
 import TransferToBank from './Presentation/Pages/TransferToBank/TransferToBank';
 import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
 import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
@@ -119,6 +121,7 @@ function App() {
               <Route path="services/bet-funding" element={<BetFunding />} />
               <Route path="services/bulk-sms" element={<BulkSMS />} />
               <Route path="services/buy-pins" element={<BuyPins />} />
+              <Route path="services/recharge-card-printing" element={<RechargeCardPrinting />} />
               <Route
                 path="services/bonus-to-wallet"
                 element={<BonusToWallet />}
@@ -175,6 +178,7 @@ function App() {
                 element={<AutomatedBankTransfer />}
               />
               <Route path="fund-wallet/coupon" element={<CouponFunding />} />
+              <Route path="fund-wallet/manual-bank" element={<ManualBankFunding />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

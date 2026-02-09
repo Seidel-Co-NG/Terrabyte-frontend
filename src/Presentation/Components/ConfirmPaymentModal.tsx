@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const PIN_LENGTH = 5;
 
@@ -63,11 +63,6 @@ export default function ConfirmPaymentModal({
     }
   }, [isOpen]);
 
-  const resetPin = useCallback(() => {
-    setPin(['', '', '', '', '']);
-    setModalError(null);
-    onErrorClear?.();
-  }, [onErrorClear]);
 
   const addDigit = useCallback(
     (digit: string) => {
@@ -102,7 +97,6 @@ export default function ConfirmPaymentModal({
   );
 
   const backspace = useCallback(() => {
-    const idx = pin.findIndex((d, i) => i < pin.length - 1 && pin[i + 1] === '') ?? pin.length - 1;
     let i = pin.length - 1;
     while (i >= 0 && pin[i] === '') i--;
     if (i >= 0) {
@@ -121,6 +115,7 @@ export default function ConfirmPaymentModal({
   if (!isOpen) return null;
 
   const displayError = modalError ?? error;
+  const isProcessing = loading || isLoading;
 
   return (
     <>
@@ -131,9 +126,21 @@ export default function ConfirmPaymentModal({
       />
       <div className="absolute inset-0 z-[1001] flex items-center justify-center p-4">
         <div
-          className="w-full max-w-sm flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-xl p-6"
+          className="relative w-full max-w-sm flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-xl p-6"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Processing overlay - covers modal with centered loader */}
+          {isProcessing && (
+            <div
+              className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-[var(--bg-card)]/95 backdrop-blur-[2px]"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <span className="w-12 h-12 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin mb-3" />
+              <span className="text-sm font-medium text-[var(--text-secondary)]">Verifying PIN...</span>
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex items-start justify-between gap-3 mb-4">
             <div className="flex-1 min-w-0">
@@ -219,7 +226,7 @@ export default function ConfirmPaymentModal({
 
           {/* Keypad (Flutter-style: 1-9, 0, backspace) */}
           <div className="grid grid-cols-3 gap-2 mb-4">
-            {KEYPAD_ROWS.map((row, rowIdx) =>
+            {KEYPAD_ROWS.map((row) =>
               row.map((key) =>
                 key === 'back' ? (
                   <button
