@@ -79,4 +79,12 @@ export const authApi = {
       transaction_pin: payload.transaction_pin,
     });
   },
+
+  async googleAuth(accessToken: string): Promise<HttpResponse<LoginData & { is_new_user?: boolean }>> {
+    return client.post<HttpResponse<LoginData & { is_new_user?: boolean }>>(
+      endpoints.googleAuth,
+      { access_token: accessToken },
+      { requireToken: false }
+    );
+  },
 };

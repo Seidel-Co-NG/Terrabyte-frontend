@@ -26,8 +26,8 @@ function normalizeUser(raw: Record<string, unknown> | User): User {
     user_level: (r.user_level as string) ?? (raw as User).user_level,
     bonus: r.bonus != null ? String(r.bonus) : (raw as User).bonus,
     has_transaction_pin: hasPin,
-    user_limit: (r.user_limit as number) ?? (raw as User).user_limit,
-    daily_limit: (r.daily_limit as number) ?? (raw as User).daily_limit,
+    user_limit: r.user_limit != null ? Number(r.user_limit) : (raw as User).user_limit ?? 0,
+    daily_limit: r.daily_limit != null ? Number(r.daily_limit) : (raw as User).daily_limit ?? 0,
     created_at: (r.created_at as string) ?? (raw as User).created_at,
     updated_at: (r.updated_at as string) ?? (raw as User).updated_at,
     isAdmin: r.isAdmin === true || r.isAdmin === 1 || Boolean((raw as User).isAdmin),
@@ -48,6 +48,7 @@ export interface AuthState {
   clearError: () => void;
   hydrate: () => void;
   login: (payload: LoginPayload) => Promise<boolean>;
+  googleLogin: (accessToken: string) => Promise<boolean>;
   logout: () => Promise<void>;
   /** Fetch current user from API and merge into state (call after login). */
   fetchUser: () => Promise<boolean>;
@@ -202,6 +203,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return false;
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Login failed';
+      set({ isLoading: false, error: message });
+      return false;
+    }
+  },
+
+  googleLogin: async (accessToken: string) => {
+    get().clearError();
+    set({ isLoading: true, error: null });
+    try {
+      const res = await authApi.googleAuth(accessToken) as unknown as Record<string, unknown>;
+      const data = res?.data as Record<string, unknown> | string | undefined;
+      const dataObj = typeof data === 'object' && data !== null ? data : undefined;
+      const token = (dataObj?.token ?? dataObj?.access_token ?? dataObj?.accessToken ?? (typeof data === 'string' ? data : undefined)) as string | undefined;
+      const rawUser = dataObj?.user as Record<string, unknown> | User | undefined;
+      const userToStore = rawUser ? normalizeUser(rawUser as Record<string, unknown>) : (token ? ({ has_transaction_pin: true } as User) : undefined);
+      if (token && userToStore) {
+        const tokenToStore = typeof token === 'string' ? token : String(token);
+        setStorage(tokenToStore, userToStore);
+        set({ token: tokenToStore, user: userToStore, isAuthenticated: true, error: null, isLoading: false });
+        // Fetch full user data after Google login
+        await get().fetchUser();
+        return true;
+      }
+      const msg = typeof res?.message === 'string' ? res.message : 'Google authentication failed';
+      set({ isLoading: false, error: msg });
+      return false;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Google authentication failed';
       set({ isLoading: false, error: message });
       return false;
     }

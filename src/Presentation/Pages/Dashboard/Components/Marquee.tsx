@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
+import { useConfigStore, getMarqueeMessages } from '../../../../core/stores/config.store';
+
 const Marquee = () => {
-  const announcements = [
-    'Welcome to our platform! Get started with our services today.',
-    'New features available: Buy Data, Airtime, Electricity, and more!',
-    'Special offer: Get 5% bonus on your first wallet funding.',
-    'API Documentation now available for developers.',
-  ];
+  const notificationForUsers = useConfigStore((s) => s.notificationForUsers);
+  const fetchConfigurations = useConfigStore((s) => s.fetchConfigurations);
+
+  useEffect(() => {
+    fetchConfigurations().catch(() => {});
+  }, [fetchConfigurations]);
+
+  const announcements = getMarqueeMessages(notificationForUsers);
+  if (announcements.length === 0) return null;
 
   return (
     <div className="w-full bg-[var(--accent-hover)] border border-[var(--accent-hover)] rounded-lg py-3 px-4 md:py-2.5 md:px-3 overflow-hidden mb-6 md:mb-4">

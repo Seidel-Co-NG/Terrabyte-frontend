@@ -27,12 +27,12 @@ const WelcomeHeader = ({ username = 'Mr. Jack', userType = 'Premium' }: WelcomeH
           </Link>
         </div>
         <Link
-          to="/dashboard/profile"
+          to="/dashboard/profile/edit"
           className="flex flex-col items-end lg:items-end w-full lg:w-auto lg:min-w-[150px] gap-1 p-4 lg:py-4 lg:px-6 md:py-3 md:px-4 bg-[var(--accent-hover)] border border-[var(--accent-hover)] rounded-lg hover:border-[var(--accent-primary)] transition-colors no-underline"
         >
           <span className="text-xs text-[var(--text-tertiary)] uppercase tracking-wide font-medium">Account Type:</span>
           <span className="text-base md:text-[0.9rem] font-bold text-[var(--accent-primary)] uppercase tracking-wider">{userType}</span>
-          <span className="text-xs text-[var(--text-muted)] mt-1">Edit profile →</span>
+          <span className="text-xs text-[var(--text-muted)] mt-1">Upgrade User Type →</span>
         </Link>
       </div>
     </div>
