@@ -4,22 +4,22 @@ import { FiCreditCard, FiRefreshCw, FiTag } from 'react-icons/fi';
 
 const OPTIONS = [
   {
-    title: 'Monnify',
-    description: 'Pay with card via Monnify (₦100 – ₦2,500)',
-    icon: <FiCreditCard className="w-8 h-8" />,
-    link: '/dashboard/fund-wallet/monnify',
-  },
-  {
-    title: 'Paystack',
-    description: 'Pay with card via Paystack (₦100 – ₦2,500)',
-    icon: <FiCreditCard className="w-8 h-8" />,
-    link: '/dashboard/fund-wallet/paystack',
-  },
-  {
     title: 'Automated Bank Transfer',
     description: 'Transfer to your reserved account',
     icon: <FiRefreshCw className="w-8 h-8" />,
     link: '/dashboard/fund-wallet/automated-transfer',
+  },
+  {
+    title: 'Card & Bank Paymennt',
+    description: 'Pay with card via (₦100 - ₦2,500)',
+    icon: <FiCreditCard className="w-8 h-8" />,
+    link: '/dashboard/fund-wallet/card-bank-payment',
+  },
+  {
+    title: 'Dynamic Bank Transfer',
+    description: 'Transfer to a one time account ',
+    icon: <FiCreditCard className="w-8 h-8" />,
+    link: '/dashboard/fund-wallet/paystack',
   },
   {
     title: 'Manual Bank Funding',
@@ -28,7 +28,7 @@ const OPTIONS = [
     link: '/dashboard/fund-wallet/manual-bank',
   },
   {
-    title: 'Coupon',
+    title: 'Coupon Funding',
     description: 'Redeem a coupon code',
     icon: <FiTag className="w-8 h-8" />,
     link: '/dashboard/fund-wallet/coupon',

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import WelcomeHeader from './Components/WelcomeHeader';
 import Marquee from './Components/Marquee';
 import WalletBalance from './Components/WalletBalance';
@@ -6,8 +6,10 @@ import ServicesCard from './Components/ServicesCard';
 import RecentTransactions from './Components/RecentTransactions';
 import ReferralList from './Components/ReferralList';
 import RecentActivity from './Components/RecentActivity';
+import DashboardNotificationModal from './Components/DashboardNotificationModal';
 import { useAuthStore } from '../../../core/stores/auth.store';
 import { useTransactionsStore } from '../../../core/stores/transactions.store';
+import { useConfigStore, getDashboardNotifications } from '../../../core/stores/config.store';
 import { apiConfig } from '../../../core/config/api.config';
 import AppDownloadBanner from '../../Components/AppDownloadBanner';
 
@@ -16,6 +18,20 @@ const Dashboard = () => {
   const token = useAuthStore((s) => s.token);
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const fetchTransactions = useTransactionsStore((s) => s.fetchTransactions);
+  const notificationForUsers = useConfigStore((s) => s.notificationForUsers);
+  const fetchConfigurations = useConfigStore((s) => s.fetchConfigurations);
+  const dashboardNotifications = getDashboardNotifications(notificationForUsers);
+  const [showDashboardModal, setShowDashboardModal] = useState(false);
+
+  useEffect(() => {
+    fetchConfigurations().catch(() => {});
+  }, [fetchConfigurations]);
+
+  useEffect(() => {
+    if (dashboardNotifications.length > 0) {
+      setShowDashboardModal(true);
+    }
+  }, [dashboardNotifications.length]);
   const username = user?.name ?? user?.username ?? 'User';
   const userType = (user?.user_type ?? user?.user_level ?? 'User').replace(/_/g, ' ');
   const showAdminButton = Boolean(apiConfig.adminUrl) && Boolean(user?.is_staff || user?.isAdmin);
@@ -33,9 +49,10 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 md:p-5 lg:p-8 ml-0 lg:ml-[280px] mt-[70px] md:mt-16 min-h-[calc(100vh-70px)] md:min-h-[calc(100vh-4rem)] bg-[var(--bg-primary)]">
+      <DashboardNotificationModal isOpen={showDashboardModal} onClose={() => setShowDashboardModal(false)} />
       <AppDownloadBanner forceShow />
       {showAdminButton && (
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex justify-start">
           <a
             href={adminHref}
             target="_blank"

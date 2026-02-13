@@ -42,13 +42,16 @@ import NotificationSettings from "./Presentation/Pages/Profile/NotificationSetti
 import ReferralBonus from "./Presentation/Pages/Profile/ReferralBonus";
 import Support from "./Presentation/Pages/Profile/Support";
 import UserLimit from "./Presentation/Pages/Profile/UserLimit";
+import KycVerification from "./Presentation/Pages/Profile/KycVerification";
+import ApiKey from "./Presentation/Pages/Profile/ApiKey";
+import ApiDocs from "./Presentation/Pages/Profile/ApiDocs";
 import DownloadApp from "./Presentation/Pages/DownloadApp/DownloadApp";
 import Transactions from "./Presentation/Pages/Transactions/Transactions";
 import TransactionDetails from "./Presentation/Pages/Transactions/TransactionDetails";
 import Notifications from "./Presentation/Pages/Notifications/Notifications";
 import NotificationDetails from "./Presentation/Pages/Notifications/NotificationDetails";
 import FundWallet from "./Presentation/Pages/FundWallet/FundWallet";
-import MonnifyFunding from "./Presentation/Pages/FundWallet/MonnifyFunding";
+import CardBankPayment from "./Presentation/Pages/FundWallet/CardBankPayment";
 import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
@@ -157,6 +160,9 @@ function App() {
               />
               <Route path="profile/support" element={<Support />} />
               <Route path="profile/user-limit" element={<UserLimit />} />
+              <Route path="profile/kyc" element={<KycVerification />} />
+              <Route path="profile/api-key" element={<ApiKey />} />
+              <Route path="api-docs" element={<ApiDocs />} />
               <Route path="download-app" element={<DownloadApp />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="transactions/:id" element={<TransactionDetails />} />
@@ -167,8 +173,8 @@ function App() {
               />
               <Route path="transfer-to-bank" element={<TransferToBank />} />
               <Route path="transfer-to-user" element={<TransferToUser />} />
-              <Route path="fund-wallet" element={<FundWallet />} />
-              <Route path="fund-wallet/monnify" element={<MonnifyFunding />} />
+              <Route path="fund-wallet" element={<FundWallet  />} />
+              <Route path="fund-wallet/card-bank-payment" element={<CardBankPayment />} />
               <Route
                 path="fund-wallet/paystack"
                 element={<PaystackFunding />}

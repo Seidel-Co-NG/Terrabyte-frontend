@@ -17,6 +17,7 @@ import {
   FiMessageSquare,
   FiGift,
   FiKey,
+  FiBook,
   FiChevronDown,
   FiLogOut,
   FiTag,
@@ -112,6 +113,8 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     { name: 'Transactions', icon: <FiList />, link: '/dashboard/transactions' },
     { name: 'Notifications', icon: <FiBell />, link: '/dashboard/notifications' },
     { name: 'Profile', icon: <FiUser />, link: '/dashboard/profile' },
+    { name: 'Developer\'s API', icon: <FiKey />, link: '/dashboard/profile/api-key' },
+    { name: 'API Documentation', icon: <FiBook />, link: '/dashboard/api-docs' },
     { name: 'Logout', icon: <FiLogOut />, isLogout: true },
   ];
 
@@ -131,9 +134,11 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     const isExpanded = expandedItems.has(item.name);
     const hasSubItems = item.subItems && item.subItems.length > 0;
     const isDashboardActive = item.link === '/dashboard' && location.pathname === '/dashboard';
-    const isProfileActive = item.link === '/dashboard/profile' && location.pathname.startsWith('/dashboard/profile');
+    const isProfileActive = item.link === '/dashboard/profile' && location.pathname.startsWith('/dashboard/profile') && !location.pathname.startsWith('/dashboard/profile/api-key');
+    const isApiKeyActive = item.link === '/dashboard/profile/api-key' && location.pathname === '/dashboard/profile/api-key';
     const isNotificationsActive = item.link === '/dashboard/notifications' && location.pathname.startsWith('/dashboard/notifications');
-    const isActive = item.link && (location.pathname === item.link || isProfileActive || isNotificationsActive);
+    const isApiDocsActive = item.link === '/dashboard/api-docs' && location.pathname === '/dashboard/api-docs';
+    const isActive = item.link && (location.pathname === item.link || isProfileActive || isNotificationsActive || isApiKeyActive || isApiDocsActive);
 
     const linkClass = `flex items-center justify-between px-6 py-3 text-[var(--text-secondary)] no-underline transition-all text-sm font-semibold cursor-pointer rounded-none
       hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]

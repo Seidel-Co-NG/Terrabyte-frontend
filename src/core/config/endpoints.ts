@@ -10,6 +10,7 @@ export const endpoints = {
   resendVerification: `${API}/resend-verification`,
   verifyOtp: `${API}/verify-otp`,
   login: `${API}/login`,
+  googleAuth: `${API}/auth/google`,
   forgotPassword: `${API}/forgot-password`,
   verifyResetOtp: `${API}/verify-reset-otp`,
   resetPassword: `${API}/reset-password`,
@@ -19,6 +20,8 @@ export const endpoints = {
 
   // User
   user: `${API}/user`,
+  kycStatus: `${API}/kyc/status`,
+  kycSubmit: `${API}/kyc/submit`,
   updateUser: `${API}/user/update`,
   changePassword: `${API}/user/change-password`,
   changeTransactionPin: `${API}/user/change-transaction-pin`,
@@ -26,6 +29,8 @@ export const endpoints = {
   bonusToWallet: `${API}/user/bonus-to-wallet`,
   referredUsers: `${API}/user/referred-users`,
   configurations: `${API}/user/configurations`,
+  apiKey: `${API}/api-key`,
+  apiKeyReset: `${API}/api-key/reset`,
 
   // Transactions
   transactions: `${API}/transactions`,

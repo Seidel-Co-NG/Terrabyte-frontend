@@ -11,6 +11,9 @@ import {
   Shield,
   Trash2,
   LogOut,
+  Award,
+  BadgeCheck,
+  Key,
 } from 'lucide-react';
 import SettingItem from './Components/SettingItem';
 import PremiumBanner from './Components/PremiumBanner';
@@ -60,6 +63,17 @@ const Profile = () => {
         <PremiumBanner userLevel={userLevel} />
 
         <div className="mt-6 space-y-6">
+          <div>
+            <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-2">
+              Account
+            </p>
+            <div className="space-y-2">
+              <SettingItem icon={Award} title="User Limit" to="/dashboard/profile/user-limit" />
+              <SettingItem icon={BadgeCheck} title="KYC Verification" to="/dashboard/profile/kyc" />
+              <SettingItem icon={Key} title="Developer's API" to="/dashboard/profile/api-key" />
+            </div>
+          </div>
+
           <div>
             <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-2">
               Settings

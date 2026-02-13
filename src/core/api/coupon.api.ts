@@ -9,7 +9,7 @@ export const couponApi = {
     return client.post(endpoints.couponValidate, { code: code.trim() });
   },
 
-  async redeem(code: string): Promise<{ status?: string; message?: string; data?: unknown }> {
-    return client.post(endpoints.couponRedeem, { code: code.trim() });
+  async redeem(code: string, transactionPin: string): Promise<{ status?: string; message?: string; data?: unknown }> {
+    return client.post(endpoints.couponRedeem, { code: code.trim(), transaction_pin: transactionPin });
   },
 };

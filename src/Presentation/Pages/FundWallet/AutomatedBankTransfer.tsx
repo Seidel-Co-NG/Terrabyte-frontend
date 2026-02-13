@@ -1,28 +1,35 @@
-import { useState } from 'react';
-import { FiShare2 } from 'react-icons/fi';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FiShare2, FiCheckCircle } from 'react-icons/fi';
 import BackButton from '../../Components/BackButton';
 import DetailRow from './Components/DetailRow';
+import { useAuthStore } from '../../../core/stores/auth.store';
 
 interface ReservedAccount {
-  accountNumber: string;
-  bankName: string;
-  accountName: string;
+  account_number?: string;
+  bank_name?: string;
+  account_name?: string;
 }
 
-const MOCK_ACCOUNTS: ReservedAccount[] = [
-  { accountNumber: '8012345678', bankName: 'Providus Bank', accountName: 'Terrabyte / Your Name' },
-  { accountNumber: '9012345678', bankName: 'Wema Bank', accountName: 'Terrabyte / Your Name' },
-];
-
 const AutomatedBankTransfer = () => {
-  const [accounts] = useState<ReservedAccount[]>(MOCK_ACCOUNTS);
+  const user = useAuthStore((s) => s.user);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+
+  const accounts: ReservedAccount[] = Array.isArray(user?.reserved_account) ? user.reserved_account : [];
   const isEmpty = accounts.length === 0;
 
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
   const shareAccount = (account: ReservedAccount) => {
-    const text = `🏦 Bank Account Details\n\n📌 Account Number: ${account.accountNumber}\n🏛️ Bank Name: ${account.bankName}\n👤 Account Name: ${account.accountName}\n\n💡 Transfer funds to this account and your wallet will be credited automatically.\n\n---\nShared from Terrabyte`;
+    const accountNumber = account.account_number ?? '';
+    const bankName = account.bank_name ?? '';
+    const accountName = account.account_name ?? '';
+    const text = `🏦 Bank Account Details\n\n📌 Account Number: ${accountNumber}\n🏛️ Bank Name: ${bankName}\n👤 Account Name: ${accountName}\n\n💡 Transfer funds to this account and your wallet will be credited automatically.\n\n---\nShared from Terrabyte`;
     if (navigator.share) {
       navigator.share({
-        title: `Bank Account - ${account.bankName}`,
+        title: `Bank Account - ${bankName}`,
         text,
       }).catch(() => {
         navigator.clipboard.writeText(text);
@@ -50,9 +57,16 @@ const AutomatedBankTransfer = () => {
               <FiShare2 className="w-8 h-8 text-[var(--text-muted)]" />
             </div>
             <h2 className="text-lg font-bold text-[var(--text-primary)] mb-2">No Reserved Account</h2>
-            <p className="text-sm text-[var(--text-tertiary)] max-w-sm">
-              Your reserved account is being generated. Please check back later.
+            <p className="text-sm text-[var(--text-tertiary)] max-w-sm mb-4">
+              Complete KYC verification to get your reserved bank account for wallet funding.
             </p>
+            <Link
+              to="/dashboard/profile/kyc"
+              className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-dark"
+            >
+              <FiCheckCircle size={18} strokeWidth={2} />
+              Verify to get account
+            </Link>
           </div>
         ) : (
           <>
@@ -66,9 +80,9 @@ const AutomatedBankTransfer = () => {
                   key={index}
                   className="p-4 sm:p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm"
                 >
-                  <DetailRow label="Account Number" value={account.accountNumber} isCopyable />
-                  <DetailRow label="Bank Name" value={account.bankName} />
-                  <DetailRow label="Account Name" value={account.accountName} />
+                  <DetailRow label="Account Number" value={account.account_number ?? ''} isCopyable />
+                  <DetailRow label="Bank Name" value={account.bank_name ?? ''} />
+                  <DetailRow label="Account Name" value={account.account_name ?? ''} />
                   <div className="pt-3 mt-2">
                     <button
                       type="button"

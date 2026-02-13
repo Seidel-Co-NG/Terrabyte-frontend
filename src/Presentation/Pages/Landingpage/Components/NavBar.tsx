@@ -46,7 +46,7 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <Link to="/welcome" className="px-3 md:px-4 lg:px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-lightest transition-colors whitespace-nowrap">
+          <Link to="/login" className="px-3 md:px-4 lg:px-6 py-2 border border-brand-primary text-brand-primary rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-lightest transition-colors whitespace-nowrap">
             Sign in
           </Link>
           <Link to="/signup" className="px-3 md:px-4 lg:px-6 py-2 bg-brand-primary text-white rounded-full text-xs sm:text-sm font-medium hover:bg-brand-primary-dark transition-colors whitespace-nowrap">

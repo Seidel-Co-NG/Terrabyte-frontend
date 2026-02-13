@@ -3,6 +3,7 @@ import { FiCheckCircle, FiInfo, FiTag } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import BackButton from '../../Components/BackButton';
 import PayButton from '../../Components/PayButton';
+import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import VerifyEmailModal from '../../Components/VerifyEmailModal';
 import { useVerifyEmailModal } from '../../../Parameters/utils/useVerifyEmailModal';
 import { couponApi } from '../../../core/api/coupon.api';
@@ -13,7 +14,7 @@ const CouponFunding = () => {
   const [validatedAmount, setValidatedAmount] = useState<number | null>(null);
   const [validatedDescription, setValidatedDescription] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
-  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
   const { showModal, message, handleError, closeModal } = useVerifyEmailModal();
 
   const handleValidate = async () => {
@@ -37,27 +38,24 @@ const CouponFunding = () => {
     }
   };
 
-  const handleRedeem = async () => {
+  const handleRedeem = () => {
     if (!validatedAmount || !code.trim()) return;
-    setIsRedeeming(true);
-    try {
-      const res = await couponApi.redeem(code);
-      const ok = res?.status === 'successful' || res?.status === 'success';
-      if (ok) {
-        toast.success(`Coupon redeemed! ₦${validatedAmount.toLocaleString()} has been added to your wallet.`);
-        setCode('');
-        setIsValidated(false);
-        setValidatedAmount(null);
-        setValidatedDescription(null);
-      } else {
-        const msg = res?.message ?? 'Redeem failed';
-        if (!handleError(msg)) toast.error(msg);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Redeem failed';
-      if (!handleError(msg)) toast.error(msg);
-    } finally {
-      setIsRedeeming(false);
+    setPinModalOpen(true);
+  };
+
+  const handleConfirmRedeem = async (transactionPin: string) => {
+    if (!validatedAmount || !code.trim()) return;
+    const res = await couponApi.redeem(code, transactionPin);
+    const ok = res?.status === 'successful' || res?.status === 'success';
+    if (ok) {
+      toast.success(`Coupon redeemed! ₦${validatedAmount.toLocaleString()} has been added to your wallet.`);
+      setCode('');
+      setIsValidated(false);
+      setValidatedAmount(null);
+      setValidatedDescription(null);
+    } else {
+      const msg = res?.message ?? 'Redeem failed';
+      if (!handleError(msg)) throw new Error(msg);
     }
   };
 
@@ -129,9 +127,8 @@ const CouponFunding = () => {
               <PayButton
                 fullWidth
                 text="Redeem Coupon"
-                loading={isRedeeming}
-                loadingText="Redeeming coupon..."
-                disabled={isRedeeming}
+                loading={false}
+                disabled={false}
                 onClick={handleRedeem}
               />
 
@@ -158,6 +155,14 @@ const CouponFunding = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmPaymentModal
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        title="Confirm coupon redemption"
+        subtitle={`Amount: ₦${validatedAmount?.toLocaleString() ?? '0'}`}
+        onConfirm={handleConfirmRedeem}
+      />
 
       <VerifyEmailModal
         isOpen={showModal}
