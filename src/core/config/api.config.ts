@@ -4,7 +4,7 @@
 const BASE_URL =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL
     ? String(import.meta.env.VITE_API_BASE_URL).replace(/\/$/, '')
-    : 'https://765ff52402ca.ngrok-free.app';
+    : 'https://open-pr-v1-api.terrabyte.com.ng';
 
 const ADMIN_URL =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_URL

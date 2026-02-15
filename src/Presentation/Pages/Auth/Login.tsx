@@ -15,6 +15,7 @@ const Login = () => {
   const { login, googleLogin, isLoading, clearError, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
+    // Redirect to dashboard if already authenticated (only when on login page)
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
       return;
@@ -109,7 +110,7 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-              Email Address
+              Username / Email Address
             </label>
             <input
               id="email"

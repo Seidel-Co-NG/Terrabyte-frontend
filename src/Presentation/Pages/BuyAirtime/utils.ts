@@ -27,17 +27,11 @@ export function formatNigeriaNumberThree(value: string) {
   return `${digits.slice(0,4)} ${digits.slice(4,7)} ${digits.slice(7)}`;
 }
 
-export type Beneficiary = { id: string; phoneNumber: string; network?: string };
+import type { Beneficiary } from '../../../Parameters/types/beneficiary';
+import { beneficiaryStorage } from '../../../Parameters/types/beneficiary';
 
-export async function getBeneficiariesByServiceType(_serviceType: string) {
-  // Simple localStorage-backed stub to mirror Flutter secure storage behavior.
-  try {
-    const raw = localStorage.getItem('beneficiaries');
-    if (!raw) return [] as Beneficiary[];
-    const parsed = JSON.parse(raw) as Beneficiary[];
-    return parsed;
-  } catch (e) {
-    console.error('Failed to load beneficiaries', e);
-    return [] as Beneficiary[];
-  }
+export type { Beneficiary };
+
+export async function getBeneficiariesByServiceType(serviceType: string): Promise<Beneficiary[]> {
+  return beneficiaryStorage.getByServiceType(serviceType);
 }

@@ -85,7 +85,10 @@ export const transactionsApi = {
     };
   },
 
-  async reportTransaction(transactionId: number): Promise<{ status?: string; message?: string }> {
-    return client.post(endpoints.transactionReport(transactionId), {});
+  async reportTransaction(
+    transactionId: number,
+    body?: { reason?: string }
+  ): Promise<{ status?: string; message?: string }> {
+    return client.post(endpoints.transactionReport(transactionId), body ?? {});
   },
 };

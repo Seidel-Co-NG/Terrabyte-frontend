@@ -28,6 +28,7 @@ import {
 } from 'react-icons/fi';
 import { useAuthStore, type AuthState } from '../../core/stores/auth.store';
 import LogoutModal from '../../Presentation/Components/LogoutModal';
+import { servicesApi } from '../../core/api/services.api';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -45,13 +46,21 @@ interface MenuItem {
   icon: React.ReactNode;
   active?: boolean;
   link?: string;
-  subItems?: SubItem[];
+  subItems?: SubItem[] | string; // Can be array or 'fundWallet' marker
   isLogout?: boolean;
+}
+
+interface PaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+  is_available: boolean;
 }
 
 const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   const logout = useAuthStore((s: AuthState) => s.logout);
@@ -68,10 +77,27 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     if (path.includes('transfer-to-bank') || path.includes('transfer-to-user')) {
       setExpandedItems((prev) => new Set([...prev, 'Transfer']));
     }
+    if (path.includes('fund-wallet')) {
+      setExpandedItems((prev) => new Set([...prev, 'Fund Wallet']));
+    }
   }, [location.pathname]);
 
+  useEffect(() => {
+    // Fetch payment methods
+    servicesApi.getPaymentMethods()
+      .then((res) => {
+        const methods = (res?.data as PaymentMethod[] | undefined) || [];
+        const available = methods.filter((m) => m.is_available);
+        setPaymentMethods(available);
+      })
+      .catch(() => {
+        // Fallback to default methods if API fails
+        setPaymentMethods([]);
+      });
+  }, []);
+
   const mainMenuItems: MenuItem[] = [
-    { name: 'Dashboards', icon: <FiLayout />, link: '/dashboard' },
+    { name: 'Dashboard', icon: <FiLayout />, link: '/dashboard' },
     {
       name: 'Transfer',
       icon: <FiSend />,
@@ -83,13 +109,7 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     {
       name: 'Fund Wallet',
       icon: <span className="text-lg font-bold opacity-80 inline-flex items-center justify-center min-w-[20px]" aria-hidden>₦</span>,
-      subItems: [
-        { name: 'Monnify ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/monnify' },
-        { name: 'Paystack ATM', icon: <FiCreditCard />, link: '/dashboard/fund-wallet/paystack' },
-        { name: 'Automated Bank Transfer', icon: <FiRefreshCw />, link: '/dashboard/fund-wallet/automated-transfer' },
-        { name: 'Manual Bank Funding', icon: <span className="text-lg font-bold opacity-80 inline-flex items-center justify-center min-w-[20px]" aria-hidden>₦</span>, link: '/dashboard/fund-wallet/manual-bank' },
-        { name: 'Coupon', icon: <FiTag />, link: '/dashboard/fund-wallet/coupon' },
-      ],
+      subItems: 'fundWallet', // Special marker to fetch dynamically
     },
     {
       name: 'Services',
@@ -130,9 +150,14 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     });
   };
 
+  const hasSubItems = (item: MenuItem): boolean => {
+    if (item.subItems === 'fundWallet') return true;
+    return Array.isArray(item.subItems) && item.subItems.length > 0;
+  };
+
   const renderMenuItem = (item: MenuItem, index: number) => {
     const isExpanded = expandedItems.has(item.name);
-    const hasSubItems = item.subItems && item.subItems.length > 0;
+    const hasSubs = hasSubItems(item);
     const isDashboardActive = item.link === '/dashboard' && location.pathname === '/dashboard';
     const isProfileActive = item.link === '/dashboard/profile' && location.pathname.startsWith('/dashboard/profile') && !location.pathname.startsWith('/dashboard/profile/api-key');
     const isApiKeyActive = item.link === '/dashboard/profile/api-key' && location.pathname === '/dashboard/profile/api-key';
@@ -147,7 +172,7 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
 
     return (
       <li key={index} className="my-1">
-        {hasSubItems ? (
+        {hasSubs ? (
           <button
             type="button"
             className={`w-full text-left ${linkClass}`}
@@ -187,32 +212,109 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
             </span>
           </span>
         )}
-        {hasSubItems && item.subItems && (
+        {hasSubs && item.subItems && (
           <ul
             className={`list-none p-0 m-0 pl-10 mt-1 overflow-hidden transition-all duration-300 ${
               isExpanded ? 'max-h-[500px] pt-2 pb-2' : 'max-h-0'
             }`}
           >
-            {item.subItems.map((subItem, subIndex) => {
-              const isSubActive = subItem.link && location.pathname === subItem.link;
-              const subClass = `flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left
-                ${isSubActive ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold' : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'}`;
-              return (
-                <li key={subIndex} className="my-1">
-                  {subItem.link ? (
-                    <Link to={subItem.link} className={subClass} onClick={onClose}>
-                      <span className="text-[0.95rem] opacity-70">{subItem.icon}</span>
-                      <span>{subItem.name}</span>
-                    </Link>
-                  ) : (
-                    <span className={subClass}>
-                      <span className="text-[0.95rem] opacity-70">{subItem.icon}</span>
-                      <span>{subItem.name}</span>
-                    </span>
-                  )}
+            {item.subItems === 'fundWallet' ? (
+              <>
+                {/* Static items */}
+                <li className="my-1">
+                  <Link
+                    to="/dashboard/fund-wallet/automated-transfer"
+                    className={`flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left ${
+                      location.pathname === '/dashboard/fund-wallet/automated-transfer'
+                        ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'
+                    }`}
+                    onClick={onClose}
+                  >
+                    <span className="text-[0.95rem] opacity-70"><FiRefreshCw /></span>
+                    <span>Automated Bank Transfer</span>
+                  </Link>
                 </li>
-              );
-            })}
+                <li className="my-1">
+                  <Link
+                    to="/dashboard/fund-wallet/card-bank-payment"
+                    className={`flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left ${
+                      location.pathname === '/dashboard/fund-wallet/card-bank-payment'
+                        ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'
+                    }`}
+                    onClick={onClose}
+                  >
+                    <span className="text-[0.95rem] opacity-70"><FiCreditCard /></span>
+                    <span>Card & Bank Payment</span>
+                  </Link>
+                </li>
+               
+                <li className="my-1">
+                  <Link
+                    to="/dashboard/fund-wallet/dynamic-account"
+                    className={`flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left ${
+                      location.pathname === '/dashboard/fund-wallet/dynamic-account'
+                        ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'
+                    }`}
+                    onClick={onClose}
+                  >
+                    <span className="text-[0.95rem] opacity-70"><FiCreditCard /></span>
+                    <span>Dynamic Bank Transfer</span>
+                  </Link>
+                </li>
+                <li className="my-1">
+                  <Link
+                    to="/dashboard/fund-wallet/manual-bank"
+                    className={`flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left ${
+                      location.pathname === '/dashboard/fund-wallet/manual-bank'
+                        ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'
+                    }`}
+                    onClick={onClose}
+                  >
+                    <span className="text-[0.95rem] opacity-70"><span className="text-lg font-bold opacity-80 inline-flex items-center justify-center min-w-[20px]">₦</span></span>
+                    <span>Manual Bank Funding</span>
+                  </Link>
+                </li>
+                <li className="my-1">
+                  <Link
+                    to="/dashboard/fund-wallet/coupon"
+                    className={`flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left ${
+                      location.pathname === '/dashboard/fund-wallet/coupon'
+                        ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold'
+                        : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'
+                    }`}
+                    onClick={onClose}
+                  >
+                    <span className="text-[0.95rem] opacity-70"><FiTag /></span>
+                    <span>Coupon</span>
+                  </Link>
+                </li>
+              </>
+            ) : Array.isArray(item.subItems) ? (
+              item.subItems.map((subItem, subIndex) => {
+                const isSubActive = subItem.link && location.pathname === subItem.link;
+                const subClass = `flex items-center gap-3 py-2 px-4 text-sm font-semibold no-underline transition-all rounded-md w-full text-left
+                  ${isSubActive ? 'text-[var(--accent-primary)] bg-[var(--accent-hover)] font-semibold' : 'text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] hover:pl-5'}`;
+                return (
+                  <li key={subIndex} className="my-1">
+                    {subItem.link ? (
+                      <Link to={subItem.link} className={subClass} onClick={onClose}>
+                        <span className="text-[0.95rem] opacity-70">{subItem.icon}</span>
+                        <span>{subItem.name}</span>
+                      </Link>
+                    ) : (
+                      <span className={subClass}>
+                        <span className="text-[0.95rem] opacity-70">{subItem.icon}</span>
+                        <span>{subItem.name}</span>
+                      </span>
+                    )}
+                  </li>
+                );
+              })
+            ) : null}
           </ul>
         )}
       </li>

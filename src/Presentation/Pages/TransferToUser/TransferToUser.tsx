@@ -8,24 +8,36 @@ import toast from 'react-hot-toast';
 
 const PRESET_AMOUNTS = [100, 200, 500, 1000, 2000, 5000];
 
-const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length <= 4) return digits;
-  return `${digits.slice(0, 4)} ${digits.slice(4)}`;
-};
+/** Classify user input as username, phone, or email and return the payload key + normalized value */
+function parseRecipientInput(input: string): { key: 'username' | 'phone_number' | 'email'; value: string } | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  if (trimmed.includes('@')) {
+    return { key: 'email', value: trimmed };
+  }
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length >= 10 && digits.length <= 11) {
+    return { key: 'phone_number', value: digits.replace(/^0/, '') };
+  }
+  return { key: 'username', value: trimmed };
+}
 
 const TransferToUser = () => {
   const user = useAuthStore((s) => s.user);
-  const [phone, setPhone] = useState('');
+  const [recipientInput, setRecipientInput] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [amountToPay, setAmountToPay] = useState(0);
+  const [validating, setValidating] = useState(false);
+  const [validatedRecipient, setValidatedRecipient] = useState<{
+    name: string;
+    username: string;
+    identifier_type: string;
+    identifier_value: string;
+    phone_masked?: string | null;
+    email_masked?: string | null;
+  } | null>(null);
   const [pinModalOpen, setPinModalOpen] = useState(false);
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
-    setPhone(raw);
-  };
 
   const handlePresetClick = (value: number) => {
     const str = String(value);
@@ -42,32 +54,70 @@ const TransferToUser = () => {
     setAmountToPay(num);
   };
 
-  const displayPhone = formatPhone(phone);
-  const isValidPhone = phone.length === 11;
   const amountNum = amount ? parseFloat(amount) : 0;
   const isValidAmount = amountNum >= 100;
-  const canSubmit = isValidPhone && isValidAmount;
+  const parsed = parseRecipientInput(recipientInput);
+  const isValidRecipient = !!parsed;
+  const canValidate = isValidRecipient && isValidAmount;
 
-  const handleTransfer = () => {
-    if (!canSubmit) return;
-    setPinModalOpen(true);
+  const handleValidateAndContinue = async () => {
+    if (!canValidate || !parsed) return;
+    setValidating(true);
+    setValidatedRecipient(null);
+    try {
+      const payload =
+        parsed.key === 'phone_number'
+          ? { phone_number: parsed.value }
+          : parsed.key === 'email'
+            ? { email: parsed.value }
+            : { username: parsed.value };
+      const res = await servicesApi.validateTransferRecipient(payload);
+      if (res?.status === 'successful' && res?.data) {
+        setValidatedRecipient(res.data);
+        setPinModalOpen(true);
+      } else {
+        toast.error(res?.message ?? 'Recipient not found');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Validation failed';
+      toast.error(msg);
+    } finally {
+      setValidating(false);
+    }
   };
 
   const handleConfirmTransfer = async (transactionPin: string) => {
-    await servicesApi.transferToUser({
-      phone_number: phone,
+    if (!parsed) return;
+    const payload: { username?: string; phone_number?: string; email?: string; amount: string; transaction_pin: string } = {
       amount: String(amountNum),
       transaction_pin: transactionPin,
-    });
-    toast.success(`Transfer of ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`);
-    setPhone('');
-    setAmount('');
-    setSelectedPreset(null);
-    setAmountToPay(0);
+    };
+    if (parsed.key === 'username') payload.username = parsed.value;
+    else if (parsed.key === 'phone_number') payload.phone_number = parsed.value;
+    else payload.email = parsed.value;
+
+    try {
+      await servicesApi.transferToUser(payload);
+      toast.success(
+        `Transfer of ₦${amountNum.toLocaleString()} to ${validatedRecipient?.name ?? recipientInput} successful.`
+      );
+      setRecipientInput('');
+      setAmount('');
+      setSelectedPreset(null);
+      setAmountToPay(0);
+      setValidatedRecipient(null);
+      setPinModalOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Transfer failed');
+      throw err;
+    }
   };
 
   const balance = user?.wallet ?? '0.00';
-  const balanceDisplay = typeof balance === 'string' && balance.includes('₦') ? balance : `₦${Number(balance).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+  const balanceDisplay =
+    typeof balance === 'string' && balance.includes('₦')
+      ? balance
+      : `₦${Number(balance).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
 
   return (
     <div className="relative p-6 md:p-5 lg:p-8 ml-0 lg:ml-[280px] mt-[70px] md:mt-16 min-h-[calc(100vh-70px)] md:min-h-[calc(100vh-4rem)] bg-[var(--bg-primary)]">
@@ -80,24 +130,36 @@ const TransferToUser = () => {
         </div>
 
         <div className="flex flex-col gap-5">
-          {/* Phone Number */}
+          {/* Recipient: username, phone or email – match app label style */}
           <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Enter Phone Number</label>
+            <label className="text-sm font-medium text-[var(--text-secondary)]">
+              Enter username, phone or email
+            </label>
             <input
-              type="tel"
-              inputMode="numeric"
-              maxLength={14}
-              value={displayPhone}
-              onChange={handlePhoneChange}
-              placeholder="0801 234 5678"
-              className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+              type="text"
+              inputMode="text"
+              autoComplete="off"
+              value={recipientInput}
+              onChange={(e) => {
+                setRecipientInput(e.target.value);
+                setValidatedRecipient(null);
+              }}
+              placeholder="e.g. johndoe, 0801 234 5678, or user@email.com"
+              className="w-full py-3 px-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
             />
-            {phone.length > 0 && phone.length !== 11 && (
-              <p className="text-xs text-[var(--error)]">Phone number must be 11 digits</p>
+            {recipientInput.length > 0 && !parsed && (
+              <p className="text-xs text-[var(--error)]">
+                Enter a valid username, 10–11 digit phone number, or email address
+              </p>
+            )}
+            {validatedRecipient && (
+              <p className="text-xs text-[var(--success)]">
+                Sending to: {validatedRecipient.name} ({validatedRecipient.username})
+              </p>
             )}
           </div>
 
-          {/* Select Amount (preset chips) */}
+          {/* Select Amount – horizontal chips like app */}
           <div className="flex flex-col gap-3">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Select Amount</label>
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
@@ -111,7 +173,7 @@ const TransferToUser = () => {
                     className={`shrink-0 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all border
                       ${isSelected
                         ? 'bg-[var(--accent-hover)] border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                        : 'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--border-hover)]'
+                        : 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--border-hover)]'
                       }`}
                   >
                     ₦{value.toLocaleString()}
@@ -130,19 +192,19 @@ const TransferToUser = () => {
               value={amount}
               onChange={handleAmountChange}
               placeholder="0"
-              className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
+              className="w-full py-3 px-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
             />
             {amountToPay > 0 && (
               <p className="text-xs font-semibold text-[var(--accent-primary)]">
-                Amount to Pay: ₦{amountToPay.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+                Amount to pay: ₦{amountToPay.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
               </p>
             )}
             {amountNum > 0 && amountNum < 100 && (
-              <p className="text-xs text-[var(--error)]">Minimum transfer amount is ₦100</p>
+              <p className="text-xs text-[var(--error)]">Minimum transfer is ₦100</p>
             )}
           </div>
 
-          {/* Balance */}
+          {/* Balance – match app */}
           <div className="py-2">
             <p className="text-sm font-medium text-[var(--text-secondary)]">
               Balance: <span className="font-semibold text-[var(--text-primary)]">{balanceDisplay}</span>
@@ -151,23 +213,30 @@ const TransferToUser = () => {
 
           <div className="flex-1 min-h-[40px]" />
 
-          {/* Transfer Button */}
+          {/* Validate then confirm – single primary button like app */}
           <PayButton
             fullWidth
-            loading={false}
-            loadingText="Processing..."
-            disabled={!canSubmit}
-            onClick={handleTransfer}
+            loading={validating}
+            loadingText="Validating..."
+            disabled={!canValidate}
+            onClick={handleValidateAndContinue}
           >
-            Transfer
+            Continue
           </PayButton>
         </div>
       </div>
+
       <ConfirmPaymentModal
         isOpen={pinModalOpen}
-        onClose={() => setPinModalOpen(false)}
+        onClose={() => {
+          setPinModalOpen(false);
+        }}
         title="Confirm Transfer"
-        subtitle={`Amount: ₦${amountNum.toLocaleString()} • ${displayPhone}`}
+        subtitle={
+          validatedRecipient
+            ? `₦${amountNum.toLocaleString()} to ${validatedRecipient.name} (${validatedRecipient.username})`
+            : `Amount: ₦${amountNum.toLocaleString()}`
+        }
         onConfirm={handleConfirmTransfer}
       />
     </div>

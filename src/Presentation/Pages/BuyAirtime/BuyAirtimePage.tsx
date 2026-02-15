@@ -54,15 +54,17 @@ export default function BuyAirtimePage() {
     if (!trimmed) return setPhoneSuggestions([]);
     if (trimmed.replace(/\D/g, '').length >= 11) return setPhoneSuggestions([]);
     const suggestions = beneficiaries.filter((b) => {
-      const formatted = formatNigeriaNumberThree(b.phoneNumber);
-      return formatted.includes(trimmed) || b.phoneNumber.includes(trimmed);
+      const num = b.phoneNumber ?? '';
+      const formatted = formatNigeriaNumberThree(num);
+      return formatted.includes(trimmed) || num.includes(trimmed);
     }).slice(0,5);
     setPhoneSuggestions(suggestions);
   }
 
   function selectBeneficiary(b: Beneficiary) {
-    setPhone(b.phoneNumber);
-    setSelectedNetwork(b.network ?? getNetworkName(b.phoneNumber));
+    const num = b.phoneNumber ?? '';
+    setPhone(num);
+    setSelectedNetwork(b.network ?? getNetworkName(num));
     setPhoneSuggestions([]);
   }
 
@@ -140,14 +142,12 @@ export default function BuyAirtimePage() {
         // save beneficiary if requested and if successful
         if (saveAsBeneficiary) {
           try {
-            const raw = localStorage.getItem('beneficiaries');
-            const list = raw ? JSON.parse(raw) : [];
-            list.unshift({
-              id: data?.transaction_reference ?? data?.transaction_id ?? `local-${Date.now()}`,
+            const { beneficiaryStorage } = await import('../../../Parameters/types/beneficiary');
+            beneficiaryStorage.save({
               phoneNumber: phone,
-              network: selectedNetwork,
+              network: selectedNetwork ?? undefined,
+              serviceType: 'airtime',
             });
-            localStorage.setItem('beneficiaries', JSON.stringify(list));
           } catch (e) {
             console.error('Failed to save beneficiary', e);
           }
@@ -202,9 +202,9 @@ export default function BuyAirtimePage() {
               <div className="text-sm font-semibold text-[var(--text-secondary)]">Recent Beneficiaries</div>
               <div className="flex gap-3 overflow-x-auto">
                 {beneficiaries.map((b) => (
-                  <button key={b.id} onClick={() => selectBeneficiary(b)} className={`flex flex-col items-center gap-1 p-2 rounded ${selectedNetwork === (b.network ?? getNetworkName(b.phoneNumber)) ? 'ring-2 ring-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)]'}`}>
+                  <button key={b.id} onClick={() => selectBeneficiary(b)} className={`flex flex-col items-center gap-1 p-2 rounded ${selectedNetwork === (b.network ?? getNetworkName(b.phoneNumber ?? '')) ? 'ring-2 ring-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)]'}`}>
                     <div className="w-8 h-8 rounded-full bg-[var(--bg-card)] flex items-center justify-center">📱</div>
-                    <span className="text-xs font-bold">{formatNigeriaNumberThree(b.phoneNumber)}</span>
+                    <span className="text-xs font-bold">{formatNigeriaNumberThree(b.phoneNumber ?? '')}</span>
                   </button>
                 ))}
               </div>

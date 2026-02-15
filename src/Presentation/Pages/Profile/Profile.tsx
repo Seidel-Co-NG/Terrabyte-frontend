@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User,
+  Users,
   Bell,
   Gift,
   Lock,
@@ -80,6 +81,7 @@ const Profile = () => {
             </p>
             <div className="space-y-2">
               <SettingItem icon={User} title="Your Profile" to="/dashboard/profile/edit" />
+              <SettingItem icon={Users} title="Beneficiaries" to="/dashboard/profile/beneficiaries" />
               <SettingItem icon={Bell} title="Notification Settings" to="/dashboard/profile/notification-settings" />
               <SettingItem icon={Gift} title="Referral and Bonus" to="/dashboard/profile/referral-bonus" />
             </div>

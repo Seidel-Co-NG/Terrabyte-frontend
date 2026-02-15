@@ -109,7 +109,7 @@ const CardBankPayment = () => {
           <div className="absolute left-0">
             <BackButton fallbackTo="/dashboard/fund-wallet" />
           </div>
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Card Payment</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">Bank & Card Payment</h1>
         </div>
 
         <p className="text-sm text-[var(--text-secondary)] mb-6 px-2">

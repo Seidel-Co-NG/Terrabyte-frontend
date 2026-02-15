@@ -31,6 +31,7 @@ export const endpoints = {
   configurations: `${API}/user/configurations`,
   apiKey: `${API}/api-key`,
   apiKeyReset: `${API}/api-key/reset`,
+  apiKeyIpWhitelist: `${API}/api-key/ip-whitelist`,
 
   // Transactions
   transactions: `${API}/transactions`,
@@ -86,6 +87,7 @@ export const endpoints = {
   fundingAtmPayment: `${API}/funding/atm-payment`,
   fundingPaymentMethods: `${API}/funding/payment-methods`,
   bankFundingRequest: `${API}/funding/bank-request`,
+  fundingDynamicAccount: `${API}/funding/dynamic-account`,
 
   // Bank Transfer
   bankTransferBanks: `${API}/bank-transfer/banks`,
@@ -93,6 +95,7 @@ export const endpoints = {
   bankTransfer: `${API}/bank-transfer/transfer`,
 
   // User Transfer
+  userTransferValidate: `${API}/user-transfer/validate`,
   userTransfer: `${API}/user-transfer/transfer`,
 
   // Recharge Pins - POST /recharge/pins for buy pins & recharge card printing
