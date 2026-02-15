@@ -17,9 +17,9 @@ const OPTIONS = [
   },
   {
     title: 'Dynamic Bank Transfer',
-    description: 'Transfer to a one time account ',
+    description: 'Generate a temporary account (valid for 1 hour)',
     icon: <FiCreditCard className="w-8 h-8" />,
-    link: '/dashboard/fund-wallet/paystack',
+    link: '/dashboard/fund-wallet/dynamic-account',
   },
   {
     title: 'Manual Bank Funding',

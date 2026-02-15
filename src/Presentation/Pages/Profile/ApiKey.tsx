@@ -15,6 +15,8 @@ type CablePlanRow = { id: number | string; cable: string; plan: string; amount: 
 
 const ApiKey = () => { 
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiIpWhitelist, setApiIpWhitelist] = useState<string>('');
+  const [ipWhitelistDirty, setIpWhitelistDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dataPlans, setDataPlans] = useState<DataPlanRow[]>([]);
@@ -22,6 +24,7 @@ const ApiKey = () => {
   const [dataPlanNetworkFilter, setDataPlanNetworkFilter] = useState<string>('');
   const [cablePlanFilter, setCablePlanFilter] = useState<string>('');
   const [isResetting, setIsResetting] = useState(false);
+  const [isSavingIpWhitelist, setIsSavingIpWhitelist] = useState(false);
 
   const filteredDataPlans = dataPlanNetworkFilter
     ? dataPlans.filter((p) => p.network.toLowerCase() === dataPlanNetworkFilter.toLowerCase())
@@ -38,8 +41,10 @@ const ApiKey = () => {
       .getApiKey()
       .then((res) => {
         if (cancelled) return;
-        const key = (res?.data as { api_key?: string })?.api_key ?? null;
+        const data = res?.data as { api_key?: string; api_ip_whitelist?: string } | undefined;
+        const key = data?.api_key ?? null;
         setApiKey(key);
+        setApiIpWhitelist(data?.api_ip_whitelist ?? '');
         setError(null);
       })
       .catch((e) => {
@@ -126,6 +131,20 @@ const ApiKey = () => {
     }
   };
 
+  const handleSaveIpWhitelist = async () => {
+    if (isSavingIpWhitelist) return;
+    setIsSavingIpWhitelist(true);
+    try {
+      await userApi.updateApiKeyIpWhitelist(apiIpWhitelist);
+      setIpWhitelistDirty(false);
+      toast.success('IP whitelist saved. Only listed IPs can use your API key (empty = allow all).');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to save IP whitelist');
+    } finally {
+      setIsSavingIpWhitelist(false);
+    }
+  };
+
   return (
     <div className={pageClass}>
       <div className="max-w-6xl mx-auto">
@@ -201,6 +220,32 @@ const ApiKey = () => {
               <p className="text-xs text-[var(--text-muted)] mt-2">
                 Add header: <code className="font-mono">Authorization: Token YOUR_API_KEY</code>
               </p>
+            </div>
+            <div className="p-4 border-t border-[var(--border-color)]">
+              <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-2">IP whitelist (optional)</p>
+              <p className="text-xs text-[var(--text-muted)] mb-2">
+                Restrict API key usage to specific IPs. One IP per line or comma-separated. Leave empty to allow all IPs.
+              </p>
+              <textarea
+                value={apiIpWhitelist}
+                onChange={(e) => {
+                  setApiIpWhitelist(e.target.value);
+                  setIpWhitelistDirty(true);
+                }}
+                placeholder={'e.g. 192.168.1.1\n10.0.0.1'}
+                rows={4}
+                className="w-full text-sm font-mono text-[var(--text-primary)] bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+              />
+              {ipWhitelistDirty && (
+                <button
+                  type="button"
+                  onClick={handleSaveIpWhitelist}
+                  disabled={isSavingIpWhitelist}
+                  className="mt-2 px-4 py-2 rounded-lg bg-[var(--accent-primary)] text-white text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingIpWhitelist ? 'Saving…' : 'Save IP whitelist'}
+                </button>
+              )}
             </div>
           </div>
         )}

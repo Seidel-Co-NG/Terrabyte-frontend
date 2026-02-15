@@ -113,18 +113,39 @@ export interface ValidateAccountPayload {
 
 export interface BankTransferPayload {
   account_number: string;
-  bank_code: string;
+  bank_id: number;
   account_name: string;
   amount: string;
   narration: string;
   transaction_pin: string;
 }
 
-// User Transfer
+// User Transfer – provide exactly one of username, phone_number, or email
 export interface TransferToUserPayload {
-  phone_number: string;
+  username?: string;
+  phone_number?: string;
+  email?: string;
   amount: string;
   transaction_pin: string;
+}
+
+export interface ValidateTransferRecipientPayload {
+  username?: string;
+  phone_number?: string;
+  email?: string;
+}
+
+export interface ValidateTransferRecipientResponse {
+  status: string;
+  message?: string;
+  data?: {
+    name: string;
+    username: string;
+    identifier_type: 'username' | 'phone' | 'email';
+    identifier_value: string;
+    phone_masked?: string | null;
+    email_masked?: string | null;
+  };
 }
 
 // Recharge Pins

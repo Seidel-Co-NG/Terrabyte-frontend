@@ -69,13 +69,29 @@ export const userApi = {
     return client.get(endpoints.configurations);
   },
 
-  async getApiKey(): Promise<{ status?: string; message?: string; data?: { api_key?: string } }> {
-    const res = await client.get<{ status?: string; message?: string; data?: { api_key?: string } }>(endpoints.apiKey);
+  async getApiKey(): Promise<{
+    status?: string;
+    message?: string;
+    data?: { api_key?: string; api_ip_whitelist?: string };
+  }> {
+    const res = await client.get<{
+      status?: string;
+      message?: string;
+      data?: { api_key?: string; api_ip_whitelist?: string };
+    }>(endpoints.apiKey);
     return res;
   },
 
   async resetApiKey(): Promise<{ status?: string; message?: string; data?: { api_key?: string } }> {
     const res = await client.post<{ status?: string; message?: string; data?: { api_key?: string } }>(endpoints.apiKeyReset);
     return res;
+  },
+
+  async updateApiKeyIpWhitelist(api_ip_whitelist: string): Promise<{
+    status?: string;
+    message?: string;
+    data?: { api_ip_whitelist?: string };
+  }> {
+    return client.put(endpoints.apiKeyIpWhitelist, { api_ip_whitelist });
   },
 };

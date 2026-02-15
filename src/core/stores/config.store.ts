@@ -44,7 +44,7 @@ export function getDashboardNotifications(notifications: NotificationForUser[]):
   );
 }
 
-export const useConfigStore = create<ConfigState>((set, get) => ({
+export const useConfigStore = create<ConfigState>((set) => ({
   ...initialState,
 
   fetchConfigurations: async () => {

@@ -42,6 +42,7 @@ import NotificationSettings from "./Presentation/Pages/Profile/NotificationSetti
 import ReferralBonus from "./Presentation/Pages/Profile/ReferralBonus";
 import Support from "./Presentation/Pages/Profile/Support";
 import UserLimit from "./Presentation/Pages/Profile/UserLimit";
+import Beneficiaries from "./Presentation/Pages/Profile/Beneficiaries";
 import KycVerification from "./Presentation/Pages/Profile/KycVerification";
 import ApiKey from "./Presentation/Pages/Profile/ApiKey";
 import ApiDocs from "./Presentation/Pages/Profile/ApiDocs";
@@ -56,6 +57,7 @@ import PaystackFunding from "./Presentation/Pages/FundWallet/PaystackFunding";
 import AutomatedBankTransfer from "./Presentation/Pages/FundWallet/AutomatedBankTransfer";
 import CouponFunding from "./Presentation/Pages/FundWallet/CouponFunding";
 import ManualBankFunding from "./Presentation/Pages/FundWallet/ManualBankFunding";
+import DynamicAccountFunding from "./Presentation/Pages/FundWallet/DynamicAccountFunding";
 import TransferToBank from './Presentation/Pages/TransferToBank/TransferToBank';
 import TransferToUser from "./Presentation/Pages/TransferToUser/TransferToUser";
 import SocialMediaBoost from "./Presentation/Pages/SocialMediaBoost/SocialMediaBoost";
@@ -160,6 +162,7 @@ function App() {
               />
               <Route path="profile/support" element={<Support />} />
               <Route path="profile/user-limit" element={<UserLimit />} />
+              <Route path="profile/beneficiaries" element={<Beneficiaries />} />
               <Route path="profile/kyc" element={<KycVerification />} />
               <Route path="profile/api-key" element={<ApiKey />} />
               <Route path="api-docs" element={<ApiDocs />} />
@@ -185,6 +188,7 @@ function App() {
               />
               <Route path="fund-wallet/coupon" element={<CouponFunding />} />
               <Route path="fund-wallet/manual-bank" element={<ManualBankFunding />} />
+              <Route path="fund-wallet/dynamic-account" element={<DynamicAccountFunding />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

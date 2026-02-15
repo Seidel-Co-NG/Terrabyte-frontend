@@ -21,6 +21,8 @@ import type {
   ValidateAccountPayload,
   BankTransferPayload,
   TransferToUserPayload,
+  ValidateTransferRecipientPayload,
+  ValidateTransferRecipientResponse,
   BuyPinPayload,
   BuyDatacardPayload,
   BuySocialPayload,
@@ -232,7 +234,7 @@ export const servicesApi = {
   bankTransfer(payload: BankTransferPayload): Promise<HttpResponse> {
     return client.post<HttpResponse>(endpoints.bankTransfer, {
       account_number: payload.account_number,
-      bank_code: payload.bank_code,
+      bank_id: payload.bank_id,
       account_name: payload.account_name,
       amount: payload.amount,
       narration: payload.narration,
@@ -241,15 +243,28 @@ export const servicesApi = {
   },
 
   // ==================== USER TRANSFER ====================
+  validateTransferRecipient(
+    payload: ValidateTransferRecipientPayload
+  ): Promise<ValidateTransferRecipientResponse> {
+    const body: Record<string, string> = {};
+    if (payload.username?.trim()) body.username = payload.username.trim();
+    else if (payload.phone_number?.trim()) {
+      body.phone_number = payload.phone_number.replace(/\D/g, '').replace(/^0/, '');
+    } else if (payload.email?.trim()) body.email = payload.email.trim();
+    return client.post<ValidateTransferRecipientResponse>(endpoints.userTransferValidate, body);
+  },
+
   transferToUser(payload: TransferToUserPayload): Promise<HttpResponse> {
-    const phoneNumber = payload.phone_number.startsWith('0')
-      ? payload.phone_number.slice(1)
-      : payload.phone_number;
-    return client.post<HttpResponse>(endpoints.userTransfer, {
-      phone_number: phoneNumber,
-      amount: payload.amount,
+    const body: Record<string, string> = {
+      amount: String(payload.amount),
       transaction_pin: payload.transaction_pin,
-    });
+    };
+    if (payload.username?.trim()) body.username = payload.username.trim();
+    else if (payload.phone_number?.trim()) {
+      body.phone_number = payload.phone_number.replace(/\D/g, '').replace(/^0/, '');
+    }
+    else if (payload.email?.trim()) body.email = payload.email.trim();
+    return client.post<HttpResponse>(endpoints.userTransfer, body);
   },
 
   // ==================== RECHARGE PINS ====================
