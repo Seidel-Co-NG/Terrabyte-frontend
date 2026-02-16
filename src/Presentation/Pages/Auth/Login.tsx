@@ -26,10 +26,11 @@ const Login = () => {
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
     if (!email.trim()) {
-      newErrors.email = 'Please enter your email';
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
+      newErrors.email = 'Please enter your username or email';
+    } 
+    // else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+    //   newErrors.email = 'Please enter a valid email';
+    // }
     if (!password) {
       newErrors.password = 'Please enter your password';
     } else if (password.length < 6) {
@@ -96,7 +97,9 @@ const Login = () => {
         {/* Logo */}
         <div className="flex justify-center mb-8 sm:mb-12">
           <Link to="/">
-            <img src="/img/logo2.png" alt="Terrabyte" className="h-8 sm:h-9 object-contain" />
+            <div className="dark:bg-white dark:rounded-lg dark:p-2 inline-block">
+              <img src="/img/logo2.png" alt="Terrabyte" className="h-8 sm:h-9 object-contain" />
+            </div>
           </Link>
         </div>
 
@@ -114,7 +117,7 @@ const Login = () => {
             </label>
             <input
               id="email"
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);

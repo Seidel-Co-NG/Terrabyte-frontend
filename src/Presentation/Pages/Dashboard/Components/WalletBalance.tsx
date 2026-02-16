@@ -73,13 +73,14 @@ const WalletBalance = () => {
         <div className="p-4 sm:p-5 md:p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl flex flex-col min-w-0">
           <div className="mb-3 sm:mb-4 pb-3 border-b border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             <h4 className="text-base font-semibold text-[var(--text-primary)] m-0">Bank Account Details</h4>
-            <button
-              type="button"
+            <Link
+            to="fund-wallet/automated-transfer"
+              type="button" 
               onClick={() => console.log('View all banks')}
               className="py-2 px-3 rounded-lg text-sm font-medium text-[var(--accent-primary)] bg-[var(--accent-hover)] border border-[var(--accent-hover)] cursor-pointer transition-colors hover:border-[var(--accent-primary)] hover:text-[var(--text-primary)] shrink-0"
             >
               View all banks
-            </button>
+            </Link>
           </div>
 
           <div className="flex flex-col gap-3 mb-4">

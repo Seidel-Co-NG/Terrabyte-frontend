@@ -44,6 +44,7 @@ export interface AuthState {
   pendingVerifyEmail: string | null;
   isLoading: boolean;
   error: string | null;
+  isHydrated: boolean;
   resetState: () => void;
   clearError: () => void;
   hydrate: () => void;
@@ -116,6 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   pendingVerifyEmail: null,
   isLoading: false,
   error: null,
+  isHydrated: false,
 
   resetState: () => {
     setStorage(null, null);
@@ -126,6 +128,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAuthenticated: false,
       pendingVerifyEmail: null,
       error: null,
+      isHydrated: true,
     });
   },
 
@@ -136,9 +139,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const user = getStoredUser();
     const pendingVerifyEmail = getStoredPendingVerifyEmail();
     if (token && user) {
-      set({ token, user, isAuthenticated: true, pendingVerifyEmail: pendingVerifyEmail ?? null });
+      set({ token, user, isAuthenticated: true, pendingVerifyEmail: pendingVerifyEmail ?? null, isHydrated: true });
     } else {
-      set({ token: null, user: null, isAuthenticated: false, pendingVerifyEmail: pendingVerifyEmail ?? null });
+      set({ token: null, user: null, isAuthenticated: false, pendingVerifyEmail: pendingVerifyEmail ?? null, isHydrated: true });
     }
   },
 
