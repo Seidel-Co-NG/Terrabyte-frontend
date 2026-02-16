@@ -12,11 +12,13 @@ const Navbar = () => {
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
         {/* Logo - Fixed size, no flex-shrink */}
         <div className="flex-shrink-0">
-          <img
-            src="/img/logo2.png"
-            alt="Terrabyte Logo"
-            className="w-16 sm:w-20 h-auto object-contain"
-          />
+          <div className="dark:bg-white dark:rounded-lg dark:p-2 inline-block">
+            <img
+              src="/img/logo2.png"
+              alt="Terrabyte Logo"
+              className="w-16 sm:w-20 h-auto object-contain"
+            />
+          </div>
         </div>
 
         {/* Mobile Menu Button */}

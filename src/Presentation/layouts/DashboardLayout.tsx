@@ -5,7 +5,7 @@ import Header from '../Components/Header';
 import { useAuthStore } from '../../core/stores/auth.store';
 
 const DashboardLayout = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isHydrated } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 1024);
 
   useEffect(() => {
@@ -17,6 +17,16 @@ const DashboardLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Wait for hydration to complete before checking authentication
+  // This prevents redirects on page refresh
+  if (!isHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-[var(--text-primary)]">Loading...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

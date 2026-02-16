@@ -8,7 +8,7 @@ const MOCK_USER = {
   username: 'TB12345',
   bonus: '5250',
 };
-const REFERRAL_LINK = `https://terrabyte.com.ng/ref/${MOCK_USER.username}`;
+const REFERRAL_LINK = `https://terrabyte.com.ng/signup/?ref=${MOCK_USER.username}`;
 const MIN_BONUS_TO_CONVERT = 200;
 
 // Mock referred users (replace with API)

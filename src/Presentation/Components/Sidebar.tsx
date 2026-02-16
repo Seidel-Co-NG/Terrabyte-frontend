@@ -328,7 +328,9 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     >
       <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
         <div className="text-xl font-semibold text-[var(--accent-primary)]">
-          <img src="/img/logo2.png" alt="logo" className="w-15 h-16 object-contain" />
+          <div className="dark:bg-white dark:rounded-lg dark:p-2 inline-block">
+            <img src="/img/logo2.png" alt="logo" className="w-15 h-16 object-contain" />
+          </div>
         </div>
         {onClose && (
           <button

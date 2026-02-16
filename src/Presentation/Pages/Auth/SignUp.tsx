@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
@@ -15,6 +15,7 @@ type FormErrors = {
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -27,7 +28,12 @@ const SignUp = () => {
 
   useEffect(() => {
     clearError();
-  }, [clearError]);
+    // Pre-fill referral code from URL query parameter
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+    }
+  }, [clearError, searchParams]);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -103,7 +109,9 @@ const SignUp = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6 sm:mb-8">
           <Link to="/">
-            <img src="/img/logo2.png" alt="Terrabyte" className="h-8 sm:h-9 object-contain" />
+            <div className="dark:bg-white dark:rounded-lg dark:p-2 inline-block">
+              <img src="/img/logo2.png" alt="Terrabyte" className="h-8 sm:h-9 object-contain" />
+            </div>
           </Link>
         </div>
 

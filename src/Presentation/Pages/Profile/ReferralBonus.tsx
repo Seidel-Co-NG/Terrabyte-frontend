@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import BackButton from '../../Components/BackButton';
@@ -18,6 +19,7 @@ interface ReferredUser {
 }
 
 const ReferralBonus = () => {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState<string | null>(null);
   const [recentReferrals, setRecentReferrals] = useState<ReferredUser[]>([]);
   const [isConverting, setIsConverting] = useState(false);
@@ -26,8 +28,12 @@ const ReferralBonus = () => {
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const username = user?.username ?? user?.name ?? 'user';
   const bonusBalance = user?.bonus ?? '0';
-  const referralLink = `https://terrabyte.com.ng/ref/${username}`;
+  const referralLink = `https://terrabyte.com.ng/signup/?ref=${username}`;
   const canConvert = parseFloat(String(bonusBalance)) >= 200;
+
+  const handleReferralLinkClick = () => {
+    navigate(`/signup?ref=${username}`);
+  };
 
   useEffect(() => {
     userApi.getReferredUsers().then((res) => {
@@ -79,9 +85,14 @@ const ReferralBonus = () => {
               </span>
             </div>
             <div className="flex items-center gap-2 w-full justify-center flex-wrap">
-              <span className="text-sm text-[var(--text-primary)] truncate max-w-[200px]">
+              <button
+                type="button"
+                onClick={handleReferralLinkClick}
+                className="text-sm text-[var(--text-primary)] truncate max-w-[200px] hover:text-brand-primary transition-colors text-left"
+                title="Click to go to registration page"
+              >
                 {referralLink}
-              </span>
+              </button>
               <button
                 type="button"
                 onClick={() => copyToClipboard(referralLink, 'link')}
