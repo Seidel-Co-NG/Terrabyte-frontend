@@ -28,7 +28,9 @@ const ReferralBonus = () => {
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const username = user?.username ?? user?.name ?? 'user';
   const bonusBalance = user?.bonus ?? '0';
-  const referralLink = `https://terrabyte.com.ng/signup/?ref=${username}`;
+  /// collect url from env variable
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const referralLink = `${baseUrl}/signup/?ref=${username}`;
   const canConvert = parseFloat(String(bonusBalance)) >= 200;
 
   const handleReferralLinkClick = () => {
