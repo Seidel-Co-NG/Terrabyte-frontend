@@ -1,29 +1,52 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import BackButton from '../../Components/BackButton';
 import PayButton from '../../Components/PayButton';
+import { useAuthStore } from '../../../core/stores/auth.store';
+import { userApi } from '../../../core/api/user.api';
+import toast from 'react-hot-toast';
 
-// Mock user (replace with auth/API)
-const MOCK_USER = {
-  username: 'TB12345',
-  bonus: '5250',
-};
-const REFERRAL_LINK = `https://terrabyte.com.ng/signup/?ref=${MOCK_USER.username}`;
+interface ReferredUser {
+  id?: number;
+  fullname?: string;
+  name?: string;
+  created_at?: string;
+  date?: string;
+  wallet?: string;
+}
+
 const MIN_BONUS_TO_CONVERT = 200;
 
-// Mock referred users (replace with API)
-const MOCK_REFERRALS = [
-  { fullname: 'John Doe', created_at: '2024-01-15', wallet: '1250' },
-  { fullname: 'Alice Smith', created_at: '2024-01-14', wallet: '800' },
-  { fullname: 'Mayor Kelly', created_at: '2024-01-13', wallet: '500' },
-];
-
 const BonusToWallet = () => {
+  const user = useAuthStore((s) => s.user);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+  const username = user?.username ?? user?.name ?? 'user';
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const referralLink = `${baseUrl}/signup/?ref=${username}`;
+  
   const [isConverting, setIsConverting] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState<'link' | 'code' | null>(null);
+  const [referrals, setReferrals] = useState<ReferredUser[]>([]);
+  const [loadingReferrals, setLoadingReferrals] = useState(true);
 
-  const bonusNum = parseFloat(MOCK_USER.bonus) || 0;
+  const bonusNum = parseFloat(user?.bonus ?? '0') || 0;
   const canConvert = bonusNum >= MIN_BONUS_TO_CONVERT && !isConverting;
+
+  useEffect(() => {
+    userApi
+      .getReferredUsers()
+      .then((res) => {
+        const data = res?.data as ReferredUser[] | { data?: ReferredUser[] } | undefined;
+        const list = Array.isArray(data)
+          ? data
+          : data && 'data' in data && Array.isArray((data as { data?: ReferredUser[] }).data)
+            ? (data as { data?: ReferredUser[] }).data ?? []
+            : [];
+        setReferrals(list);
+      })
+      .catch(() => setReferrals([]))
+      .finally(() => setLoadingReferrals(false));
+  }, []);
 
   const copyToClipboard = async (text: string, type: 'link' | 'code') => {
     try {
@@ -35,13 +58,23 @@ const BonusToWallet = () => {
     }
   };
 
-  const handleConvert = () => {
+  const handleConvert = async () => {
     if (!canConvert) return;
     setIsConverting(true);
-    setTimeout(() => {
+    try {
+      const res = await userApi.bonusToWallet();
+      if (res?.status === 'successful') {
+        toast.success(res?.message ?? 'Bonus converted to wallet successfully!');
+        // Refresh user data to update balance
+        await fetchUser();
+      } else {
+        toast.error(res?.message ?? 'Failed to convert bonus');
+      }
+    } catch (error) {
+      toast.error('An error occurred while converting bonus');
+    } finally {
       setIsConverting(false);
-      alert('Bonus converted to wallet successfully!');
-    }, 1000);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -64,7 +97,7 @@ const BonusToWallet = () => {
           <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--border-color)]">
             <div className="flex flex-col items-center">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(REFERRAL_LINK)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(referralLink)}`}
                 alt="Referral QR"
                 width={150}
                 height={150}
@@ -72,11 +105,11 @@ const BonusToWallet = () => {
               />
               <div className="flex items-center gap-2 mt-3 w-full justify-center">
                 <span className="text-sm text-[var(--text-primary)] truncate max-w-[200px] sm:max-w-none">
-                  terrabyte.com.ng/ref/{MOCK_USER.username}
+                  {referralLink.replace(`${baseUrl}/signup/?ref=`, 'terrabyte.com.ng/ref/')}
                 </span>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(REFERRAL_LINK, 'link')}
+                  onClick={() => copyToClipboard(referralLink, 'link')}
                   className="p-2 rounded-lg text-[var(--accent-primary)] hover:bg-[var(--accent-hover)] transition-colors shrink-0"
                   title="Copy referral link"
                 >
@@ -95,10 +128,10 @@ const BonusToWallet = () => {
               Referral Code
             </label>
             <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-between">
-              <span className="font-semibold text-[var(--text-primary)]">{MOCK_USER.username}</span>
+              <span className="font-semibold text-[var(--text-primary)]">{username}</span>
               <button
                 type="button"
-                onClick={() => copyToClipboard(MOCK_USER.username, 'code')}
+                onClick={() => copyToClipboard(username, 'code')}
                 className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--accent-primary)] transition-colors"
                 title="Copy referral code"
               >
@@ -119,7 +152,7 @@ const BonusToWallet = () => {
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-[var(--text-secondary)]">Bonus Balance</span>
                 <span className="font-bold text-[var(--text-primary)]">
-                  ₦{Number(MOCK_USER.bonus).toLocaleString()}
+                  ₦{bonusNum.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               {bonusNum >= MIN_BONUS_TO_CONVERT ? (
@@ -144,7 +177,11 @@ const BonusToWallet = () => {
             <label className="text-sm font-medium text-[var(--text-secondary)] block mb-2">
               Recent Referrals
             </label>
-            {MOCK_REFERRALS.length === 0 ? (
+            {loadingReferrals ? (
+              <div className="rounded-2xl p-8 bg-[var(--bg-card)] border border-[var(--border-color)] text-center">
+                <p className="text-[var(--text-primary)] font-medium">Loading referrals...</p>
+              </div>
+            ) : referrals.length === 0 ? (
               <div className="rounded-2xl p-8 bg-[var(--bg-card)] border border-[var(--border-color)] text-center">
                 <p className="text-[var(--text-primary)] font-medium">No Referred Users</p>
                 <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -154,27 +191,35 @@ const BonusToWallet = () => {
             ) : (
               <div className="rounded-2xl border border-[var(--border-color)] overflow-hidden bg-[var(--bg-card)]">
                 <ul className="divide-y divide-[var(--border-color)]">
-                  {MOCK_REFERRALS.map((ref, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center gap-3 p-4 hover:bg-[var(--bg-hover)] transition-colors"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-[var(--accent-hover)] flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm shrink-0">
-                        {(ref.fullname || '?')[0].toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-[var(--text-primary)] text-sm truncate">
-                          {ref.fullname}
-                        </p>
-                        <p className="text-xs text-[var(--text-muted)]">
-                          {formatDate(ref.created_at)}
-                        </p>
-                      </div>
-                      <span className="font-semibold text-[var(--text-primary)] text-sm shrink-0">
-                        ₦{Number(ref.wallet).toLocaleString()}
-                      </span>
-                    </li>
-                  ))}
+                  {referrals.map((ref, index) => {
+                    const displayName = ref.fullname || ref.name || 'Unknown';
+                    const dateStr = ref.created_at || ref.date || '';
+                    return (
+                      <li
+                        key={ref.id ?? index}
+                        className="flex items-center gap-3 p-4 hover:bg-[var(--bg-hover)] transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-[var(--accent-hover)] flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm shrink-0">
+                          {displayName[0].toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-[var(--text-primary)] text-sm truncate">
+                            {displayName}
+                          </p>
+                          {dateStr && (
+                            <p className="text-xs text-[var(--text-muted)]">
+                              {formatDate(dateStr)}
+                            </p>
+                          )}
+                        </div>
+                        {ref.wallet && (
+                          <span className="font-semibold text-[var(--text-primary)] text-sm shrink-0">
+                            ₦{Number(ref.wallet).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

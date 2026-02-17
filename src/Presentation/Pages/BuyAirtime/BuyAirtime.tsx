@@ -7,7 +7,7 @@ import NetworkSelector from './Components/NetworkSelector';
 import AmountSelector from './Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
 import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
-import { pickContact, isContactPickerSupported } from '../BuyData/utils/contactPicker';
+import { pickContact } from '../BuyData/utils/contactPicker';
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -26,7 +26,8 @@ const BuyAirtime = () => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
     setPhone(raw);
     setContactMessage(null);
-    if (raw.length >= 5) {
+    // Auto-detect network after first 4 digits are entered (length > 3)
+    if (raw.length > 3) {
       const detected = getNetworkFromPhone(raw);
       if (detected) setSelectedNetwork(detected);
     }
@@ -34,21 +35,27 @@ const BuyAirtime = () => {
 
   const handleSelectContact = async () => {
     setContactMessage(null);
-    if (!isContactPickerSupported()) {
-      setContactMessage('Contact picker is not supported in this browser. Please enter the number manually.');
-      return;
-    }
     try {
       const result = await pickContact();
       if (result) {
+        // Set phone number (similar to Flutter: _phoneController.text = contact ?? '')
         setPhone(result.phone);
+        // Auto-detect network (similar to Flutter: _autoselctnetworkbyphone)
         const detected = getNetworkFromPhone(result.phone);
         if (detected) setSelectedNetwork(detected);
+        // Clear any previous error messages
+        setContactMessage(null);
       } else {
-        setContactMessage('No contact selected or contact has no phone number.');
+        // User cancelled - don't show error message
+        setContactMessage(null);
       }
-    } catch {
-      setContactMessage('Could not open contacts. Please enter the number manually.');
+    } catch (error) {
+      // Handle different error types with appropriate messages
+      if (error && typeof error === 'object' && 'message' in error) {
+        setContactMessage((error as { message: string }).message);
+      } else {
+        setContactMessage('Could not open contacts. Please enter the number manually.');
+      }
     }
   };
 

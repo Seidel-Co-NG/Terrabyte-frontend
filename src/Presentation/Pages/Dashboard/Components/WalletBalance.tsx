@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiCopy, FiCheck, FiCreditCard } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiCreditCard, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
 import { useAuthStore } from '../../../../core/stores/auth.store';
 
@@ -12,6 +12,7 @@ function formatMoney(value: string | number | undefined): string {
 
 const WalletBalance = () => {
   const [copied, setCopied] = useState(false);
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const user = useAuthStore((s) => s.user);
   const walletBalance = formatMoney(user?.wallet);
   const bonusBalance = formatMoney(user?.bonus);
@@ -33,6 +34,13 @@ const WalletBalance = () => {
   };
 
 
+  const toggleBalanceVisibility = () => {
+    setIsBalanceVisible(!isBalanceVisible);
+  };
+
+  const displayWalletBalance = isBalanceVisible ? walletData.walletBalance : '••••••';
+  const displayBonusBalance = isBalanceVisible ? walletData.bonusBalance : '••••••';
+
   return (
     <div className="w-full flex flex-col gap-6">
       <div className="flex justify-between items-center mb-0">
@@ -44,11 +52,25 @@ const WalletBalance = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="p-4 sm:p-5 min-w-0 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-1.5 sm:gap-2">
               <div className="text-xs sm:text-[0.85rem] text-[var(--text-secondary)] font-medium">Wallet Balance</div>
-              <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--success)] truncate" title={walletData.walletBalance}>{walletData.walletBalance}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--success)] truncate flex-1" title={isBalanceVisible ? walletData.walletBalance : undefined}>
+                  {displayWalletBalance}
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleBalanceVisibility}
+                  className="p-1.5 rounded-md bg-[var(--accent-hover)] border border-[var(--accent-hover)] text-[var(--accent-primary)] cursor-pointer flex items-center justify-center transition-all hover:border-[var(--accent-primary)] hover:text-[var(--text-primary)] hover:scale-105 shrink-0"
+                  title={isBalanceVisible ? 'Hide balance' : 'Show balance'}
+                >
+                  {isBalanceVisible ? <FiEye size={16} /> : <FiEyeOff size={16} />}
+                </button>
+              </div>
             </div>
             <div className="p-4 sm:p-5 min-w-0 bg-gradient-to-br from-[var(--accent-hover)] to-[rgba(124,58,237,0.1)] border border-[var(--accent-hover)] rounded-lg flex flex-col gap-1.5 sm:gap-2">
               <div className="text-xs sm:text-[0.85rem] text-[var(--text-secondary)] font-medium">Bonus Balance</div>
-              <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--warning)] truncate" title={walletData.bonusBalance}>{walletData.bonusBalance}</div>
+              <div className="text-xl sm:text-2xl md:text-[1.75rem] font-bold text-[var(--warning)] truncate" title={isBalanceVisible ? walletData.bonusBalance : undefined}>
+                {displayBonusBalance}
+              </div>
             </div>
           </div>
 

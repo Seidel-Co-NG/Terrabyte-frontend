@@ -18,7 +18,9 @@ const ReferralList = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const username = user?.username ?? user?.name ?? 'user';
-  const referralLink = `https://terrabyte.com.ng/signup/?ref=${username}`;
+  /// collect url from env variable
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const referralLink = `${baseUrl}/signup/?ref=${username}`;
   const [referrals, setReferrals] = useState<ReferredUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

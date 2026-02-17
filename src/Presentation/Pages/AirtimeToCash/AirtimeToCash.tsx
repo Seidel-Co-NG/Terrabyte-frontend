@@ -6,6 +6,7 @@ import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from '../BuyAirtime/Components/NetworkSelector';
 import { servicesApi } from '../../../core/api';
+import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
 
 // Mock rates: network -> { rate (0-1), min, max }
 const NETWORK_RATES: Record<string, { rate: number; min: number; max: number }> = {
@@ -250,7 +251,17 @@ const AirtimeToCash = () => {
                   ? phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3')
                   : phone
               }
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+                setPhone(raw);
+                // Auto-detect network after first 4 digits are entered (length > 3)
+                if (raw.length > 3) {
+                  const detected = getNetworkFromPhone(raw);
+                  if (detected && NETWORK_RATES[detected]) {
+                    setSelectedNetwork(detected);
+                  }
+                }
+              }}
               placeholder="0801 234 5678"
               className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
             />
