@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   User,
   Users,
@@ -47,10 +47,17 @@ const Profile = () => {
     <div className={pageClass}>
       <div className="max-w-2xl mx-auto">
         {/* Header card */}
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] overflow-hidden mb-6">
+        <Link
+          to="/dashboard/profile/edit"
+          className="block rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] overflow-hidden mb-6 hover:bg-[var(--bg-hover)] transition-colors"
+        >
           <div className="p-6 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center shrink-0">
-              <User className="w-7 h-7 text-[var(--text-muted)]" strokeWidth={2} />
+            <div className="w-14 h-14 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center shrink-0 overflow-hidden">
+              {user?.profile_picture_url ? (
+                <img src={user.profile_picture_url} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-7 h-7 text-[var(--text-muted)]" strokeWidth={2} />
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-base font-bold text-[var(--text-primary)] uppercase truncate">
@@ -59,7 +66,7 @@ const Profile = () => {
               <p className="text-sm text-[var(--text-secondary)] truncate">{userEmail}</p>
             </div>
           </div>
-        </div>
+        </Link>
 
         <PremiumBanner userLevel={userLevel} />
 

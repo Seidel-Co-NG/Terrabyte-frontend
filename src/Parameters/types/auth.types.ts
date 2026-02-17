@@ -31,6 +31,8 @@ export interface User {
   is_staff?: boolean;
   /** Reserved bank accounts (API may return reserved_account) */
   reserved_account?: Array<{ account_name?: string; bank_name?: string; account_number?: string }>;
+  /** Profile picture URL (from profile_picture_url or profile_picture) */
+  profile_picture_url?: string;
 }
 
 export interface LoginData {

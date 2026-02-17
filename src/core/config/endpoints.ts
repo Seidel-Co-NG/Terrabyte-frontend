@@ -23,6 +23,7 @@ export const endpoints = {
   kycStatus: `${API}/kyc/status`,
   kycSubmit: `${API}/kyc/submit`,
   updateUser: `${API}/user/update`,
+  profilePicture: `${API}/user/profile-picture`,
   changePassword: `${API}/user/change-password`,
   changeTransactionPin: `${API}/user/change-transaction-pin`,
   resetTransactionPin: `${API}/user/reset-transaction-pin`,
