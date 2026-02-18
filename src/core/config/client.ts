@@ -18,11 +18,15 @@ function getToken(): string | null {
   }
 }
 
-function getHeaders(requireToken = true, _body?: unknown): HeadersInit {
+function getHeadersForBody(requireToken: boolean, body?: unknown): HeadersInit {
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
   };
+  if (body instanceof FormData) {
+    // Do not set Content-Type for FormData - browser sets it with boundary
+  } else {
+    headers['Content-Type'] = 'application/json';
+  }
   if (requireToken) {
     const token = getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -40,11 +44,11 @@ export async function request<T = unknown>(
   const url = path.startsWith('http') ? path : `${apiConfig.baseUrl}${path}`;
   const options: RequestInit = {
     method,
-    headers: getHeaders(requireToken, body),
+    headers: getHeadersForBody(requireToken, body),
     signal,
   };
   if (body != null && method !== 'GET') {
-    options.body = JSON.stringify(body);
+    options.body = body instanceof FormData ? body : JSON.stringify(body);
   }
 
   const response = await fetch(url, options);

@@ -21,6 +21,16 @@ const IOS_APP_URL =
     ? String(import.meta.env.VITE_IOS_APP_URL).trim()
     : '';
 
+const CLOUDINARY_CLOUD_NAME =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME
+    ? String(import.meta.env.VITE_CLOUDINARY_CLOUD_NAME).trim()
+    : '';
+
+const CLOUDINARY_UPLOAD_PRESET =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_UPLOAD_PRESET
+    ? String(import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET).trim()
+    : 'profile_pictures';
+
 export const apiConfig = {
   baseUrl: BASE_URL,
   adminUrl: ADMIN_URL,
@@ -30,5 +40,9 @@ export const apiConfig = {
   storageKeys: {
     token: 'auth_token',
     user: 'auth_user',
+  },
+  cloudinary: {
+    cloudName: CLOUDINARY_CLOUD_NAME,
+    uploadPreset: CLOUDINARY_UPLOAD_PRESET,
   },
 } as const;

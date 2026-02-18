@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { apiConfig } from '../config/api.config';
 import { authApi } from '../api/auth.api';
 import { userApi } from '../api/user.api';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 import type { User, LoginPayload, RegisterPayload } from '../../Parameters/types/auth.types';
 
 /** Normalize API user (snake_case / raw) to our User type. */
@@ -33,6 +34,7 @@ function normalizeUser(raw: Record<string, unknown> | User): User {
     isAdmin: r.isAdmin === true || r.isAdmin === 1 || Boolean((raw as User).isAdmin),
     is_staff: r.is_staff === true || r.is_staff === 1 || Boolean((raw as User).is_staff),
     reserved_account: (r.reserved_account as User['reserved_account']) ?? (raw as User).reserved_account,
+    profile_picture_url: (r.profile_picture_url as string) ?? (raw as User).profile_picture_url,
   };
 }
 
@@ -53,6 +55,8 @@ export interface AuthState {
   logout: () => Promise<void>;
   /** Fetch current user from API and merge into state (call after login). */
   fetchUser: () => Promise<boolean>;
+  /** Update profile picture (file upload). */
+  updateProfilePicture: (file: File) => Promise<boolean>;
   /** Set email for verification flow (e.g. when "verify email" required on purchase). */
   setEmailForVerification: (email: string) => void;
   register: (payload: RegisterPayload) => Promise<{ success: boolean; message?: string }>;
@@ -167,6 +171,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return false;
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to fetch user';
+      set({ isLoading: false, error: message });
+      return false;
+    }
+  },
+
+  updateProfilePicture: async (file: File) => {
+    const current = get();
+    if (!current.token) return false;
+    set({ isLoading: true, error: null });
+    try {
+      const url = await uploadImageToCloudinary(file);
+      const res = await userApi.updateProfilePicture(url);
+      const raw = res?.data as Record<string, unknown> | undefined;
+      if (raw && (res?.status === 'successful' || res?.status === 'success')) {
+        const user = normalizeUser(raw);
+        setStorage(current.token, user);
+        set({ user, error: null, isLoading: false });
+        return true;
+      }
+      set({ isLoading: false, error: res?.message ?? 'Failed to update profile picture' });
+      return false;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to update profile picture';
       set({ isLoading: false, error: message });
       return false;
     }

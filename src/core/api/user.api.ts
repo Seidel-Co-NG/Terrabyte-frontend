@@ -94,4 +94,12 @@ export const userApi = {
   }> {
     return client.put(endpoints.apiKeyIpWhitelist, { api_ip_whitelist });
   },
+
+  async updateProfilePicture(profilePictureUrl: string): Promise<UserResponse> {
+    const res = await client.post<{ status?: string; message?: string; data?: unknown }>(
+      endpoints.profilePicture,
+      { profile_picture_url: profilePictureUrl }
+    );
+    return { status: res?.status, message: res?.message, data: res?.data as User | undefined };
+  },
 };
