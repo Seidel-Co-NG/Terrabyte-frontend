@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import DiscoSelector, { type DiscoCompany } from './Components/DiscoSelector';
 import MeterTypeSelector, { type MeterType } from './Components/MeterTypeSelector';
-import AmountSelector from '../BuyAirtime/Components/AmountSelector';
+import AmountSelector, { ELECTRICITY_AMOUNT_CHIPS } from '../BuyAirtime/Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
+import { userApi } from '../../../core/api/user.api';
+import { useAuthStore } from '../../../core/stores/auth.store';
 
 const FALLBACK_DISCO_COMPANIES: DiscoCompany[] = [
   { name: 'EKEDC', code: 'ekedc' },
@@ -39,7 +41,13 @@ function normalizeElectricityCompanies(raw: unknown): DiscoCompany[] {
     .filter((c) => c.name && c.code);
 }
 
+interface ElectricityChargeConfig {
+  charge: number;
+  percentage: number;
+}
+
 const Electricity = () => {
+  const user = useAuthStore((s) => s.user);
   const [discoCompanies, setDiscoCompanies] = useState<DiscoCompany[]>(FALLBACK_DISCO_COMPANIES);
   const [selectedDisco, setSelectedDisco] = useState<string | null>(null);
   const [selectedMeterType, setSelectedMeterType] = useState<MeterType | null>(null);
@@ -50,6 +58,31 @@ const Electricity = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amountError, setAmountError] = useState('');
   const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [chargeConfig, setChargeConfig] = useState<ElectricityChargeConfig | null>(null);
+
+  useEffect(() => {
+    userApi.getConfigurations().then((res) => {
+      const data = res?.data as { Charge_Percentage_Discount_Switch?: Array<{ service_name?: string; smart_user_charge?: number; smart_earner_charge?: number; top_user_charge?: number; smart_user_percentage?: number; smart_earner_percentage?: number; top_user_percentage?: number }> } | undefined;
+      const list = data?.Charge_Percentage_Discount_Switch ?? [];
+      const electricity = list.find((s) => (s.service_name ?? '').toLowerCase() === 'electricity');
+      if (electricity) {
+        const userType = (user?.user_type ?? 'smart_user').toLowerCase();
+        const charge =
+          userType === 'top_user'
+            ? Number(electricity.top_user_charge ?? 0)
+            : userType === 'smart_earner'
+              ? Number(electricity.smart_earner_charge ?? 0)
+              : Number(electricity.smart_user_charge ?? 0);
+        const percentage =
+          userType === 'top_user'
+            ? Number(electricity.top_user_percentage ?? 0)
+            : userType === 'smart_earner'
+              ? Number(electricity.smart_earner_percentage ?? 0)
+              : Number(electricity.smart_user_percentage ?? 0);
+        setChargeConfig({ charge, percentage });
+      }
+    }).catch(() => {});
+  }, [user?.user_type]);
 
   useEffect(() => {
     servicesApi.getElectricityCompanies().then((res) => {
@@ -62,8 +95,18 @@ const Electricity = () => {
   }, []);
 
   const amountNum = amount ? parseFloat(amount) : 0;
-  const amountToPay = amountNum; // Dashboard: no charge discount for now
-  const hasValidAmount = amountNum > 0;
+
+  const amountToPay = useMemo(() => {
+    if (amountNum <= 0) return 0;
+    if (!chargeConfig) return amountNum;
+    let total = amountNum + chargeConfig.charge;
+    if (chargeConfig.percentage > 0) {
+      total = total * (1 + chargeConfig.percentage / 100);
+    }
+    return Math.round(total * 100) / 100;
+  }, [amountNum, chargeConfig]);
+
+  const hasValidAmount = amountNum >= 2000;
 
   const updateAmountError = (value: string) => {
     if (!value) {
@@ -71,8 +114,8 @@ const Electricity = () => {
       return;
     }
     const num = parseFloat(value);
-    if (Number.isNaN(num) || num <= 0) {
-      setAmountError('Please enter a valid amount greater than ₦0');
+    if (Number.isNaN(num) || num < 2000) {
+      setAmountError('Minimum electricity amount is ₦2,000');
     } else {
       setAmountError('');
     }
@@ -205,7 +248,13 @@ const Electricity = () => {
             selectedAmount={amount}
             onAmountChange={handleAmountChange}
             amountToPay={amountToPay}
-            balance="₦125,450.00"
+            amountChips={ELECTRICITY_AMOUNT_CHIPS}
+            minAmount={2000}
+            balance={
+              user?.wallet != null
+                ? `₦${Number(user.wallet).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+                : undefined
+            }
           />
 
           {amountError && (

@@ -7,6 +7,7 @@ import { userApi } from '../api/user.api';
 export interface NotificationForUser {
   notification_type: string;
   message: string;
+  image_url?: string | null;
   is_active: string;
 }
 

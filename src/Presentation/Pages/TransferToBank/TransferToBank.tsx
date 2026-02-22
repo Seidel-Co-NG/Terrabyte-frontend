@@ -99,13 +99,31 @@ const TransferToBank = () => {
     return banks.filter((b) => b.name.toLowerCase().includes(q));
   }, [bankSearch, banks]);
 
-  const handleSelectBank = (bank: BankOption) => {
+  const handleSelectBank = async (bank: BankOption) => {
     setSelectedBank(bank.name);
     setSelectedBankCode(bank.code);
     setSelectedBankId(bank.id);
     setBankDrawerOpen(false);
     setBankSearch('');
     setAccountName('');
+
+    // If account number already has 10 digits, re-validate name for new bank
+    if (accountNumber.length >= 10 && bank.code) {
+      setValidatingAccount(true);
+      try {
+        const res = await servicesApi.validateAccount({
+          account_number: accountNumber,
+          bank_code: bank.code,
+        });
+        const body = res?.data as { data?: { account_name?: string }; account_name?: string } | undefined;
+        const name = body?.data?.account_name ?? body?.account_name;
+        if (name) setAccountName(name);
+      } catch {
+        setAccountName('');
+      } finally {
+        setValidatingAccount(false);
+      }
+    }
   };
 
   const handleAccountNumberChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

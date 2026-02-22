@@ -1,13 +1,26 @@
-const AMOUNT_CHIPS = [100, 200, 500, 1000, 2000, 5000];
+const DEFAULT_AMOUNT_CHIPS = [100, 200, 500, 1000, 2000, 5000];
+export const ELECTRICITY_AMOUNT_CHIPS = [2000, 3000, 5000, 10000, 20000, 50000];
 
 interface AmountSelectorProps {
   selectedAmount: string;
   onAmountChange: (amount: string) => void;
   amountToPay?: number;
   balance?: string;
+  /** Custom amount chips (e.g. for electricity). Defaults to airtime amounts. */
+  amountChips?: number[];
+  /** Minimum valid amount for validation. */
+  minAmount?: number;
 }
 
-const AmountSelector = ({ selectedAmount, onAmountChange, amountToPay = 0, balance }: AmountSelectorProps) => {
+const AmountSelector = ({
+  selectedAmount,
+  onAmountChange,
+  amountToPay = 0,
+  balance,
+  amountChips,
+  minAmount = 0,
+}: AmountSelectorProps) => {
+  const chips = amountChips ?? DEFAULT_AMOUNT_CHIPS;
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
     onAmountChange(value);
@@ -25,8 +38,9 @@ const AmountSelector = ({ selectedAmount, onAmountChange, amountToPay = 0, balan
       </div>
       <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] p-4">
         <input
-          type="tel"
+          type="number"
           inputMode="numeric"
+          min={minAmount}
           value={selectedAmount}
           onChange={handleInputChange}
           placeholder="Amount"
@@ -36,7 +50,7 @@ const AmountSelector = ({ selectedAmount, onAmountChange, amountToPay = 0, balan
           <p className="text-xs text-[var(--accent-primary)] font-medium mt-2">Amount to pay: ₦{amountToPay.toLocaleString()}</p>
         )}
         <div className="flex flex-wrap gap-2 mt-3">
-          {AMOUNT_CHIPS.map((amount) => {
+          {chips.map((amount) => {
             const isSelected = selectedChip === amount;
             return (
               <button

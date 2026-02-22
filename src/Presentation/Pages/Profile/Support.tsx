@@ -1,3 +1,4 @@
+import { useEffect, useState, useMemo } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Phone,
@@ -8,7 +9,9 @@ import {
   Twitter,
   Instagram,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import BackButton from '../../Components/BackButton';
+import { userApi } from '../../../core/api/user.api';
 
 const pageClass =
   'p-6 md:p-5 lg:p-8 ml-0 lg:ml-[280px] mt-[70px] md:mt-16 min-h-[calc(100vh-70px)] md:min-h-[calc(100vh-4rem)] bg-[var(--bg-primary)]';
@@ -21,22 +24,74 @@ interface SupportItem {
   action: 'copy' | 'open';
 }
 
+interface WebsiteConfig {
+  admin_email?: string | null;
+  admin_phone?: string | null;
+  whatsapp_group?: string | null;
+  facebook?: string | null;
+  twitter?: string | null;
+  instagram?: string | null;
+}
+
+const WEBSITE_URL = 'https://terrabyte.com.ng';
+
+function toWaLink(phone: string): string {
+  const digits = (phone || '').replace(/\D/g, '');
+  return digits ? `https://wa.me/${digits}` : '';
+}
+
 const Support = () => {
-  // TODO: from API / web config
-  const supportList: SupportItem[] = [
-    { title: 'Call us', icon: Phone, link: '+234 800 000 0000', action: 'copy' },
-    { title: 'Email us', icon: Mail, link: 'support@terrabyte.com.ng', action: 'copy' },
-    { title: 'WhatsApp', icon: MessageCircle, link: 'https://wa.me/2348000000000', action: 'open' },
-    { title: 'Our Website', icon: Globe, link: 'https://terrabyte.com.ng', action: 'open' },
-    { title: 'Facebook', subtitle: 'Reach us on Facebook', icon: Facebook, link: 'https://facebook.com/terrabyte', action: 'open' },
-    { title: 'X (Twitter)', subtitle: 'Reach us on X', icon: Twitter, link: 'https://twitter.com/terrabyte', action: 'open' },
-    { title: 'Instagram', icon: Instagram, link: 'https://instagram.com/terrabyte', action: 'open' },
-  ];
+  const [config, setConfig] = useState<WebsiteConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    userApi
+      .getConfigurations()
+      .then((res) => {
+        const data = res?.data as Record<string, unknown> | undefined;
+        const wc = data?.website_configurations as WebsiteConfig | undefined;
+        setConfig(wc ?? null);
+      })
+      .catch(() => setConfig(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const supportList: SupportItem[] = useMemo(() => {
+    const c = config;
+    const phone = c?.admin_phone ?? '';
+    const items: SupportItem[] = [];
+    if (phone) {
+      items.push({ title: 'Call us', icon: Phone, link: phone, action: 'copy' });
+    }
+    if (c?.admin_email) {
+      items.push({ title: 'Email us', icon: Mail, link: c.admin_email, action: 'copy' });
+    }
+    if (phone) {
+      const wa = toWaLink(phone);
+      if (wa) items.push({ title: 'WhatsApp', icon: MessageCircle, link: wa, action: 'open' });
+    }
+    if (c?.whatsapp_group) {
+      items.push({ title: 'WhatsApp Group', icon: MessageCircle, link: c.whatsapp_group, action: 'open' });
+    }
+    if (c?.facebook) {
+      items.push({ title: 'Facebook', subtitle: 'Reach us on Facebook', icon: Facebook, link: c.facebook, action: 'open' });
+    }
+    if (c?.twitter) {
+      items.push({ title: 'X (Twitter)', subtitle: 'Reach us on X', icon: Twitter, link: c.twitter, action: 'open' });
+    }
+    if (c?.instagram) {
+      items.push({ title: 'Instagram', icon: Instagram, link: c.instagram, action: 'open' });
+    }
+    items.push({ title: 'Our Website', icon: Globe, link: WEBSITE_URL, action: 'open' });
+    return items;
+  }, [config]);
 
   const handleItem = (item: SupportItem) => {
     if (item.action === 'copy') {
-      navigator.clipboard.writeText(item.link);
-      // TODO: toast "Copied to clipboard"
+      navigator.clipboard.writeText(item.link).then(
+        () => toast.success(`${item.link} copied to clipboard`),
+        () => toast.error('Failed to copy')
+      );
     } else {
       window.open(item.link, '_blank', 'noopener,noreferrer');
     }
@@ -50,6 +105,9 @@ const Support = () => {
           Contact Support
         </h1>
 
+        {loading ? (
+          <p className="text-[var(--text-muted)]">Loading support options...</p>
+        ) : (
         <div className="space-y-2">
           {supportList.map((item, i) => {
             const Icon = item.icon;
@@ -78,6 +136,7 @@ const Support = () => {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );
