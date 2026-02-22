@@ -12,6 +12,7 @@ const pageClass =
 
 interface ReferredUser {
   fullname?: string;
+  username?: string;
   name?: string;
   date?: string;
   created_at?: string;
@@ -163,15 +164,12 @@ const ReferralBonus = () => {
               {recentReferrals.map((ref, i) => (
                 <li key={i} className="flex items-center gap-3 px-4 py-3">
                   <span className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-primary-lightest text-brand-primary font-bold text-sm">
-                    {(ref.fullname ?? ref.name ?? '?').charAt(0)}
+                    {(ref.fullname ?? ref.username ?? ref.name ?? '?').charAt(0)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{ref.fullname ?? ref.name ?? '—'}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{ref.fullname ?? ref.username ?? ref.name ?? '—'}</p>
                     <p className="text-xs text-[var(--text-muted)]">{ref.date ?? (ref.created_at ? new Date(ref.created_at).toLocaleDateString() : '—')}</p>
                   </div>
-                  <span className="text-sm font-semibold text-[var(--text-primary)]">
-                    ₦{ref.wallet ?? '0'}
-                  </span>
                 </li>
               ))}
             </ul>
