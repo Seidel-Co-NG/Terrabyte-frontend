@@ -49,9 +49,18 @@ const DashboardNotificationModal = ({ isOpen, onClose }: DashboardNotificationMo
         </h3>
         <div className="space-y-3 max-h-[60vh] overflow-y-auto">
           {dashboardNotifications.map((n, i) => (
-            <p key={i} className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              {(n.message ?? '').trim()}
-            </p>
+            <div key={i} className="space-y-2">
+              {n.image_url && n.image_url.trim() && (
+                <img
+                  src={n.image_url}
+                  alt=""
+                  className="w-full rounded-xl object-cover max-h-40"
+                />
+              )}
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                {(n.message ?? '').trim()}
+              </p>
+            </div>
           ))}
         </div>
         <button

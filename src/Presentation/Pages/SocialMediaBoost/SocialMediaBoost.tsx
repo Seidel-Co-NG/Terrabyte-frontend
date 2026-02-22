@@ -45,6 +45,7 @@ const SocialMediaBoost = () => {
   const [highAmountOpen, setHighAmountOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
+  const [successDescription, setSuccessDescription] = useState<string | undefined>(undefined);
   const [lastTransactionId, setLastTransactionId] = useState<string | undefined>(undefined);
 
   const user = useAuthStore((s) => s.user);
@@ -168,6 +169,7 @@ const SocialMediaBoost = () => {
         setPopupOpen(true);
         setLastTransactionId((data?.transaction_id ?? data?.id ?? data?.transactionId) as string | undefined);
         setSuccessMessage(message ?? 'Order placed successfully');
+        setSuccessDescription(data?.description ?? undefined);
         setSuccessOpen(true);
         // reset
         setSelectedCategory(null);
@@ -313,7 +315,17 @@ const SocialMediaBoost = () => {
 
       <LoadingOverlay isOpen={isLoading || isSubmitting} message={isLoading ? 'Loading...' : 'Processing...'} />
 
-      <TransactionSuccessfulModal isOpen={successOpen} onClose={() => { setSuccessOpen(false); }} message={successMessage} transactionId={lastTransactionId} amount={totalAmount().toFixed(2)} />
+      <TransactionSuccessfulModal
+        isOpen={successOpen}
+        onClose={() => { setSuccessOpen(false); }}
+        message={successMessage}
+        description={successDescription}
+        transactionId={lastTransactionId}
+        amount={totalAmount().toFixed(2)}
+        transactionType="Social Media Boost"
+        date={new Date().toISOString().split('T')[0]}
+        recipient={link}
+      />
     </div>
   );
 };

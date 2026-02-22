@@ -25,6 +25,7 @@ export default function BuyAirtimePage() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [lastTransactionId, setLastTransactionId] = useState<string | undefined>(undefined);
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
+  const [successDescription, setSuccessDescription] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageTitle] = useState<string | undefined>(undefined);
@@ -136,6 +137,7 @@ export default function BuyAirtimePage() {
         setLastTransactionId(transactionId ?? undefined);
         const successMsg = message ?? data?.description ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`;
         setSuccessMessage(successMsg);
+        setSuccessDescription(data?.description ?? undefined);
         setSuccessOpen(true);
         toast.success(successMsg);
 
@@ -286,8 +288,12 @@ export default function BuyAirtimePage() {
         isOpen={successOpen}
         onClose={() => { setSuccessOpen(false); navigate('/dashboard'); }}
         message={successMessage}
+        description={successDescription}
         transactionId={lastTransactionId}
         amount={amount}
+        transactionType="Airtime"
+        date={new Date().toISOString().split('T')[0]}
+        recipient={displayPhone}
       />
     </div>
   );

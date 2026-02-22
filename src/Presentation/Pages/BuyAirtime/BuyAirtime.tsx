@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
@@ -6,8 +6,15 @@ import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from './Components/NetworkSelector';
 import AmountSelector from './Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
+import { userApi } from '../../../core/api/user.api';
+import { useAuthStore } from '../../../core/stores/auth.store';
 import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
 import { pickContact } from '../BuyData/utils/contactPicker';
+
+interface AirtimeChargeConfig {
+  charge: number;
+  percentage: number;
+}
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -16,11 +23,30 @@ const formatPhone = (value: string) => {
 };
 
 const BuyAirtime = () => {
+  const user = useAuthStore((s) => s.user);
   const [phone, setPhone] = useState('');
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [contactMessage, setContactMessage] = useState<string | null>(null);
   const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [chargeConfig, setChargeConfig] = useState<Record<string, AirtimeChargeConfig>>({});
+
+  useEffect(() => {
+    userApi.getConfigurations().then((res) => {
+      const data = res?.data as { data?: { Charge_Percentage_Discount_Switch?: Array<{ service_name?: string; smart_user_charge?: number; smart_earner_charge?: number; top_user_charge?: number; smart_user_percentage?: number; smart_earner_percentage?: number; top_user_percentage?: number }> } } | undefined;
+      const list = data?.data?.Charge_Percentage_Discount_Switch ?? (data as { Charge_Percentage_Discount_Switch?: unknown[] })?.Charge_Percentage_Discount_Switch ?? [];
+      const userType = (user?.user_type ?? 'smart_user').toLowerCase();
+      const configs: Record<string, AirtimeChargeConfig> = {};
+      for (const s of list as Array<{ service_name?: string; smart_user_charge?: number; smart_earner_charge?: number; top_user_charge?: number; smart_user_percentage?: number; smart_earner_percentage?: number; top_user_percentage?: number }>) {
+        const name = (s.service_name ?? '').toLowerCase();
+        if (!name.endsWith('_vtu')) continue;
+        const charge = userType === 'top_user' ? Number(s.top_user_charge ?? 0) : userType === 'smart_earner' ? Number(s.smart_earner_charge ?? 0) : Number(s.smart_user_charge ?? 0);
+        const percentage = userType === 'top_user' ? Number(s.top_user_percentage ?? 0) : userType === 'smart_earner' ? Number(s.smart_earner_percentage ?? 0) : Number(s.smart_user_percentage ?? 0);
+        configs[name] = { charge, percentage };
+      }
+      setChargeConfig(configs);
+    }).catch(() => {});
+  }, [user?.user_type]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -62,6 +88,20 @@ const BuyAirtime = () => {
   const displayPhone = formatPhone(phone);
   const isValidPhone = phone.length === 11;
   const amountNum = amount ? parseFloat(amount) : 0;
+
+  const amountToPay = useMemo(() => {
+    if (amountNum <= 0 || !selectedNetwork) return 0;
+    const key = `${selectedNetwork.toLowerCase()}_vtu`;
+    const config = chargeConfig[key];
+    if (!config) return amountNum;
+    let total = amountNum + config.charge;
+    if (config.percentage > 0) {
+      const discount = (amountNum * config.percentage) / 100;
+      total = amountNum - discount;
+    }
+    return Math.round(total * 100) / 100;
+  }, [amountNum, selectedNetwork, chargeConfig]);
+
   const isValidAmount = amountNum > 0;
   const canSubmit = isValidPhone && !!selectedNetwork && isValidAmount;
 
@@ -130,8 +170,12 @@ const BuyAirtime = () => {
           <AmountSelector
             selectedAmount={amount}
             onAmountChange={setAmount}
-            amountToPay={amountNum}
-            balance="₦125,450.00"
+            amountToPay={amountToPay}
+            balance={
+              user?.wallet != null
+                ? `₦${Number(user.wallet).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+                : undefined
+            }
           />
 
           {amountNum > 0 && !isValidAmount && (
