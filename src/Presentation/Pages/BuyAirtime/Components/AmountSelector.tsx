@@ -38,8 +38,9 @@ const AmountSelector = ({
       </div>
       <div className="rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] p-4">
         <input
-          type="tel"
+          type="number"
           inputMode="numeric"
+          min={minAmount}
           value={selectedAmount}
           onChange={handleInputChange}
           placeholder="Amount"
