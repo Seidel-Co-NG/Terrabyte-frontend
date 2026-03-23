@@ -10,6 +10,7 @@ import PlanSelector, { type DataPlan } from './Components/PlanSelector';
 import { getNetworkFromPhone } from './utils/phoneNetwork';
 import { pickContact } from './utils/contactPicker';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 /** Map API plan (id may be number) to DataPlan */
 function mapApiPlanToDataPlan(raw: { id?: number | string; network?: string; type?: string; amount?: number | string; size?: string }): DataPlan {
@@ -164,15 +165,29 @@ const BuyData = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedNetwork || !selectedPlan || !phone) return;
-    await servicesApi.buyData({
-      network: selectedNetwork,
-      phone_number: phone,
-      plan_id: selectedPlan.id,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Data purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} to ${displayPhone} successful.`);
-    setPhone('');
-    setSelectedPlan(null);
+    try {
+      const res = await servicesApi.buyData({
+        network: selectedNetwork,
+        phone_number: phone,
+        plan_id: selectedPlan.id,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Data purchase failed. Please try again.')
+        );
+      }
+      toast.success(
+        `Data purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} to ${displayPhone} successful.`
+      );
+      setPhone('');
+      setSelectedPlan(null);
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Data purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (

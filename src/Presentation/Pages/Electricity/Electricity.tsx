@@ -7,6 +7,7 @@ import DiscoSelector, { type DiscoCompany } from './Components/DiscoSelector';
 import MeterTypeSelector, { type MeterType } from './Components/MeterTypeSelector';
 import AmountSelector, { ELECTRICITY_AMOUNT_CHIPS } from '../BuyAirtime/Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 import { userApi } from '../../../core/api/user.api';
 import { useAuthStore } from '../../../core/stores/auth.store';
 
@@ -151,6 +152,12 @@ const Electricity = () => {
         meter_type: selectedMeterType,
         company_code: selectedDisco,
       });
+      if (!isApiSuccessResponse(res)) {
+        toast.error(
+          getApiMessage(res, 'Meter validation failed. Please check the details.')
+        );
+        return;
+      }
       const data = res?.data as { customer_name?: string; customer_details?: string } | undefined;
       const name = data?.customer_details?.trim() || data?.customer_name?.trim();
       if (name) setCustomerName(name);
@@ -171,19 +178,31 @@ const Electricity = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedDisco || !selectedMeterType || !amount) return;
-    await servicesApi.buyElectricity({
-      meter_number: meterNumber.trim(),
-      meter_type: selectedMeterType,
-      company_code: selectedDisco,
-      amount,
-      customer_name: customerName || 'Customer',
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Electricity purchase of ₦${amountNum.toLocaleString()} successful.`);
-    setMeterNumber('');
-    setAmount('');
-    setCustomerName('');
-    setIsMeterValidated(false);
+    try {
+      const res = await servicesApi.buyElectricity({
+        meter_number: meterNumber.trim(),
+        meter_type: selectedMeterType,
+        company_code: selectedDisco,
+        amount,
+        customer_name: customerName || 'Customer',
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Electricity purchase failed. Please try again.')
+        );
+      }
+      toast.success(`Electricity purchase of ₦${amountNum.toLocaleString()} successful.`);
+      setMeterNumber('');
+      setAmount('');
+      setCustomerName('');
+      setIsMeterValidated(false);
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Electricity purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   const handleAction = () => {

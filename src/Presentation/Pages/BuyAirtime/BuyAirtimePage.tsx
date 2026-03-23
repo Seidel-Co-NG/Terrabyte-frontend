@@ -9,6 +9,7 @@ import TransactionSuccessfulModal from '../../Components/TransactionSuccessfulMo
 import MessageModal from '../../Components/MessageModal';
 import LoadingOverlay from '../../Components/LoadingOverlay';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import DataNetworkSelector from '../BuyData/Components/DataNetworkSelector';
@@ -120,24 +121,29 @@ export default function BuyAirtimePage() {
       };
       const res = await servicesApi.buyAirtime(payload as any);
 
-      // API response: { status: 'successful', message: string, data: { transaction_reference, id, description, amount, ... } }
-      const status = (res as any)?.status ?? undefined;
-      const statusStr = status != null ? String(status).toLowerCase() : '';
-      const isSuccess = statusStr === 'success' || statusStr === 'successful';
-      const message = (res as any)?.message ?? 'Operation completed';
-      const data = (res as any)?.data ?? (res as any);
+      // API response: { status: 'successful', message: string, data: { ... } }
+      const isSuccess = isApiSuccessResponse(res);
+      const message =
+        (res as { message?: string })?.message ?? 'Operation completed';
+      const resAny = res as unknown as Record<string, unknown>;
+      const data = (resAny?.data ?? resAny) as Record<string, unknown>;
 
       if (isSuccess) {
         setConfirmOpen(false);
+        const rawId =
+          data.transaction_reference ??
+          data.transaction_id ??
+          data.transactionId ??
+          data.id;
         const transactionId =
-          data?.transaction_reference ??
-          data?.transaction_id ??
-          data?.transactionId ??
-          (data?.id != null ? String(data.id) : undefined);
-        setLastTransactionId(transactionId ?? undefined);
-        const successMsg = message ?? data?.description ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`;
+          rawId != null && rawId !== '' ? String(rawId) : undefined;
+        setLastTransactionId(transactionId);
+        const desc =
+          typeof data.description === 'string' ? data.description : undefined;
+        const successMsg =
+          message ?? desc ?? `Airtime purchase of ₦${amount} to ${displayPhone} was successful.`;
         setSuccessMessage(successMsg);
-        setSuccessDescription(data?.description ?? undefined);
+        setSuccessDescription(desc);
         setSuccessOpen(true);
         toast.success(successMsg);
 
@@ -162,8 +168,10 @@ export default function BuyAirtimePage() {
         setAmountToPay(0);
         setModalError(null);
       } else {
-        // Show actual API message in modal and toast
-        const errorMsg = message ?? 'Airtime purchase failed. Please try again.';
+        const errorMsg = getApiMessage(
+          res,
+          'Airtime purchase failed. Please try again.'
+        );
         setModalError(errorMsg);
         toast.error(errorMsg);
       }

@@ -4,6 +4,7 @@ import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 const EXAM_TYPE_LOGOS: Record<string, string> = {
   JAMB: '/img/jamb.png',
@@ -42,17 +43,31 @@ const BuyPins = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedExam || qty < 1 || !exam) return;
-    await servicesApi.buyRechargePins({
-      pin_name: selectedExam,
-      name_on_card: nameOnCard.trim(),
-      quantity: qty,
-      amount: amountPerPin,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Exam pin purchase: ${selectedExam} x ${qty} - ₦${totalAmount.toLocaleString()} successful.`);
-    setSelectedExam(null);
-    setNameOnCard('');
-    setQuantity('');
+    try {
+      const res = await servicesApi.buyRechargePins({
+        pin_name: selectedExam,
+        name_on_card: nameOnCard.trim(),
+        quantity: qty,
+        amount: amountPerPin,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Exam pin purchase failed. Please try again.')
+        );
+      }
+      toast.success(
+        `Exam pin purchase: ${selectedExam} x ${qty} - ₦${totalAmount.toLocaleString()} successful.`
+      );
+      setSelectedExam(null);
+      setNameOnCard('');
+      setQuantity('');
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Exam pin purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (

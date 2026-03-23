@@ -56,6 +56,16 @@ export const SEO_ROUTES: Record<string, SEOConfig> = {
     description: "Reset your Terrabyte account password. Secure recovery for your account.",
     keywords: "Terrabyte, forgot password, reset password",
   },
+  "/forgot-password/verify-otp": {
+    title: "Verify Reset OTP",
+    description: "Verify the OTP sent to your email to continue your Terrabyte password reset.",
+    keywords: "Terrabyte, verify reset otp, forgot password otp",
+  },
+  "/forgot-password/reset": {
+    title: "Set New Password",
+    description: "Set a new password for your Terrabyte account after OTP verification.",
+    keywords: "Terrabyte, set new password, reset account password",
+  },
   "/terms-of-service": {
     title: "Terms of Service",
     description: "Terrabyte terms of service. Read our terms and conditions for using our platform.",

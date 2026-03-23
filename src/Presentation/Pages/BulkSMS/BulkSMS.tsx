@@ -4,6 +4,7 @@ import PayButton from '../../Components/PayButton';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 // Mock: cost per SMS (replace with API/config)
 const COST_PER_SMS = 5;
@@ -37,16 +38,28 @@ const BulkSMS = () => {
   };
 
   const handleConfirmSend = async (transactionPin: string) => {
-    await servicesApi.sendBulkSms({
-      from: senderId.trim(),
-      to: recipientList.join(','),
-      msg: message.trim(),
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Bulk SMS sent to ${quantity} recipient(s) successfully.`);
-    setRecipients('');
-    setSenderId('');
-    setMessage('');
+    try {
+      const res = await servicesApi.sendBulkSms({
+        from: senderId.trim(),
+        to: recipientList.join(','),
+        msg: message.trim(),
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Bulk SMS failed. Please try again.')
+        );
+      }
+      toast.success(`Bulk SMS sent to ${quantity} recipient(s) successfully.`);
+      setRecipients('');
+      setSenderId('');
+      setMessage('');
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Bulk SMS failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (

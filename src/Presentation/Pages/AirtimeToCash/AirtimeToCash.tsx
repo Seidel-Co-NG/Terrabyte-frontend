@@ -6,6 +6,7 @@ import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from '../BuyAirtime/Components/NetworkSelector';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
 
 // Mock rates: network -> { rate (0-1), min, max }
@@ -69,20 +70,34 @@ const AirtimeToCash = () => {
   const handleConfirmConvert = async (transactionPin: string) => {
     if (!selectedNetwork || !phone || !amount) return;
     const rawPhone = phone.replace(/\D/g, '');
-    const res = await servicesApi.convertAirtime2Cash({
-      network: selectedNetwork,
-      phone: rawPhone,
-      amount,
-      transaction_pin: transactionPin,
-    });
-    const data = res?.data as { send_to_number?: string; ussd_code?: string; reference?: string } | undefined;
-    const sendTo = data?.send_to_number ?? '08091234567';
-    setSuccessData({
-      sendToNumber: sendTo,
-      ussdCode: data?.ussd_code ?? getUssdCode(selectedNetwork, sendTo, amount),
-      ref: data?.reference ?? 'ATF-' + Date.now(),
-    });
-    toast.success('Airtime to cash request submitted. Send airtime to complete.');
+    try {
+      const res = await servicesApi.convertAirtime2Cash({
+        network: selectedNetwork,
+        phone: rawPhone,
+        amount,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Airtime to cash request failed. Please try again.')
+        );
+      }
+      const data = res?.data as
+        | { send_to_number?: string; ussd_code?: string; reference?: string }
+        | undefined;
+      const sendTo = data?.send_to_number ?? '08091234567';
+      setSuccessData({
+        sendToNumber: sendTo,
+        ussdCode: data?.ussd_code ?? getUssdCode(selectedNetwork, sendTo, amount),
+        ref: data?.reference ?? 'ATF-' + Date.now(),
+      });
+      toast.success('Airtime to cash request submitted. Send airtime to complete.');
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Airtime to cash request failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   const handleDone = () => {

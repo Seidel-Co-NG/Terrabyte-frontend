@@ -8,6 +8,7 @@ import InternetNetworkSelector from './Components/InternetNetworkSelector';
 import InternetPlanSelector, { type InternetPlan } from './Components/InternetPlanSelector';
 import { pickContact, isContactPickerSupported } from '../BuyData/utils/contactPicker';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -92,15 +93,29 @@ const Internet = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedNetwork || !selectedPlan || !phone) return;
-    await servicesApi.buyInternet({
-      network: selectedNetwork,
-      phone_number: phone,
-      plan_id: selectedPlan.id,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Internet purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} successful.`);
-    setPhone('');
-    setSelectedPlan(null);
+    try {
+      const res = await servicesApi.buyInternet({
+        network: selectedNetwork,
+        phone_number: phone,
+        plan_id: selectedPlan.id,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Internet purchase failed. Please try again.')
+        );
+      }
+      toast.success(
+        `Internet purchase: ${selectedPlan.size} - ₦${selectedPlan.amount.toLocaleString()} successful.`
+      );
+      setPhone('');
+      setSelectedPlan(null);
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Internet purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (

@@ -6,6 +6,7 @@ import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import BetCompanySelector from './Components/BetCompanySelector';
 import AmountSelector from '../BuyAirtime/Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 const BetFunding = () => {
   const [userId, setUserId] = useState('');
@@ -29,15 +30,27 @@ const BetFunding = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedCompany || !userId.trim() || !amount) return;
-    await servicesApi.fundBetting({
-      platform_code: selectedCompany,
-      betting_account: userId.trim(),
-      amount,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Bet funding of ₦${amountNum.toLocaleString()} successful.`);
-    setUserId('');
-    setAmount('');
+    try {
+      const res = await servicesApi.fundBetting({
+        platform_code: selectedCompany,
+        betting_account: userId.trim(),
+        amount,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Bet funding failed. Please try again.')
+        );
+      }
+      toast.success(`Bet funding of ₦${amountNum.toLocaleString()} successful.`);
+      setUserId('');
+      setAmount('');
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Bet funding failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (

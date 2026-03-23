@@ -5,6 +5,7 @@ import TransactionSuccessfulModal from '../../Components/TransactionSuccessfulMo
 import LoadingOverlay from '../../Components/LoadingOverlay';
 import MessageModal from '../../Components/MessageModal';
 import { servicesApi } from '../../../core/api/services.api';
+import { isApiSuccessResponse } from '../../../core/utils/apiResponse';
 import { useAuthStore } from '../../../core/stores/auth.store';
 
 type Category = {
@@ -158,11 +159,10 @@ const SocialMediaBoost = () => {
 
       const res = await servicesApi.buySocial(payload as any);
 
-      const status = (res as any)?.status ?? undefined;
       const message = (res as any)?.message ?? 'Operation completed';
       const data = (res as any)?.data ?? res;
 
-      if (status && String(status).toLowerCase() === 'success') {
+      if (isApiSuccessResponse(res)) {
         setConfirmOpen(false);
         setPopupMessage(message ?? 'Order placed successfully');
         setPopupType('success');

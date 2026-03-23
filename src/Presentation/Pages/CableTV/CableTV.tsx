@@ -7,6 +7,7 @@ import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import CableProviderSelector, { type CableProviderItem } from './Components/CableProviderSelector';
 import CablePlanSelector, { type CablePlan } from './Components/CablePlanSelector';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 
 const FALLBACK_CABLE_PROVIDERS: CableProviderItem[] = [
   { name: 'GOTV', code: 'GOTV' },
@@ -115,6 +116,12 @@ const CableTV = () => {
         iuc: iucNumber.trim(),
         cablename: selectedProvider,
       });
+      if (!isApiSuccessResponse(res)) {
+        toast.error(
+          getApiMessage(res, 'IUC validation failed. Please check the details.')
+        );
+        return;
+      }
       const details = (res?.data as { customer_details?: string } | undefined)?.customer_details?.trim();
       if (details) setCustomerDetails(details);
       setIsIucValidated(true);
@@ -134,16 +141,30 @@ const CableTV = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedProvider || !selectedPlan || !iucNumber.trim()) return;
-    await servicesApi.buyCable({
-      iuc: iucNumber.trim(),
-      cablename: selectedProvider,
-      cable_plan_id: selectedPlan.id,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Cable TV subscription: ${selectedPlan.plan} - ₦${selectedPlan.amount.toLocaleString()} successful.`);
-    setIucNumber('');
-    setSelectedPlan(null);
-    setIsIucValidated(false);
+    try {
+      const res = await servicesApi.buyCable({
+        iuc: iucNumber.trim(),
+        cablename: selectedProvider,
+        cable_plan_id: selectedPlan.id,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Cable TV purchase failed. Please try again.')
+        );
+      }
+      toast.success(
+        `Cable TV subscription: ${selectedPlan.plan} - ₦${selectedPlan.amount.toLocaleString()} successful.`
+      );
+      setIucNumber('');
+      setSelectedPlan(null);
+      setIsIucValidated(false);
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Cable TV purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   const handleAction = () => {

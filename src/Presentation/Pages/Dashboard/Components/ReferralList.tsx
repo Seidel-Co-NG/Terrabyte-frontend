@@ -67,7 +67,6 @@ const ReferralList = () => {
   const initials = (r: ReferredUser) =>
     (r.fullname ?? r.name ?? '?').charAt(0).toUpperCase();
   const displayName = (r: ReferredUser) => r.fullname ?? r.name ?? '—';
-  const walletDisplay = (r: ReferredUser) => `₦${r.wallet ?? '0'}`;
 
   return (
     <div className="flex flex-col h-full rounded-xl p-6 md:p-5 sm:p-4 bg-[var(--bg-card)]">
@@ -140,9 +139,7 @@ const ReferralList = () => {
                 <th className="p-4 text-left text-[0.85rem] md:text-[0.75rem] font-semibold text-[var(--text-secondary)] uppercase tracking-wide hidden sm:table-cell">
                   Joined Date
                 </th>
-                <th className="p-4 text-left text-[0.85rem] md:text-[0.75rem] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-                  Wallet
-                </th>
+               
                 <th className="p-4 text-left text-[0.85rem] md:text-[0.75rem] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
                   Status
                 </th>
@@ -179,9 +176,7 @@ const ReferralList = () => {
                     <td className="p-4 text-[var(--text-primary)] text-sm md:text-[0.85rem] hidden sm:table-cell">
                       {formatDate(referral.created_at ?? referral.date)}
                     </td>
-                    <td className="p-4 font-semibold text-[var(--success)] text-sm">
-                      {walletDisplay(referral)}
-                    </td>
+                   
                     <td className="p-4">
                       <span className="inline-flex items-center py-1 px-3 rounded-xl text-xs font-medium bg-emerald-500/20 text-[var(--success)]">
                         <FiCheckCircle size={12} className="mr-1 shrink-0" />

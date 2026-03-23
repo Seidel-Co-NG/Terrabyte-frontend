@@ -20,6 +20,8 @@ import SignUp from "./Presentation/Pages/Auth/SignUp";
 import VerifyOtp from "./Presentation/Pages/Auth/VerifyOtp";
 import SetTransactionPin from "./Presentation/Pages/Auth/SetTransactionPin";
 import ForgotPassword from "./Presentation/Pages/Auth/ForgotPassword";
+import ForgotPasswordVerifyOtp from "./Presentation/Pages/Auth/ForgotPasswordVerifyOtp";
+import ResetPassword from "./Presentation/Pages/Auth/ResetPassword";
 import Dashboard from "./Presentation/Pages/Dashboard/Dashboard";
 import BuyData from "./Presentation/Pages/BuyData/BuyData";
 import BuyAirtime from "./Presentation/Pages/BuyAirtime/BuyAirtimePage";
@@ -111,6 +113,11 @@ function App() {
               element={<SetTransactionPin />}
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/forgot-password/verify-otp"
+              element={<ForgotPasswordVerifyOtp />}
+            />
+            <Route path="/forgot-password/reset" element={<ResetPassword />} />
             <Route path="/terms-of-service" element={<TermsPrivacy />} />
             <Route path="/download-app" element={<DownloadApp />} />
             <Route path="/dashboard" element={<DashboardLayout />}>

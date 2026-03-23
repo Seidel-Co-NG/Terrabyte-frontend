@@ -6,6 +6,7 @@ import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from './Components/NetworkSelector';
 import AmountSelector from './Components/AmountSelector';
 import { servicesApi } from '../../../core/api';
+import { getApiMessage, isApiSuccessResponse } from '../../../core/utils/apiResponse';
 import { userApi } from '../../../core/api/user.api';
 import { useAuthStore } from '../../../core/stores/auth.store';
 import { getNetworkFromPhone } from '../BuyData/utils/phoneNetwork';
@@ -112,15 +113,29 @@ const BuyAirtime = () => {
 
   const handleConfirmPay = async (transactionPin: string) => {
     if (!selectedNetwork || !phone || !amount) return;
-    await servicesApi.buyAirtime({
-      network_name: selectedNetwork,
-      phone_number: phone,
-      amount,
-      transaction_pin: transactionPin,
-    });
-    toast.success(`Airtime purchase: ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`);
-    setPhone('');
-    setAmount('');
+    try {
+      const res = await servicesApi.buyAirtime({
+        network_name: selectedNetwork,
+        phone_number: phone,
+        amount,
+        transaction_pin: transactionPin,
+      });
+      if (!isApiSuccessResponse(res)) {
+        throw new Error(
+          getApiMessage(res, 'Airtime purchase failed. Please try again.')
+        );
+      }
+      toast.success(
+        `Airtime purchase: ₦${amountNum.toLocaleString()} to ${displayPhone} successful.`
+      );
+      setPhone('');
+      setAmount('');
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : 'Airtime purchase failed. Please try again.';
+      toast.error(msg);
+      throw e;
+    }
   };
 
   return (
