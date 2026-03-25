@@ -48,7 +48,8 @@ const ResetPin = () => {
       setConfirmPin(next);
       if (next.every((d) => d !== '')) {
         if (next.join('') === newPin.join('')) {
-          submitReset();
+          // Pass both completed arrays directly — React state hasn't flushed yet
+          submitReset(newPin, next);
         } else {
           setError('PINs do not match');
           setConfirmPin(emptyPin());
@@ -77,14 +78,14 @@ const ResetPin = () => {
     }
   };
 
-  const submitReset = async () => {
+  const submitReset = async (completedNewPin: string[], completedConfirmPin: string[]) => {
     setError(null);
     setIsSubmitting(true);
     try {
       const res = await userApi.resetTransactionPin({
         current_password: password,
-        new_transaction_pin: newPin.join(''),
-        new_transaction_pin_confirmation: confirmPin.join(''),
+        new_transaction_pin: completedNewPin.join(''),
+        new_transaction_pin_confirmation: completedConfirmPin.join(''),
       });
       const ok = res?.status === 'successful' || res?.status === 'success';
       if (ok) {
