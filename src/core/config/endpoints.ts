@@ -108,7 +108,6 @@ export const endpoints = {
   getPinsByBuyId: `${API}/recharge/pins/by-buy-id`,
 
   // Social Media
-  socialCategories: `${API}/social/categories`,
   socialPlans: `${API}/social/plans`,
   buySocial: `${API}/social/buy`,
   

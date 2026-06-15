@@ -44,16 +44,8 @@ export interface TransferToUserParams {
   transaction_pin: string;
 }
 
-export interface SocialCategory {
-  id: number | string;
-  name: string;
-  icon?: string | null;
-  active?: boolean;
-}
-
 export interface SocialPlan {
   id: number | string;
-  socialCategoryId?: number | string;
   name: string;
   description?: string | null;
   averageTime?: string | null;
@@ -304,11 +296,8 @@ export const servicesApi = {
   },
 
   // ==================== SOCIAL MEDIA ====================
-  getSocialCategories(): Promise<HttpResponse> {
-    return client.get<HttpResponse>(endpoints.socialCategories);
-  },
-  getSocialPlans(categoryId?: number): Promise<HttpResponse> {
-    return client.get<HttpResponse>(getWithQuery(endpoints.socialPlans, { category_id: categoryId }));
+  getSocialPlans(): Promise<HttpResponse> {
+    return client.get<HttpResponse>(endpoints.socialPlans);
   },
   buySocial(payload: BuySocialPayload): Promise<HttpResponse> {
     return client.post<HttpResponse>(endpoints.buySocial, {

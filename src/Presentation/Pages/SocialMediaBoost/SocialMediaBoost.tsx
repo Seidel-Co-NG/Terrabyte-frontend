@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import TransactionSuccessfulModal from '../../Components/TransactionSuccessfulModal';
@@ -6,33 +6,29 @@ import LoadingOverlay from '../../Components/LoadingOverlay';
 import MessageModal from '../../Components/MessageModal';
 import { servicesApi } from '../../../core/api/services.api';
 import { isApiSuccessResponse } from '../../../core/utils/apiResponse';
+import { calculateSocialTotal, formatNaira } from '../../../core/utils/socialPricing';
 import { useAuthStore } from '../../../core/stores/auth.store';
-
-type Category = {
-  id: number | string;
-  name: string;
-  icon?: string | null;
-  active?: boolean;
-};
 
 type Plan = {
   id: number | string;
-  socialCategoryId?: number | string;
   name: string;
   description?: string | null;
+  category?: string | null;
   averageTime?: string | null;
   smartUserAmount: number;
   smartEarnerAmount: number;
   topUserAmount: number;
   minQuantity?: number;
   maxQuantity?: number;
+  refill?: boolean;
+  cancel?: boolean;
+  dripfeed?: boolean;
   active?: boolean;
 };
 
 const SocialMediaBoost = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [link, setLink] = useState('');
   const [quantity, setQuantity] = useState<number>(0);
@@ -48,27 +44,14 @@ const SocialMediaBoost = () => {
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const [successDescription, setSuccessDescription] = useState<string | undefined>(undefined);
   const [lastTransactionId, setLastTransactionId] = useState<string | undefined>(undefined);
+  const [paidAmount, setPaidAmount] = useState<number>(0);
 
   const user = useAuthStore((s) => s.user);
   const userType = (user as any)?.user_type ?? (user as any)?.userType ?? 'smart_user';
 
   useEffect(() => {
-    loadCategories();
     loadPlans();
   }, []);
-
-  const loadCategories = async () => {
-    setIsLoading(true);
-    try {
-      const res = await servicesApi.getSocialCategories();
-      const cats = (res as any)?.data?.categories ?? (res as any)?.data ?? (res as any)?.categories ?? [];
-      setCategories(Array.isArray(cats) ? cats : []);
-    } catch (e) {
-      console.error('Failed to load social categories', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const loadPlans = async () => {
     setIsLoading(true);
@@ -78,16 +61,18 @@ const SocialMediaBoost = () => {
       const raw = Array.isArray(pls) ? pls : [];
       const normalized = raw.map((p: any) => ({
         id: p.id ?? p.plan_id,
-        socialCategoryId: p.social_category_id ?? p.socialCategoryId ?? p.socialCategory ?? p.category_id,
         name: p.name ?? p.title ?? 'Service',
         description: p.description ?? p.desc ?? null,
+        category: p.category ?? p.description ?? null,
         averageTime: p.average_time ?? p.averageTime ?? null,
         minQuantity: p.min_quantity ?? p.minQuantity ?? undefined,
         maxQuantity: p.max_quantity ?? p.maxQuantity ?? undefined,
-        // Coerce numeric amounts safely
-        smartUserAmount: Number(p.smart_user_amount ?? p.smartUserAmount ?? p.smart_user_amount ?? p.smartUserAmount ?? 0),
+        smartUserAmount: Number(p.smart_user_amount ?? p.smartUserAmount ?? 0),
         smartEarnerAmount: Number(p.smart_earner_amount ?? p.smartEarnerAmount ?? 0),
         topUserAmount: Number(p.top_user_amount ?? p.topUserAmount ?? 0),
+        refill: p.refill ?? false,
+        cancel: p.cancel ?? false,
+        dripfeed: p.dripfeed ?? false,
         active: p.active ?? undefined,
       }));
       setPlans(normalized);
@@ -98,7 +83,20 @@ const SocialMediaBoost = () => {
     }
   };
 
-  const getUnitPrice = (plan: Plan | null) => {
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    plans.forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return Array.from(set).sort();
+  }, [plans]);
+
+  const filteredPlans = useMemo(() => {
+    if (!selectedCategory) return plans;
+    return plans.filter((p) => p.category === selectedCategory);
+  }, [plans, selectedCategory]);
+
+  const getPricePer1000 = (plan: Plan | null) => {
     if (!plan) return 0;
     if (userType === 'smart_earner') return Number(plan.smartEarnerAmount ?? 0);
     if (userType === 'top_user') return Number(plan.topUserAmount ?? 0);
@@ -107,11 +105,10 @@ const SocialMediaBoost = () => {
 
   const totalAmount = () => {
     if (!selectedPlan || quantity <= 0) return 0;
-    return getUnitPrice(selectedPlan) * quantity;
+    return calculateSocialTotal(getPricePer1000(selectedPlan), quantity);
   };
 
   const validate = (): string | null => {
-    if (!selectedCategory) return 'Please select a category';
     if (!selectedPlan) return 'Please select a service/plan';
     if (!link.trim()) return 'Please enter the social media/post link';
     if (!quantity || quantity <= 0) return 'Please enter a valid quantity';
@@ -123,14 +120,12 @@ const SocialMediaBoost = () => {
   const handlePlaceOrder = () => {
     const err = validate();
     if (err) {
-      // show error via popup
       setPopupMessage(err);
       setPopupType('error');
       setPopupOpen(true);
       return;
     }
 
-    // if high amount, confirm via popup modal
     if (totalAmount() > 3000) {
       setHighAmountOpen(true);
       return;
@@ -158,12 +153,13 @@ const SocialMediaBoost = () => {
       };
 
       const res = await servicesApi.buySocial(payload as any);
-
       const message = (res as any)?.message ?? 'Operation completed';
       const data = (res as any)?.data ?? res;
+      const charged = Number(data?.amount ?? totalAmount());
 
       if (isApiSuccessResponse(res)) {
         setConfirmOpen(false);
+        setPaidAmount(charged);
         setPopupMessage(message ?? 'Order placed successfully');
         setPopupType('success');
         setPopupOpen(true);
@@ -171,13 +167,11 @@ const SocialMediaBoost = () => {
         setSuccessMessage(message ?? 'Order placed successfully');
         setSuccessDescription(data?.description ?? undefined);
         setSuccessOpen(true);
-        // reset
-        setSelectedCategory(null);
+        setSelectedCategory('');
         setSelectedPlan(null);
         setLink('');
         setQuantity(0);
       } else {
-        // show error as popup or modal for pin
         const errMsg = message ?? 'Order failed. Please try again.';
         if (String(errMsg).toLowerCase().includes('pin') || String(errMsg).toLowerCase().includes('invalid')) {
           setModalError('Invalid PIN. Please try again.');
@@ -210,7 +204,13 @@ const SocialMediaBoost = () => {
     }
   };
 
-  const filteredPlans = selectedCategory ? plans.filter((p) => String(p.socialCategoryId ?? (p as any).social_category_id ?? (p as any).socialCategoryId) === String(selectedCategory.id)) : plans;
+  const planBadges = (plan: Plan) => {
+    const badges: string[] = [];
+    if (plan.refill) badges.push('Refill');
+    if (plan.cancel) badges.push('Cancel');
+    if (plan.dripfeed) badges.push('Dripfeed');
+    return badges;
+  };
 
   return (
     <div className="relative p-6 md:p-5 lg:p-8 ml-0 lg:ml-[280px] mt-[70px] md:mt-16 min-h-[calc(100vh-70px)] md:min-h-[calc(100vh-4rem)] bg-[var(--bg-primary)]">
@@ -221,26 +221,24 @@ const SocialMediaBoost = () => {
         </div>
 
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Category</label>
-            <div>
+          {categories.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[var(--text-secondary)]">Category</label>
               <select
-                value={selectedCategory ? String(selectedCategory.id) : ''}
+                value={selectedCategory}
                 onChange={(e) => {
-                  const id = e.target.value;
-                  const cat = categories.find((c) => String(c.id) === id) ?? null;
-                  setSelectedCategory(cat as Category | null);
+                  setSelectedCategory(e.target.value);
                   setSelectedPlan(null);
                 }}
                 className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
               >
-                <option value="">Select Category</option>
+                <option value="">All Categories</option>
                 {categories.map((c) => (
-                  <option key={String(c.id)} value={String(c.id)}>{c.name}</option>
+                  <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Social Media/Post Link</label>
@@ -250,19 +248,47 @@ const SocialMediaBoost = () => {
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Quantity</label>
             <input value={quantity > 0 ? String(quantity) : ''} onChange={(e) => setQuantity(Number(e.target.value || 0))} inputMode="numeric" placeholder="Quantity" className="w-full py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm" />
+            {selectedPlan && (
+              <p className="text-xs text-[var(--text-secondary)]">
+                Min: {selectedPlan.minQuantity ?? 1} — Max: {selectedPlan.maxQuantity ?? '∞'}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Order Service</label>
+            <p className="text-xs text-[var(--text-secondary)]">Prices shown are per 1,000 units</p>
             <div>
-              <button onClick={() => { /* no-op */ }} className="w-full text-left py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]">{selectedPlan ? `${selectedPlan.name} - ₦${getUnitPrice(selectedPlan).toFixed(2)}` : 'Select Service'}</button>
-              <div className="mt-2 space-y-2">
-                {filteredPlans.map((p) => (
-                  <button key={String(p.id)} onClick={() => setSelectedPlan(p)} className={`w-full text-left p-3 rounded ${selectedPlan?.id === p.id ? 'ring-2 ring-[var(--accent-primary)] bg-[var(--accent-hover)]' : 'bg-[var(--bg-card)]'}`}>
-                    <div className="flex justify-between"><div className="font-semibold">{p.name}</div><div className="font-medium">₦{getUnitPrice(p).toFixed(2)}</div></div>
-                    {p.description && <div className="text-xs text-[var(--text-secondary)] mt-1">{p.description}</div>}
-                  </button>
-                ))}
+              <button type="button" className="w-full text-left py-3 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]">
+                {selectedPlan
+                  ? `${selectedPlan.name} — ${formatNaira(getPricePer1000(selectedPlan))} / 1k`
+                  : 'Select Service'}
+              </button>
+              <div className="mt-2 space-y-2 max-h-72 overflow-y-auto">
+                {filteredPlans.map((p) => {
+                  const badges = planBadges(p);
+                  return (
+                    <button
+                      key={String(p.id)}
+                      type="button"
+                      onClick={() => setSelectedPlan(p)}
+                      className={`w-full text-left p-3 rounded ${selectedPlan?.id === p.id ? 'ring-2 ring-[var(--accent-primary)] bg-[var(--accent-hover)]' : 'bg-[var(--bg-card)]'}`}
+                    >
+                      <div className="flex justify-between gap-3">
+                        <div className="font-semibold">{p.name}</div>
+                        <div className="font-medium whitespace-nowrap">{formatNaira(getPricePer1000(p))} / 1k</div>
+                      </div>
+                      {p.averageTime && <div className="text-xs text-[var(--text-secondary)] mt-1">Avg. time: {p.averageTime}</div>}
+                      {badges.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {badges.map((b) => (
+                            <span key={b} className="text-[10px] px-2 py-0.5 rounded bg-[var(--bg-tertiary)]">{b}</span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -270,16 +296,14 @@ const SocialMediaBoost = () => {
           {selectedPlan && quantity > 0 && (
             <div className="p-4 bg-[var(--bg-card)] rounded">
               <div className="flex justify-between"><span className="font-medium">Quantity</span><span>{quantity}</span></div>
-              <div className="flex justify-between"><span className="font-medium">Unit Price</span><span>₦{getUnitPrice(selectedPlan).toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="font-medium">Price per 1,000</span><span>{formatNaira(getPricePer1000(selectedPlan))}</span></div>
               <hr className="my-2" />
-              <div className="flex justify-between text-[var(--accent-primary)] font-semibold"><span>Total Amount</span><span>₦{totalAmount().toFixed(2)}</span></div>
+              <div className="flex justify-between text-[var(--accent-primary)] font-semibold"><span>Total Amount</span><span>{formatNaira(totalAmount())}</span></div>
             </div>
           )}
 
-          <div className="flex-1" />
-
           <div className="flex gap-3">
-            <button onClick={handlePlaceOrder} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-[var(--accent-primary)] text-white font-medium">Place Order Now</button>
+            <button type="button" onClick={handlePlaceOrder} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-[var(--accent-primary)] text-white font-medium">Place Order Now</button>
           </div>
         </div>
       </div>
@@ -287,7 +311,7 @@ const SocialMediaBoost = () => {
       <ConfirmPaymentModal
         isOpen={confirmOpen}
         onClose={() => { setConfirmOpen(false); setModalError(null); }}
-        networkName={selectedCategory?.name ?? 'Social Media'}
+        networkName={selectedPlan?.category ?? selectedPlan?.name ?? 'Social Media'}
         product={selectedPlan?.name ?? 'Social Media Boost'}
         amount={String(totalAmount().toFixed(2))}
         mobileNumber={link}
@@ -304,12 +328,11 @@ const SocialMediaBoost = () => {
         isOpen={highAmountOpen}
         onClose={() => {
           setHighAmountOpen(false);
-          // open PIN modal after confirming
           setModalError(null);
           setConfirmOpen(true);
         }}
         title="Confirm High Amount"
-        message={`High amount. Please confirm to proceed.`}
+        message="High amount. Please confirm to proceed."
         type="info"
       />
 
@@ -321,7 +344,7 @@ const SocialMediaBoost = () => {
         message={successMessage}
         description={successDescription}
         transactionId={lastTransactionId}
-        amount={totalAmount().toFixed(2)}
+        amount={(paidAmount || totalAmount()).toFixed(2)}
         transactionType="Social Media Boost"
         date={new Date().toISOString().split('T')[0]}
         recipient={link}
