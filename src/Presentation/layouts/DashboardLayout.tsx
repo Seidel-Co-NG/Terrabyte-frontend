@@ -3,10 +3,16 @@ import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from '../Components/Sidebar';
 import Header from '../Components/Header';
 import { useAuthStore } from '../../core/stores/auth.store';
+import { useBannersStore } from '../../core/stores/banners.store';
 
 const DashboardLayout = () => {
   const { isAuthenticated, user, isHydrated } = useAuthStore();
+  const fetchBanners = useBannersStore((s) => s.fetchBanners);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 1024);
+
+  useEffect(() => {
+    fetchBanners().catch(() => {});
+  }, [fetchBanners]);
 
   useEffect(() => {
     const handleResize = () => {

@@ -49,6 +49,7 @@ import KycVerification from "./Presentation/Pages/Profile/KycVerification";
 import ApiKey from "./Presentation/Pages/Profile/ApiKey";
 import ApiDocs from "./Presentation/Pages/Profile/ApiDocs";
 import DownloadApp from "./Presentation/Pages/DownloadApp/DownloadApp";
+import DownloadApp2 from "./Presentation/Pages/DownloadApp/DownloadApp2";
 import Transactions from "./Presentation/Pages/Transactions/Transactions";
 import TransactionDetails from "./Presentation/Pages/Transactions/TransactionDetails";
 import Notifications from "./Presentation/Pages/Notifications/Notifications";
@@ -120,6 +121,7 @@ function App() {
             <Route path="/forgot-password/reset" element={<ResetPassword />} />
             <Route path="/terms-of-service" element={<TermsPrivacy />} />
             <Route path="/download-app" element={<DownloadApp />} />
+            <Route path="/app-download2" element={<DownloadApp2 />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="services/buy-data" element={<BuyData />} />

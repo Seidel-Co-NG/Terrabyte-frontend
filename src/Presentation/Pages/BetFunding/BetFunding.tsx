@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import BetCompanySelector from './Components/BetCompanySelector';
@@ -104,6 +106,7 @@ const BetFunding = () => {
             disabled={!canPay}
             onClick={handlePay}
           />
+          <AppPlacementBanner placement={BannerPlacements.fundBetting} className="mt-4" />
         </div>
       </div>
       <ConfirmPaymentModal

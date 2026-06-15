@@ -12,6 +12,8 @@ import { useTransactionsStore } from '../../../core/stores/transactions.store';
 import { useConfigStore, getDashboardNotifications } from '../../../core/stores/config.store';
 import { apiConfig } from '../../../core/config/api.config';
 import AppDownloadBanner from '../../Components/AppDownloadBanner';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 
 const Dashboard = () => {
   const user = useAuthStore((s) => s.user);
@@ -70,6 +72,9 @@ const Dashboard = () => {
       <WelcomeHeader username={username} userType={userType} />
       <div className="mb-6 col-span-12 xl:col-span-4 min-h-[280px] md:min-h-[250px]">
         <WalletBalance />
+      </div>
+      <div className="mb-6 col-span-12">
+        <AppPlacementBanner placement={BannerPlacements.dashboard} />
       </div>
       <div className="grid grid-cols-12 gap-4 md:gap-5 lg:gap-6">
         <div className="col-span-12 xl:col-span-6 min-h-[280px] md:min-h-[250px]">

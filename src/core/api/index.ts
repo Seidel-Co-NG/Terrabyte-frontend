@@ -1,3 +1,4 @@
+export { bannersApi } from './banners.api';
 export { authApi } from './auth.api';
 export { userApi } from './user.api';
 export { transactionsApi } from './transactions.api';

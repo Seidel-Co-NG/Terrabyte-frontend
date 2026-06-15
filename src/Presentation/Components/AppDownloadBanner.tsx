@@ -38,7 +38,7 @@ const AppDownloadBanner = ({ forceShow = false }: AppDownloadBannerProps) => {
       return;
     }
     const path = location.pathname;
-    if (path === '/download-app' || path === '/dashboard/download-app') {
+    if (path === '/download-app' || path === '/dashboard/download-app' || path === '/app-download2') {
       setVisible(false);
       return;
     }

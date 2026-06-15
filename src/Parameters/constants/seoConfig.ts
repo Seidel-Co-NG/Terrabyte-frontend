@@ -179,6 +179,11 @@ export const SEO_ROUTES: Record<string, SEOConfig> = {
     description: "Download the Terrabyte app for Android or iOS. Airtime, data, bills and more on the go.",
     keywords: "Terrabyte app download, Android, iOS, mobile app",
   },
+  "/app-download2": {
+    title: "Download Terrabyte App",
+    description: "Download the Terrabyte app for Android or iOS. Scan the QR code or choose your store.",
+    keywords: "Terrabyte app download, Android, iOS, mobile app, QR code",
+  },
 };
 
 /** Get SEO config for a given pathname. Falls back to DEFAULT_SEO. */

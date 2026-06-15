@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import DataNetworkSelector from './Components/DataNetworkSelector';
@@ -275,6 +277,7 @@ const BuyData = () => {
             disabled={!canSubmit}
             onClick={handlePay}
           />
+          <AppPlacementBanner placement={BannerPlacements.buyData} className="mt-4" />
         </div>
       </div>
 

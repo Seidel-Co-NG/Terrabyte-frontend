@@ -17,7 +17,7 @@ function getDevice(): 'android' | 'ios' | 'other' {
   const ua = navigator.userAgent;
   if (/Android/i.test(ua)) return 'android';
   if (/iPad|iPhone|iPod/i.test(ua)) return 'ios';
-  if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return 'ios'; // iPad iOS 13+
+  if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return 'ios';
   return 'other';
 }
 
@@ -49,7 +49,6 @@ const DownloadApp = () => {
       subtitle: 'Get it on Android',
       image: PLAY_STORE_IMAGE,
       url: apiConfig.androidAppUrl,
-      disabled: !apiConfig.androidAppUrl,
     },
     {
       id: 'ios',
@@ -57,7 +56,6 @@ const DownloadApp = () => {
       subtitle: 'Download for iPhone & iPad',
       image: APP_STORE_IMAGE,
       url: apiConfig.iosAppUrl,
-      disabled: !apiConfig.iosAppUrl,
     },
   ].filter((o) => o.url);
 

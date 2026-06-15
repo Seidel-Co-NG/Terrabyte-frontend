@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { FiCheckCircle, FiInfo, FiPhone } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import PayButton from '../../Components/PayButton';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 import BackButton from '../../Components/BackButton';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import NetworkSelector from '../BuyAirtime/Components/NetworkSelector';
@@ -330,6 +332,7 @@ const AirtimeToCash = () => {
             disabled={!canSubmit}
             onClick={handleContinue}
           />
+          <AppPlacementBanner placement={BannerPlacements.airtimeToCash} className="mt-4" />
         </div>
       </div>
       <ConfirmPaymentModal

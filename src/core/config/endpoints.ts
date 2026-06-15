@@ -30,6 +30,7 @@ export const endpoints = {
   bonusToWallet: `${API}/user/bonus-to-wallet`,
   referredUsers: `${API}/user/referred-users`,
   configurations: `${API}/user/configurations`,
+  banners: `${API}/banners`,
   apiKey: `${API}/api-key`,
   apiKeyReset: `${API}/api-key/reset`,
   apiKeyIpWhitelist: `${API}/api-key/ip-whitelist`,

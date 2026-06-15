@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import BackButton from '../../Components/BackButton';
 import PayButton from '../../Components/PayButton';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 import SelectionDrawer from '../../Components/SelectionDrawer';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import { useAuthStore } from '../../../core/stores/auth.store';
@@ -315,6 +317,7 @@ const TransferToBank = () => {
           >
             Pay
           </PayButton>
+          <AppPlacementBanner placement={BannerPlacements.transferToBank} className="mt-4" />
         </div>
       </div>
 

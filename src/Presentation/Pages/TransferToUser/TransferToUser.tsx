@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import BackButton from '../../Components/BackButton';
 import PayButton from '../../Components/PayButton';
+import AppPlacementBanner from '../../Components/AppPlacementBanner';
+import { BannerPlacements } from '../../../core/constants/bannerPlacements';
 import ConfirmPaymentModal from '../../Components/ConfirmPaymentModal';
 import { useAuthStore } from '../../../core/stores/auth.store';
 import { servicesApi } from '../../../core/api';
@@ -223,6 +225,7 @@ const TransferToUser = () => {
           >
             Continue
           </PayButton>
+          <AppPlacementBanner placement={BannerPlacements.transferToUser} className="mt-4" />
         </div>
       </div>
 

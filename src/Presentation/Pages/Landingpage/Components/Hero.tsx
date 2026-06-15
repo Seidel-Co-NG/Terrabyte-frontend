@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Smartphone, Twitter } from 'lucide-react';
 
 
 export default function HeroSection() {
@@ -42,13 +42,22 @@ export default function HeroSection() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/signup" className="flex-1 bg-brand-primary text-white text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-dark transition-all duration-300 text-center">
-                Get Started
+            <div className="space-y-3 max-w-md">
+              <Link
+                to="/download-app"
+                className="flex items-center justify-center gap-2 w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold py-3 rounded-full hover:opacity-90 transition-all duration-300"
+              >
+                <Smartphone className="w-4 h-4" />
+                Download App
               </Link>
-              <Link to="/login" className="flex-1 border border-brand-primary text-brand-primary text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-lightest transition-all duration-300 text-center">
-                Sign In
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link to="/signup" className="flex-1 bg-brand-primary text-white text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-dark transition-all duration-300 text-center">
+                  Get Started
+                </Link>
+                <Link to="/login" className="flex-1 border border-brand-primary text-brand-primary text-sm font-semibold py-3 rounded-full hover:bg-brand-primary-lightest transition-all duration-300 text-center">
+                  Sign In
+                </Link>
+              </div>
             </div>
 
             {/* Social Icons */}
